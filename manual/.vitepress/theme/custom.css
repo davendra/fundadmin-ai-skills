@@ -1,0 +1,13 @@
+/* medium-zoom: keep the zoomed image and overlay above the nav bar */
+.medium-zoom-overlay {
+  z-index: 100;
+}
+
+.medium-zoom-image--opened {
+  z-index: 101;
+}
+
+/* hint that content images are clickable */
+.vp-doc img {
+  cursor: zoom-in;
+}

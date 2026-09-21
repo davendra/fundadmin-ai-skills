@@ -1,0 +1,36 @@
+{
+  "name": "fundadmin",
+  "version": "1.0.2",
+  "description": "62 fund administration skills for Claude Code, Cowork and Codex: review LPAs, PPMs, side letters, capital calls, distributions, K-1s and capital account statements; draft notices and investor letters; run compliance, KYC/AML and FATCA/CRS checks; track obligations and MFN elections; model performance and cash flows; and produce PDF reports.",
+  "author": {
+    "name": "Davendra Patel",
+    "email": "davendra@gmail.com",
+    "url": "https://github.com/davendra"
+  },
+  "homepage": "https://fundadmin.dev",
+  "repository": "https://github.com/davendra/fundadmin-ai-skills",
+  "license": "MIT",
+  "keywords": [
+    "fund-administration",
+    "private-equity",
+    "venture-capital",
+    "lpa",
+    "limited-partnership-agreement",
+    "ppm",
+    "side-letter",
+    "capital-call",
+    "distribution",
+    "k-1",
+    "kyc",
+    "aml",
+    "fatca",
+    "crs",
+    "compliance",
+    "waterfall",
+    "carried-interest",
+    "investor-relations",
+    "fund-accounting",
+    "ilpa"
+  ],
+  "skills": "./skills/"
+}

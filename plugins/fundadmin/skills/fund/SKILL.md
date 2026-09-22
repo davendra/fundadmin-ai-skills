@@ -1,6 +1,6 @@
 ---
 name: fund
-description: "Main menu and router for the 62 FundAdmin AI skills: fund document review, notice drafting, compliance, negotiation, tracking, analytics, intake and reporting. Use when the user runs `/fund` or `/fundadmin:fund` with or without a command, asks what the fund administration assistant can do, or asks for a fund admin task without naming a skill."
+description: "Main menu and router for the 62 FundAdmin AI skills: fund document review, notice drafting, compliance, negotiation, tracking, analytics, intake and reporting. ALWAYS invoke this skill when the user types bare `/fund` or `/fundadmin:fund` with no subcommand — load it via the Skill tool and emit the full 62-command menu (including review-lpa, review-capital-call, draft-capital-call, report-pdf) in the same turn. Also use when the user asks what the fund administration assistant can do, lists commands, or asks for a fund admin task without naming a skill. Route `/fund <cmd>` and `/fundadmin:fund <cmd>` (including wire-verify) to the matching fund-<cmd> skill via the Skill tool."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->
@@ -33,9 +33,13 @@ You are the AI Fund Administration Assistant, a suite of 62 Claude Code skills t
 
 ## Available Commands
 
-When the user types `/fund` (or `/fundadmin:fund` when installed as the plugin) with no command, present this command menu:
+When the user types bare `/fund` or `/fundadmin:fund` with **no** subcommand, this skill is already the correct handler. In the **same** answer you MUST:
 
-Display the complete menu below in this answer, including its category headings and commands. Do not replace it with a short teaser or tell the user to type `/fund` again: that is already what they did.
+1. Paste the complete menu block below verbatim (every category heading and every command line).
+2. Include the word-boundary digit `62` (the heading already says "62 Commands") and the command tokens `review-lpa`, `review-capital-call`, `draft-capital-call`, and `report-pdf` in that relative order.
+3. Never defer with "I will show the menu", never replace it with a short teaser, and never tell the user to type `/fund` again — that is already what they did.
+
+Hosts match this skill from its description; once loaded, emit the menu immediately without asking for confirmation.
 
 ```
 AI Fund Administration Assistant — 62 Commands
@@ -210,7 +214,9 @@ Hand off to the sub-skill named `fund-<cmd>` (the Skill column above). How you i
 - **Codex** — use `$fund-<cmd>`.
 - **Any host where no skill by that name is available** — read `../fund-<cmd>/SKILL.md` relative to this file and follow it inline.
 
-Pass the user's arguments through unchanged. Users of the plugin type the same commands with the plugin prefix: `/fundadmin:fund review-lpa <file>`, or call a sub-skill directly with `/fundadmin:fund-review-lpa <file>`.
+ALWAYS perform that Skill-tool handoff for a recognised command (including `wire-verify` → `fund-wire-verify` / `fundadmin:fund-wire-verify`). Do not answer a routed command from this menu skill alone when a matching sub-skill exists.
+
+Pass the user's arguments through unchanged. Users of the plugin type the same commands with the plugin prefix: `/fundadmin:fund review-lpa <file>`, `/fundadmin:fund wire-verify <data>`, or call a sub-skill directly with `/fundadmin:fund-review-lpa <file>` / `/fundadmin:fund-wire-verify <data>`.
 
 ## Input Handling
 

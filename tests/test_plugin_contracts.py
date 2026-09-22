@@ -247,5 +247,58 @@ class BodyContractTests(unittest.TestCase):
         self.assertIn("fundadmin:fund-<cmd>", text)
 
 
+
+class SkillAutoTriggerContractTests(unittest.TestCase):
+    """Structural contracts for Gate 3 menu / privacy-mask Skill auto-trigger.
+
+    These do not run the host eval; they prove the shipped skill text still
+    carries the trigger phrases and menu tokens graders require.
+    """
+
+    def test_fund_description_forces_bare_menu_skill(self):
+        fields = frontmatter(SKILLS / "fund" / "SKILL.md")
+        desc = fields["description"]
+        self.assertIn("`/fund`", desc)
+        self.assertIn("`/fundadmin:fund`", desc)
+        self.assertIn("ALWAYS", desc)
+        self.assertIn("Skill", desc)
+        self.assertIn("62", desc)
+        for token in ("review-lpa", "review-capital-call", "draft-capital-call", "report-pdf"):
+            self.assertIn(token, desc, f"menu grader token missing from description: {token}")
+        self.assertIn("wire-verify", desc)
+
+    def test_fund_body_emits_full_menu_tokens(self):
+        text = (SKILLS / "fund" / "SKILL.md").read_text(encoding="utf-8")
+        # After frontmatter
+        body = FRONTMATTER.sub("", text, count=1)
+        self.assertRegex(body, r"\b62\b")
+        self.assertRegex(
+            body,
+            r"review-lpa[\s\S]*review-capital-call[\s\S]*draft-capital-call[\s\S]*report-pdf",
+        )
+        self.assertIn("same", body.lower())
+        self.assertRegex(body, r"(?i)never defer|MUST|Paste the complete menu")
+        self.assertIn("wire-verify", body)
+        self.assertIn("fund-wire-verify", body)
+
+    def test_wire_verify_description_matches_privacy_fixture(self):
+        fields = frontmatter(SKILLS / "fund-wire-verify" / "SKILL.md")
+        desc = fields["description"]
+        self.assertLessEqual(len(desc), 320)
+        self.assertIn("/fund wire-verify", desc)
+        self.assertIn("/fundadmin:fund wire-verify", desc)
+        self.assertRegex(desc, r"(?i)mask")
+        self.assertRegex(desc, r"(?i)shareable|passport|tax")
+        self.assertRegex(desc, r"(?i)bank|wire|payment")
+
+    def test_wire_verify_body_requires_shareable_masking(self):
+        text = (SKILLS / "fund-wire-verify" / "SKILL.md").read_text(encoding="utf-8")
+        self.assertIn("/fundadmin:fund wire-verify", text)
+        self.assertRegex(text, r"(?i)shareable")
+        self.assertRegex(text, r"(?i)mask")
+        self.assertRegex(text, r"(?i)callback")
+
+
+
 if __name__ == "__main__":
     unittest.main()

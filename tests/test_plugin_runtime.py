@@ -19,7 +19,7 @@ def module(name):
 
 class InstalledRuntimeTests(unittest.TestCase):
     def test_all_helpers_shipped_and_runnable(self):
-        for name in ('fund_report', 'fund_calculations', 'fund_lpa_score', 'fund_screening', 'generate_fund_pdf'):
+        for name in ('fund_report', 'fund_calculations', 'fund_lpa_score', 'fund_screening', 'fund_kyc', 'fund_xlsx', 'generate_fund_pdf'):
             with self.subTest(name=name):
                 p = subprocess.run([sys.executable, str(SCRIPTS / (name + '.py')), '--help'], capture_output=True, text=True)
                 self.assertEqual(p.returncode, 0, p.stderr)

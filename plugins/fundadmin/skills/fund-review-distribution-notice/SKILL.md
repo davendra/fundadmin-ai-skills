@@ -1,6 +1,6 @@
 ---
 name: fund-review-distribution-notice
-description: "Validates a distribution notice to 8 decimals: imputation credits, RWT, and return-of-capital versus income classification. Use when the user runs `/fund review-distribution-notice`, asks to check a distribution, or shares a distribution notice. Writes DISTRIBUTION-REVIEW-[fund]-[date].md."
+description: "Recomputes a distribution notice to 8 decimals: imputation credits, RWT, and return-of-capital versus income classification. Use when the user runs `/fund review-distribution-notice`, asks to check a distribution, or shares a distribution notice. Writes DISTRIBUTION-REVIEW-[fund]-[date].md."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->

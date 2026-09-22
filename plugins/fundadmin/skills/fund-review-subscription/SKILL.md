@@ -1,6 +1,6 @@
 ---
 name: fund-review-subscription
-description: "Verifies investor qualification, FATCA/CRS forms, AML and ERISA representations and signatures in a subscription agreement, then scores it. Use when the user runs `/fund review-subscription`, asks to check subscription documents, or shares one. Writes `SUBSCRIPTION-REVIEW-[investor]-[date].md`."
+description: "Reviews a subscription agreement for identity, qualification, tax forms, AML and ERISA representations and signatures; a signed representation is not verification. Use when the user runs `/fund review-subscription`, asks to check subscription documents, or shares one. Writes `SUBSCRIPTION-REVIEW-[investor]-[date].md`."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->

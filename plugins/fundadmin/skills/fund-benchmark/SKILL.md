@@ -1,6 +1,6 @@
 ---
 name: fund-benchmark
-description: "Scores economic and governance terms against this skill's reference ranges, classing each LP-Friendly, Market Standard, or GP-Favorable with a 0-100 score. Use when the user runs `/fund benchmark`, asks if terms are at market, or shares an LPA. Writes BENCHMARK-REPORT-[fund]-[date].md."
+description: "Compares economic and governance terms with the illustrative reference ranges in this skill, not a licensed market dataset, and describes each difference and its effect. Use when the user runs `/fund benchmark`, asks if terms are at market, or shares an LPA. Writes BENCHMARK-REPORT-[fund]-[date].md."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->

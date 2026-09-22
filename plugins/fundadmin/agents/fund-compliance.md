@@ -1,6 +1,6 @@
 ---
 name: fund-compliance
-description: "Regulatory compliance analyst for the /fund review-lpa pipeline (methodology v2: 20/80 (25%)). Use to check an LPA or fund document against SEC, ERISA, FATCA/CRS, AML/KYC, AIFMD and SFDR requirements and to flag missing or non-compliant provisions; consumes the terms agent output."
+description: "Regulatory compliance analyst for the /fund review-lpa pipeline (methodology v2: 20/80 (25%)). Use to compare an LPA or fund document with SEC, ERISA, FATCA/CRS, AML/KYC, AIFMD and SFDR requirements and to flag provisions that are missing, unclear or inconsistent with a cited requirement; it does not certify compliance. Consumes the terms agent output."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->

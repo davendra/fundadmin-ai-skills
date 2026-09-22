@@ -1,11 +1,4 @@
-# MIT License — Tier 1 skills
-
-This license covers the Tier 1 skills distribution of FundAdmin AI: everything
-under `skills/`, `fund/`, `agents/`, `templates/`, the file
-`scripts/generate_fund_pdf.py`, and the generated plugin tree under `plugin/`
-(published as `davendra/fundadmin-ai-skills`). The rest of this repository,
-including the commercial webapp under `apps/` and `packages/`, remains under
-the Functional Source License in `LICENSE.md`.
+MIT License
 
 Copyright (c) 2026 Davendra Patel
 

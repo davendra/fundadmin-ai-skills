@@ -1,6 +1,6 @@
 ---
 name: fund-regulatory-filing
-description: "Preps a filing package for Form PF, Form D, Form ADV, FATCA/CRS, Form 13F, or FBAR: extracts required data points, scores completeness, and flags gaps against the deadline. Use when the user runs `/fund regulatory-filing` or asks to prepare a filing. Writes FILING-PREP-[type]-[fund]-[date].md."
+description: "Prepares a filing draft for Form PF/D/ADV, FATCA/CRS, Form 13F or FBAR: extracts required data points, scores completeness and flags gaps against the deadline; no submission or certification. Use when the user runs `/fund regulatory-filing` or asks to prepare a filing. Writes FILING-PREP-[type]-[fund]-[date].md."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->

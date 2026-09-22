@@ -1,6 +1,6 @@
 ---
 name: fund-review-capital-account
-description: "Validates a capital account statement to the dollar: extracts every field, checks ending capital arithmetic, reconciles tranches. Use when the user runs `/fund review-capital-account`, asks to verify a statement, or shares a capital account statement. Writes CAPITAL-ACCOUNT-REVIEW-[fund]-[date].md."
+description: "Recomputes a capital account statement to the dollar: extracts every field, checks ending capital arithmetic, reconciles tranches. Use when the user runs `/fund review-capital-account`, asks to verify a statement, or shares a capital account statement. Writes CAPITAL-ACCOUNT-REVIEW-[fund]-[date].md."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->
@@ -216,6 +216,8 @@ Evaluate each flag condition and report HIGH RISK / MEDIUM RISK / LOW RISK or CL
 | Withdrawal exceeding ending capital | Withdrawal > prior ending capital | High Risk |
 
 ### Step 6: Generate the Output
+
+**Spreadsheet.** After `write-report` has saved the report, run `fund_report.py companion --report <report> --from-report` (the sibling `fund` skill's `scripts/`; `scripts/` in a source checkout) to save the report's tables as an `.xlsx` beside it, one sheet per table. The workbook copies the tables as written and never recalculates, so fix a figure in the report, not in the spreadsheet. Exit 3 means openpyxl is missing: rerun with `--format csv` and tell the user a CSV was produced instead.
 
 Write a file called `CAPITAL-ACCOUNT-REVIEW-[fund]-[date].md` in the isolated run output directory defined by the shared production contract. Use the fund's short name for `[fund]` and today's date for `[date]` in YYYY-MM-DD format.
 

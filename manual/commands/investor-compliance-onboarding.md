@@ -8,9 +8,9 @@ pageClass: commands
 
 ## `/fundadmin:fund investor-classify <file>` {#investor-classify}
 
-Auto-classify investor type & determine document requirements
+Draft investor classification & document requirements
 
-Classifies an investor into a regulatory category, builds the document requirements checklist, and maps FATCA, CRS, ERISA, UBTI and ECI exposure. Use when the user runs `/fundadmin:fund investor-classify` or asks to classify an investor.
+Drafts a preliminary investor classification from supplied documents, with the document requirements checklist and the FATCA, CRS, ERISA, UBTI and ECI questions to resolve. Use when the user runs `/fundadmin:fund investor-classify` or asks to classify an investor.
 
 | Host | Invocation |
 |---|---|
@@ -22,9 +22,9 @@ Classifies an investor into a regulatory category, builds the document requireme
 
 ## `/fundadmin:fund fatca-crs-classify <file>` {#fatca-crs-classify}
 
-FATCA/CRS tax classification & required forms determination
+Draft FATCA/CRS classification & tax form gaps
 
-Determines an investor's FATCA Chapter 3 and 4 status, FFI or NFFE type, CRS classification, required tax forms and controlling person disclosure. Use when the user runs `/fundadmin:fund fatca-crs-classify` or shares a W-8 or CRS self-certification.
+Reviews W-8, W-9 and CRS self-certifications into a preliminary FATCA Chapter 3/4 and CRS classification, marking unresolved facts, form gaps and treaty claims incomplete. Use when the user runs `/fundadmin:fund fatca-crs-classify` or shares a W-8 or CRS self-certification.
 
 | Host | Invocation |
 |---|---|
@@ -36,9 +36,9 @@ Determines an investor's FATCA Chapter 3 and 4 status, FFI or NFFE type, CRS cla
 
 ## `/fundadmin:fund suitability-check <file>` {#suitability-check}
 
-Qualified Purchaser / Accredited Investor / Qualified Client check
+AI / QP / QC evidence review — no eligibility decision
 
-Verifies Accredited Investor, Qualified Purchaser and Qualified Client status from subscription documents, flagging borderline and specific-purpose cases. Use when the user runs `/fundadmin:fund suitability-check` or asks whether an investor qualifies.
+Reviews supplied evidence for the accredited investor, qualified purchaser and qualified client tests, recording each as supported or incomplete; does not determine eligibility. Use when the user runs `/fundadmin:fund suitability-check` or asks whether an investor qualifies.
 
 | Host | Invocation |
 |---|---|
@@ -50,9 +50,9 @@ Verifies Accredited Investor, Qualified Purchaser and Qualified Client status fr
 
 ## `/fundadmin:fund aml-screen <file>` {#aml-screen}
 
-Reviews supplied screening evidence and records checks not performed; no sanctions clearance or admission decision.
+AML evidence review — no live screening or clearance
 
-Reviews supplied screening evidence and records checks not performed; no sanctions clearance or admission decision.
+Reviews supplied AML/CFT evidence: identity, ownership, PEP/sanctions records and funds/wealth; preserves missing checks and potential matches; no live screening. Use when the user runs `/fundadmin:fund aml-screen`, asks to screen an investor, or shares a KYC questionnaire.
 
 | Host | Invocation |
 |---|---|
@@ -64,9 +64,9 @@ Reviews supplied screening evidence and records checks not performed; no sanctio
 
 ## `/fundadmin:fund kyc-tracker <files>` {#kyc-tracker}
 
-Multi-investor KYC document collection tracker & refresh alerts
+Multi-investor KYC collection tracker, refresh alerts, Excel
 
-Tracks KYC collection across every investor in a fund: per-investor completeness, outstanding document matrix, expiry alerts and refresh cycles by risk rating. Use when the user runs `/fundadmin:fund kyc-tracker` or asks where fund-wide KYC stands.
+Tracks KYC collection across every investor in a fund: per-investor completeness, outstanding document matrix, expiry alerts and refresh cycles by risk rating, with an Excel tracker. Use when the user runs `/fundadmin:fund kyc-tracker` or asks where fund-wide KYC stands.
 
 | Host | Invocation |
 |---|---|
@@ -78,9 +78,9 @@ Tracks KYC collection across every investor in a fund: per-investor completeness
 
 ## `/fundadmin:fund subscription-process <file>` {#subscription-process}
 
-Reviews classification, documents, suitability, FATCA/CRS, screening evidence and subscription gaps for human review.
+Subscription evidence pipeline — classify to human review
 
-Reviews classification, documents, suitability, FATCA/CRS, screening evidence and subscription gaps for human review.
+Coordinates the classification, documents, suitability, FATCA/CRS and screening reviews into one evidence and gap report; admission stays a separate human decision. Use when the user runs `/fundadmin:fund subscription-process` or asks what blocks an investor.
 
 | Host | Invocation |
 |---|---|

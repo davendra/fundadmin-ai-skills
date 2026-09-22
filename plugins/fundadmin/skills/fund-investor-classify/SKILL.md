@@ -1,6 +1,6 @@
 ---
 name: fund-investor-classify
-description: "Classifies an investor into a regulatory category, builds the document requirements checklist, and maps FATCA, CRS, ERISA, UBTI and ECI exposure. Use when the user runs `/fund investor-classify` or asks to classify an investor. Writes INVESTOR-CLASSIFICATION-[investor]-[date].md."
+description: "Drafts a preliminary investor classification from supplied documents, with the document requirements checklist and the FATCA, CRS, ERISA, UBTI and ECI questions to resolve. Use when the user runs `/fund investor-classify` or asks to classify an investor. Writes INVESTOR-CLASSIFICATION-[investor]-[date].md."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->

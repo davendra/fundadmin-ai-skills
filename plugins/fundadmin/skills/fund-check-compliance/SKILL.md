@@ -1,6 +1,6 @@
 ---
 name: fund-check-compliance
-description: "Audits a document against FATCA, CRS, AML/KYC, ERISA, Form PF, Form D, Form ADV, AIFMD, SFDR, and SEC Marketing Rule checks, scoring each framework. Use when the user runs `/fund check-compliance`, asks for a compliance gap check, or shares an LPA or PPM. Writes COMPLIANCE-REVIEW-[fund]-[date].md."
+description: "Reviews a document for evidence gaps against FATCA, CRS, AML/KYC, ERISA, Form PF/D/ADV, AIFMD and SFDR requirements; document language is not operational compliance. Use when the user runs `/fund check-compliance`, asks for a compliance gap check, or shares an LPA or PPM. Writes COMPLIANCE-REVIEW-[fund]-[date].md."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->

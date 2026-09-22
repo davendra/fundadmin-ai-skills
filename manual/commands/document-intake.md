@@ -10,9 +10,9 @@ pageClass: commands
 
 ## `/fundadmin:fund ingest <folder>` {#ingest}
 
-Auto-classify & batch process folder of mixed fund documents
+Classify & route a folder of mixed fund documents
 
-Classifies a folder of mixed fund PDFs, routes each to its `/fundadmin:fund review-*` skill, auto-reconciles matching pairs and runs the portfolio dashboard at 3+ funds. Use when the user runs `/fundadmin:fund ingest` or drops a folder of GP portal PDFs.
+Classifies a folder of mixed fund PDFs, routes each to its `/fundadmin:fund review-*` skill, runs reconciliation on matching pairs and the portfolio dashboard at 3+ funds. Use when the user runs `/fundadmin:fund ingest` or drops a folder of GP portal PDFs.
 
 | Host | Invocation |
 |---|---|

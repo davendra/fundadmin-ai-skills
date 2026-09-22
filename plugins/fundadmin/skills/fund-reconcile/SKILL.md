@@ -347,6 +347,8 @@ For each comparable data point pair, classify the result:
 
 ### Step 7: Generate the Output
 
+**Spreadsheet.** After `write-report` has saved the report, run `fund_report.py companion --report <report> --from-report` (the sibling `fund` skill's `scripts/`; `scripts/` in a source checkout) to save the report's tables as an `.xlsx` beside it, one sheet per table. The workbook copies the tables as written and never recalculates, so fix a figure in the report, not in the spreadsheet. Exit 3 means openpyxl is missing: rerun with `--format csv` and tell the user a CSV was produced instead.
+
 Write `RECONCILIATION-[type]-[date].md` through `write-report` in the isolated run's `analysis/<report-id>/` folder using this structure:
 
 ```markdown

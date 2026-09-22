@@ -336,7 +336,7 @@ Write a file called `MFN-TRACKER-[fund]-[date].md` in the isolated run output di
 4. [ ] Set calendar reminders for MFN election window deadlines
 5. [ ] Model aggregate economic impact of worst-case MFN elections
 6. [ ] Run `/fund review-side-letter` for detailed analysis of individual side letters
-7. [ ] Run `/fund benchmark` to compare fund terms against market standards
+7. [ ] Run `/fund benchmark` to compare fund terms with this suite's illustrative ranges
 ```
 
 ### Step 9: Present to User

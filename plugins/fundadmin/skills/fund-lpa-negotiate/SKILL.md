@@ -60,7 +60,7 @@ Store the full text for analysis.
 
 **If the input is a raw LPA:**
 1. Extract fund metadata (fund name, GP entity, fund type, fund size, vintage)
-2. Identify all LP-unfavorable provisions by comparing against market standards
+2. Identify LP-unfavorable provisions by comparing with this suite's illustrative ranges
 3. Proceed through full analysis
 
 **If the document is unreadable:**

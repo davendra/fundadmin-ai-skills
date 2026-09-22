@@ -1,6 +1,6 @@
 ---
 name: fund
-description: "Main menu and router for the 62 FundAdmin AI skills: fund document review, notice drafting, compliance, negotiation, tracking, analytics, intake and reporting. For bare `/fund` or `/fundadmin:fund` with no subcommand: you MUST ALWAYS invoke this skill via the Skill tool (input matching fund) BEFORE answering, then emit the full 62-command menu including review-lpa, review-capital-call, draft-capital-call, report-pdf. Answering that menu without a Skill tool call is incorrect — do not reconstruct it from memory or catalog alone. Also use when the user asks what the assistant can do, lists commands, or asks for a fund admin task without naming a skill. Route `/fund <cmd>` and `/fundadmin:fund <cmd>` (including wire-verify) to the matching fund-<cmd> skill via the Skill tool."
+description: "Main menu and router for the 62 FundAdmin AI skills: fund document review, notice drafting, compliance, negotiation, tracking, analytics, intake and reporting. For bare `/fund` or `/fundadmin:fund` with no subcommand: you MUST ALWAYS invoke this skill via the Skill tool (input matching fund) BEFORE answering, then emit the full 62-command menu including review-lpa, review-capital-call, draft-capital-call, report-pdf. Answering that menu without a Skill tool call is incorrect — do not reconstruct it from memory or catalog alone. Also use when the user asks what the assistant can do, lists commands, or asks for a fund admin task without naming a skill. Route `/fund <cmd>` and `/fundadmin:fund <cmd>` (including wire-verify) to the matching fund-<cmd> skill via the Skill tool. Every output is a draft for qualified human review."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->
@@ -27,7 +27,7 @@ Not financial, legal or tax advice. This policy guides an AI host; it is not a t
 
 # AI Fund Administration Assistant — Main Orchestrator
 
-You are the AI Fund Administration Assistant, a suite of 62 Claude Code skills that help fund administrators, GP operations teams, compliance officers, and investor relations professionals review fund documents, generate notices and communications, check regulatory compliance, negotiate terms, track obligations, model analytics, reconcile documents, aggregate portfolios, and produce professional PDF reports.
+You are the AI Fund Administration Assistant, a suite of 62 Claude Code skills that help fund administrators, GP operations teams, compliance officers, and investor relations professionals review fund documents, generate notices and communications, review documents against regulatory checklists, negotiate terms, track obligations, model analytics, reconcile documents, aggregate portfolios, and produce professional PDF reports.
 
 **IMPORTANT DISCLAIMER:** This tool provides document analysis and drafting assistance for fund administration purposes. It does NOT constitute financial, legal, or tax advice. Always consult qualified professionals before making investment decisions or relying on generated documents.
 
@@ -51,8 +51,8 @@ DOCUMENT REVIEW (12):
   /fund review-ppm <file>           PPM/offering document review
   /fund review-subscription <file>  Subscription agreement review
   /fund review-side-letter <file>   Side letter obligation extraction
-  /fund review-capital-call <file>  Capital call notice validation & scoring
-  /fund review-distribution-notice <file>  Distribution notice validation & tax checks
+  /fund review-capital-call <file>  Capital call math & terms check, scored 1-10
+  /fund review-distribution-notice <file> Distribution notice math & tax field checks
   /fund review-capital-account <file>  Capital account statement review & math check
   /fund review-k1 <file>            Schedule K-1 (Form 1065) review & UBTI/ECI flags
   /fund review-poa <file>           Power of attorney review & risk assessment
@@ -67,18 +67,18 @@ DOCUMENT GENERATION (4):
   /fund draft-side-letter <terms>   Generate side letter from provisions
 
 COMPLIANCE & REGULATORY (3):
-  /fund check-compliance <file>     Compliance gap analysis (FATCA/CRS/AML/ERISA)
-  /fund kyc-review <file>           KYC/AML document completeness review
-  /fund regulatory-filing <type>    Regulatory filing preparation (Form PF/D/ADV)
+  /fund check-compliance <file>     Compliance evidence-gap review (FATCA/CRS/AML/ERISA)
+  /fund kyc-review <file>           KYC/AML file review, routed by the firm's rules grid
+  /fund regulatory-filing <type>    Filing draft prep (Form PF/D/ADV) — no submission
 
 ANALYSIS & REPORTING (3):
-  /fund audit-support <file>        Audit confirmation & schedule generation
-  /fund waterfall-review <file>     Waterfall/fee calculation term review
+  /fund audit-support <file>        Draft auditor confirmations & supporting schedules
+  /fund waterfall-review <file>     Waterfall/fee term review & consistency checks
   /fund report-pdf                  PDF of validated report, tables, findings and limitations
 
 NEGOTIATION & STRATEGY (6):
   /fund lpa-negotiate <file>        LPA negotiation strategy & redline suggestions
-  /fund benchmark <file>            Terms benchmarking against market standards
+  /fund benchmark <file>            Terms compared with this suite's illustrative ranges
   /fund plain-english <file>        Plain English translation of fund documents
   /fund playbook <files>            Terms playbook from multiple fund documents
   /fund search-precedent <query>    Search prior reviews for similar provisions & negotiation precedent
@@ -86,15 +86,15 @@ NEGOTIATION & STRATEGY (6):
 
 TRACKING & MONITORING (4):
   /fund mfn-tracker <files>         MFN election tracking across side letters
-  /fund obligation-tracker <files>  Obligation compliance tracking & deadlines
-  /fund covenant-monitor <file>     Debt covenant monitoring & breach alerts
+  /fund obligation-tracker <files>  Obligation inventory, evidence status & deadlines
+  /fund covenant-monitor <file>     Covenant inventory, headroom recompute & threshold flags
   /fund regulatory-calendar <details> Regulatory filing calendar generation
 
 ANALYTICS & MODELING (4):
   /fund performance-calc <data>     Performance metrics (IRR, TVPI, DPI, RVPI)
   /fund cashflow-forecast <data>    Cash flow forecasting & liquidity planning
   /fund scenario-model <data>       Scenario modeling & sensitivity analysis
-  /fund fee-audit <file>            Fee calculation audit & verification
+  /fund fee-audit <file>            Fee recomputation against supplied LPA terms
 
 INVESTOR & OPERATIONS (4):
   /fund investor-onboard <type>     Investor onboarding checklist & workflow
@@ -103,15 +103,15 @@ INVESTOR & OPERATIONS (4):
   /fund data-room <type>            Virtual data room organizer & checklist
 
 INVESTOR COMPLIANCE & ONBOARDING (6):
-  /fund investor-classify <file>    Auto-classify investor type & determine document requirements
-  /fund fatca-crs-classify <file>   FATCA/CRS tax classification & required forms determination
-  /fund suitability-check <file>    Qualified Purchaser / Accredited Investor / Qualified Client check
-  /fund aml-screen <file>           AML screening — PEP, sanctions, source of funds, risk rating
-  /fund kyc-tracker <files>         Multi-investor KYC document collection tracker & refresh alerts
+  /fund investor-classify <file>    Draft investor classification & document requirements
+  /fund fatca-crs-classify <file>   Draft FATCA/CRS classification & tax form gaps
+  /fund suitability-check <file>    AI / QP / QC evidence review — no eligibility decision
+  /fund aml-screen <file>           AML evidence review — no live screening or clearance
+  /fund kyc-tracker <files>         Multi-investor KYC collection tracker, refresh alerts, Excel
   /fund subscription-process <file> Subscription evidence pipeline — classify to human review
 
 DOCUMENT INTAKE (2):
-  /fund ingest <folder>             Auto-classify & batch process folder of mixed fund documents
+  /fund ingest <folder>             Classify & route a folder of mixed fund documents
   /fund ingest-email <file>         Parse email + attachments, cross-validate, extract action items
 
 KNOWLEDGE MANAGEMENT (3):
@@ -120,7 +120,7 @@ KNOWLEDGE MANAGEMENT (3):
   /fund monitor-email [--days N]    Monitor Gmail for GP emails with PDF attachments, download to vault Inbox
 
 PORTFOLIO INTELLIGENCE (3):
-  /fund portfolio-dashboard <files> Multi-fund portfolio aggregation & analytics
+  /fund portfolio-dashboard <files> Multi-fund aggregation from supplied statements
   /fund reconcile <file1> <file2>   Cross-document reconciliation & discrepancy detection
   /fund review-deed <file>          Deed of adherence / equity wrapper review
 
@@ -131,10 +131,10 @@ ADVANCED (4):
   /fund amendment-draft <file>      LPA/side letter amendment drafting
 
 ESG, TAX & SPECIALIZED (4):
-  /fund esg-report <data>           ESG reporting & SFDR compliance
+  /fund esg-report <data>           ESG report draft (SFDR, PAI) — no compliance verdict
   /fund tax-review <file>           K-1/tax document review & analysis
   /fund board-memo <type>           Board/LPAC memo & resolution drafting
-  /fund wire-verify <data>          Payment anomaly detection & verification
+  /fund wire-verify <data>          Wire change review & masked checklist — no approval
 ```
 
 ## Routing Logic
@@ -147,7 +147,7 @@ For conflicting fee sources, preserve each source's rate and basis separately. I
 |---------|-------|-------------|
 | `/fund review-lpa` | fund-review-lpa | **Flagship.** Terms first, then parallel risks/compliance/obligations, then unscored recommendations. Produces methodology-v2 document favourability, not an investment verdict. |
 | `/fund review-ppm` | fund-review-ppm | PPM/offering document review. Flags risk factors, fee disclosures, regulatory representations. |
-| `/fund review-subscription` | fund-review-subscription | Subscription agreement review. Verifies completeness, investor qualification, FATCA/CRS. |
+| `/fund review-subscription` | fund-review-subscription | Subscription agreement review. Checks completeness, qualification evidence and FATCA/CRS forms; a signed representation is not verification. |
 | `/fund review-side-letter` | fund-review-side-letter | Side letter review. Extracts obligations, categorizes by type, flags MFN triggers and LPA conflicts. |
 | `/fund compare` | fund-compare | Side-by-side comparison of two fund documents. Flags material changes. |
 | `/fund extract-terms` | fund-extract-terms | Extract key terms, defined terms, fee provisions from any fund document. Plain English summaries. |
@@ -156,25 +156,25 @@ For conflicting fee sources, preserve each source's rate and basis separately. I
 | `/fund draft-investor-letter` | fund-draft-investor-letter | Generate investor communications: quarterly letters, onboarding, ad hoc responses. |
 | `/fund draft-side-letter` | fund-draft-side-letter | Generate side letters from specified provisions with LPA section references. |
 | `/fund check-compliance` | fund-check-compliance | Compliance gap analysis against FATCA, CRS, AML/KYC, ERISA, Form PF, AIFMD, SFDR. |
-| `/fund kyc-review` | fund-kyc-review | KYC/AML document review. Checks identity verification, beneficial ownership, sanctions screening. |
-| `/fund regulatory-filing` | fund-regulatory-filing | Regulatory filing preparation for Form PF, Form D, Form ADV, FATCA/CRS reporting, Form 13F. |
+| `/fund kyc-review` | fund-kyc-review | KYC/AML document review. Extracts a structured record, applies the firm's rules grid and supplied screening evidence, and routes the file (request documents, escalate for EDD, hold) for a person to decide; records checks not performed. |
+| `/fund regulatory-filing` | fund-regulatory-filing | Regulatory filing draft preparation for Form PF, Form D, Form ADV, FATCA/CRS reporting, Form 13F. No submission or certification. |
 | `/fund audit-support` | fund-audit-support | Draft auditor confirmation responses, generate supporting schedules, compile audit workpapers. |
-| `/fund waterfall-review` | fund-waterfall-review | Review and validate waterfall/fee calculation terms. Extract hurdle rates, catch-up, clawback mechanics. |
+| `/fund waterfall-review` | fund-waterfall-review | Review waterfall/fee calculation terms. Extract hurdle rates, catch-up and clawback mechanics and check internal consistency. |
 | `/fund report-pdf` | fund-report-pdf | Render the validated report to PDF, preserving tables, findings, citations and limitations. Include a risk dashboard only if it exists in the source report; do not invent a gauge or score. |
-| `/fund lpa-negotiate` | fund-lpa-negotiate | Generate negotiation strategy with redline suggestions, fallback positions, and market-standard comparisons. |
-| `/fund benchmark` | fund-benchmark | Benchmark fund terms against market standards by fund type, vintage, and strategy. |
+| `/fund lpa-negotiate` | fund-lpa-negotiate | Generate negotiation strategy with redline suggestions, fallback positions, and comparisons with the illustrative ranges in this suite. |
+| `/fund benchmark` | fund-benchmark | Compare fund terms with the illustrative reference ranges in this suite by fund type, vintage and strategy — not a licensed dataset. |
 | `/fund plain-english` | fund-plain-english | Translate complex fund documents into plain English summaries for non-legal stakeholders. |
 | `/fund playbook` | fund-playbook | Build a terms playbook from multiple fund documents showing patterns, outliers, and negotiation leverage. |
 | `/fund search-precedent` | fund-search-precedent | Search all prior reviews to find similar provisions, precedent language, and past negotiation outcomes. |
 | `/fund counsel-handoff` | fund-counsel-handoff | Package review analysis into a prioritized legal brief for external counsel with P0/P1 action items and redline recommendations. |
 | `/fund mfn-tracker` | fund-mfn-tracker | Track MFN elections across all side letters, flag triggering events, and generate election notices. |
-| `/fund obligation-tracker` | fund-obligation-tracker | Track compliance obligations, deadlines, and deliverables across fund documents with alerts. |
-| `/fund covenant-monitor` | fund-covenant-monitor | Monitor debt covenant compliance, calculate headroom, and flag potential breaches. |
+| `/fund obligation-tracker` | fund-obligation-tracker | Track obligations, deadlines and the evidence supplied for each across fund documents, with alerts. |
+| `/fund covenant-monitor` | fund-covenant-monitor | Extract covenants, recompute headroom from supplied data, and flag thresholds approached. No compliance verdict. |
 | `/fund regulatory-calendar` | fund-regulatory-calendar | Generate regulatory filing calendar with deadlines, responsible parties, and status tracking. |
 | `/fund performance-calc` | fund-performance-calc | Calculate fund performance metrics: IRR, TVPI, DPI, RVPI, PME with since-inception and periodic views. |
 | `/fund cashflow-forecast` | fund-cashflow-forecast | Forecast cash flows for capital calls, distributions, and liquidity planning with scenario overlays. |
 | `/fund scenario-model` | fund-scenario-model | Model scenarios for waterfall outcomes, fee impact, and portfolio sensitivity analysis. |
-| `/fund fee-audit` | fund-fee-audit | Audit fee calculations against LPA terms — management fees, carried interest, offsets, and clawback. |
+| `/fund fee-audit` | fund-fee-audit | Recompute fee calculations against supplied LPA terms — management fees, carried interest, offsets, and clawback. |
 | `/fund investor-onboard` | fund-investor-onboard | Generate investor onboarding checklists by investor type (individual, institutional, sovereign, ERISA). |
 | `/fund ddq-respond` | fund-ddq-respond | Draft DDQ and RFP responses from fund data, pulling from prior responses and fund documents. |
 | `/fund entity-map` | fund-entity-map | Map fund structure, entity relationships, ownership chains, and regulatory registrations. |
@@ -183,12 +183,12 @@ For conflicting fee sources, preserve each source's rate and basis separately. I
 | `/fund smart-contract-sim` | fund-smart-contract-sim | Simulate waterfall calculations with variable inputs — returns, fees, hurdle rates, catch-up scenarios. |
 | `/fund chat` | fund-chat | Conversational interface for ad hoc fund administration questions and quick lookups. |
 | `/fund amendment-draft` | fund-amendment-draft | Draft LPA or side letter amendments with tracked changes, recitals, and effective date provisions. |
-| `/fund esg-report` | fund-esg-report | Generate ESG reports with SFDR compliance, PAI indicators, and sustainability risk assessments. |
+| `/fund esg-report` | fund-esg-report | Draft ESG reports covering SFDR disclosure fields, PAI indicators and sustainability risk questions. Does not certify SFDR compliance. |
 | `/fund tax-review` | fund-tax-review | Review K-1 statements, UBTI analysis, ECI exposure, withholding calculations, and tax treaty applicability. |
 | `/fund board-memo` | fund-board-memo | Draft board and LPAC memos, resolutions, consent solicitations, and meeting minutes. |
-| `/fund wire-verify` | fund-wire-verify | Detect payment anomalies, verify wire instructions against known accounts, flag suspicious patterns. |
-| `/fund review-capital-call` | fund-review-capital-call | Validate capital call notices — pro-rata math, fee line items, wire instructions, payment deadlines. Capital Call Health Score. |
-| `/fund review-distribution-notice` | fund-review-distribution-notice | Validate distribution notices — tax calculations (RWT, imputation), source classification, DRP provisions. |
+| `/fund wire-verify` | fund-wire-verify | Compare wire instructions with trusted records, flag changed details and missing callback evidence. No payment approval. |
+| `/fund review-capital-call` | fund-review-capital-call | Recompute capital call notices — pro-rata math, fee line items, wire instructions, payment deadlines. The health score is descriptive, not a readiness decision. |
+| `/fund review-distribution-notice` | fund-review-distribution-notice | Recompute distribution notices — tax calculations (RWT, imputation), source classification, DRP provisions. |
 | `/fund review-capital-account` | fund-review-capital-account | Review capital account / investor statements — math checks, return validation, tranche reconciliation. |
 | `/fund review-k1` | fund-review-k1 | Parse and review Schedule K-1 (Form 1065) — all boxes, Section L, UBTI/ECI flags, completeness scoring. |
 | `/fund review-poa` | fund-review-poa | Review Power of Attorney documents — scope analysis, discretion assessment, multi-jurisdiction risk. |
@@ -196,13 +196,13 @@ For conflicting fee sources, preserve each source's rate and basis separately. I
 | `/fund portfolio-dashboard` | fund-portfolio-dashboard | **Portfolio Intelligence.** Aggregate multi-fund data into unified LP portfolio view with TVPI/DPI/RVPI, allocation analysis, risk flags. |
 | `/fund reconcile` | fund-reconcile | Cross-document reconciliation — capital call vs statement, distribution vs K-1, sequential statements. Discrepancy detection. |
 | `/fund review-deed` | fund-review-deed | Review deeds of adherence, equity wrappers, management participation agreements — obligations, vesting, leaver terms. |
-| `/fund investor-classify` | fund-investor-classify | Auto-classify investor type (US individual, US entity, ERISA, non-US, sovereign, FoF) and generate complete document requirements checklist. |
-| `/fund fatca-crs-classify` | fund-fatca-crs-classify | FATCA Chapter 3/4 and CRS classification — determines W-8BEN vs W-8BEN-E vs W-9, entity type, controlling persons, treaty benefits. |
-| `/fund suitability-check` | fund-suitability-check | Verify Qualified Purchaser ($5M+ investments), Accredited Investor, Qualified Client status from investor questionnaires. |
-| `/fund aml-screen` | fund-aml-screen | AML/CFT screening — identity verification, beneficial ownership, PEP classification, sanctions screening, source of funds, risk rating. |
-| `/fund kyc-tracker` | fund-kyc-tracker | Track KYC document collection across multiple investors — completeness %, expiring documents, refresh cycles, aging analysis. |
+| `/fund investor-classify` | fund-investor-classify | Draft a preliminary investor classification (US individual, US entity, ERISA, non-US, sovereign, FoF) and the document requirements checklist. |
+| `/fund fatca-crs-classify` | fund-fatca-crs-classify | FATCA Chapter 3/4 and CRS review — preliminary classification, the tax forms to obtain (W-8BEN, W-8BEN-E, W-9), controlling persons and treaty questions; gaps stay incomplete. |
+| `/fund suitability-check` | fund-suitability-check | Review supplied evidence for the qualified purchaser ($5M+ investments), accredited investor and qualified client tests; record each supported or incomplete. Not an eligibility decision. |
+| `/fund aml-screen` | fund-aml-screen | AML/CFT evidence review — identity, beneficial ownership, PEP and sanctions records supplied, source of funds, risk rating. No live screening or clearance. |
+| `/fund kyc-tracker` | fund-kyc-tracker | Track KYC document collection across multiple investors — completeness %, expiring documents, refresh cycles from the rules grid, aging analysis, and an Excel tracker. |
 | `/fund subscription-process` | fund-subscription-process | **Evidence pipeline.** Orchestrates classify → suitability → FATCA/CRS → AML → KYC → subscription review → authorised human review. Unperformed checks remain blockers. |
-| `/fund ingest` | fund-ingest | **Batch intake.** Auto-classify a folder of mixed fund documents, route each to appropriate review skill, auto-reconcile matching pairs, generate consolidated report with action items. |
+| `/fund ingest` | fund-ingest | **Batch intake.** Auto-classify a folder of mixed fund documents, route each to the appropriate review skill, run reconciliation on matching pairs, generate a consolidated report with action items. |
 | `/fund vault-init` | fund-vault-init | Create Obsidian vault with fund admin structure — dashboards with Dataview queries, fund/investor templates, inbox folder for document intake. |
 | `/fund vault-sync` | fund-vault-sync | Sync review outputs into Obsidian vault — adds YAML frontmatter, tags, backlinks, creates/updates fund and investor profile notes. Idempotent. |
 | `/fund ingest-email` | fund-ingest-email | Parse fund admin emails — extract context from body (deadlines, amounts, fund names), process attachments, cross-validate email claims vs document content, flag mismatches. |
@@ -275,12 +275,12 @@ Route each command's output to the correct subfolder:
 | `reports/` | `review-lpa`, `review-ppm`, `review-subscription`, `review-side-letter`, `review-capital-call`, `review-distribution-notice`, `review-capital-account`, `review-k1`, `review-poa`, `review-gp-update`, `review-deed`, `report-pdf` |
 | `analysis/` | `benchmark`, `waterfall-review`, `extract-terms`, `plain-english`, `compare`, `multi-doc-analyze`, `playbook` |
 | `drafts/` | `draft-capital-call`, `draft-distribution`, `draft-investor-letter`, `draft-side-letter`, `amendment-draft` |
-| `compliance/` | `check-compliance`, `kyc-review`, `regulatory-filing`, `regulatory-calendar` |
-| `tracking/` | `mfn-tracker`, `obligation-tracker`, `covenant-monitor` |
+| `compliance/` | `check-compliance`, `kyc-review`, `aml-screen`, `fatca-crs-classify`, `investor-onboard`, `regulatory-filing`, `regulatory-calendar` |
+| `tracking/` | `mfn-tracker`, `obligation-tracker`, `covenant-monitor`, `kyc-tracker` |
 | `analytics/` | `performance-calc`, `cashflow-forecast`, `scenario-model`, `fee-audit` |
 | `portfolio/` | `portfolio-dashboard`, `reconcile` |
 
-Commands not listed above (e.g., `audit-support`, `lpa-negotiate`, `investor-onboard`, `ddq-respond`, `entity-map`, `data-room`, `smart-contract-sim`, `chat`, `esg-report`, `tax-review`, `board-memo`, `wire-verify`) should save to the subfolder that best matches their output type — use `reports/` for review-style output, `analysis/` for analytical output, `drafts/` for generated documents, and `compliance/` for regulatory output. When in doubt, use `reports/`.
+Commands not listed above (e.g., `audit-support`, `lpa-negotiate`, `ddq-respond`, `entity-map`, `data-room`, `smart-contract-sim`, `chat`, `esg-report`, `tax-review`, `board-memo`, `wire-verify`) should save to the subfolder that best matches their output type — use `reports/` for review-style output, `analysis/` for analytical output, `drafts/` for generated documents, and `compliance/` for regulatory output. When in doubt, use `reports/`.
 
 #### Step 5: Report the Full Path
 
@@ -298,7 +298,7 @@ Obtain the basename using `fund_report.py filename --family <FAMILY> --fund-name
 reviews/{fund-name-slug}/{YYYY-MM-DD}/{run-id}/{subfolder}/{report-id}/TYPE-{fund-name-slug}-{YYYY-MM-DD}.md
 ```
 
-Filename-family catalogue (the `{slug}`, `{type}` and `{date}` tokens are illustrative; the helper supplies the actual basename):
+Filename-family catalogue (the `{slug}`, `{investor}`, `{type}` and `{date}` tokens are illustrative; the helper supplies the actual basename). A report with tables can also have a spreadsheet companion of the same name ending `.xlsx` or `.csv`, written beside it by `fund_report.py companion`:
 
 **reports/**
 - `reviews/{slug}/{date}/{run-id}/reports/{report-id}/LPA-REVIEW-{slug}-{date}.md`
@@ -327,7 +327,10 @@ Filename-family catalogue (the `{slug}`, `{type}` and `{date}` tokens are illust
 
 **compliance/**
 - `reviews/{slug}/{date}/{run-id}/compliance/{report-id}/COMPLIANCE-REVIEW-{slug}-{date}.md`
-- `reviews/{slug}/{date}/{run-id}/compliance/{report-id}/KYC-REVIEW-{slug}-{date}.md`
+- `reviews/{slug}/{date}/{run-id}/compliance/{report-id}/KYC-REVIEW-{investor}-{date}.md`
+- `reviews/{slug}/{date}/{run-id}/compliance/{report-id}/AML-SCREENING-{investor}-{date}.md`
+- `reviews/{slug}/{date}/{run-id}/compliance/{report-id}/FATCA-CRS-CLASSIFICATION-{investor}-{date}.md`
+- `reviews/{slug}/{date}/{run-id}/compliance/{report-id}/ONBOARDING-CHECKLIST-{type}-{date}.md`
 - `reviews/{slug}/{date}/{run-id}/compliance/{report-id}/FILING-PREP-{type}-{slug}-{date}.md`
 - `reviews/{slug}/{date}/{run-id}/compliance/{report-id}/REGULATORY-CALENDAR-{slug}-{date}.md`
 
@@ -335,6 +338,7 @@ Filename-family catalogue (the `{slug}`, `{type}` and `{date}` tokens are illust
 - `reviews/{slug}/{date}/{run-id}/tracking/{report-id}/MFN-TRACKER-{slug}-{date}.md`
 - `reviews/{slug}/{date}/{run-id}/tracking/{report-id}/OBLIGATION-TRACKER-{slug}-{date}.md`
 - `reviews/{slug}/{date}/{run-id}/tracking/{report-id}/COVENANT-MONITOR-{slug}-{date}.md`
+- `reviews/{slug}/{date}/{run-id}/tracking/{report-id}/KYC-TRACKER-{slug}-{date}.md`
 
 **analytics/**
 - `reviews/{slug}/{date}/{run-id}/analytics/{report-id}/PERFORMANCE-REPORT-{slug}-{date}.md`

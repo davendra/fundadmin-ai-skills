@@ -1,6 +1,6 @@
 ---
 name: fund-portfolio-dashboard
-description: "Aggregates several funds' documents into one LP view: TVPI/DPI/RVPI, strategy and GP mix, J-curve stage, and unfunded commitments. Use when the user runs `/fund portfolio-dashboard`, asks how the book is doing, or shares capital accounts across funds. Writes PORTFOLIO-DASHBOARD-[date].md."
+description: "Aggregates several funds' supplied statements into one LP view: TVPI/DPI/RVPI, strategy and GP mix, J-curve stage, and unfunded commitments. Use when the user runs `/fund portfolio-dashboard`, asks how the book is doing, or shares capital accounts across funds. Writes PORTFOLIO-DASHBOARD-[date].md."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->

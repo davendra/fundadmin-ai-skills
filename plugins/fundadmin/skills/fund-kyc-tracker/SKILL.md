@@ -1,6 +1,6 @@
 ---
 name: fund-kyc-tracker
-description: "Tracks KYC collection across every investor in a fund: per-investor completeness, outstanding document matrix, expiry alerts and refresh cycles by risk rating. Use when the user runs `/fund kyc-tracker` or asks where fund-wide KYC stands. Writes KYC-TRACKER-[fund]-[date].md."
+description: "Tracks KYC collection across every investor in a fund: per-investor completeness, outstanding document matrix, expiry alerts and refresh cycles by risk rating, with an Excel tracker. Use when the user runs `/fund kyc-tracker` or asks where fund-wide KYC stands. Writes KYC-TRACKER-[fund]-[date].md."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->
@@ -45,6 +45,14 @@ Maintain distinct fields:
 
 Use the supplied-evidence adapter described in the guidance when records are available. Do not invent historical checks, automatically clear a potential match after a newer no-match record, or count a completed questionnaire as screening.
 
+## Per-investor records and the tracker workbook
+
+The helpers live in the sibling `fund` skill: `scripts/fund_kyc.py` and `references/kyc-reader.md`, `kyc-record-schema.md` and `kyc-rules-grid.example.yaml` (source checkout: `scripts/` and `fund/references/`). The contract is `docs/production/kyc.md`.
+
+For each investor with documents in scope, run the KYC reader and `fund_kyc.py evaluate` with the fund's rules grid and that investor's screening evidence, as in `/fund kyc-review`, and save each evaluation in the run folder. The grid supplies the required documents, expiry warning window and refresh cycle by risk; `refresh_due` is UNKNOWN when no completed review date is on file. An investor whose documents are not supplied stays in the tracker with collection OUTSTANDING and no evaluation; do not run the reader on nothing.
+
+After `write-report`, save `fund_kyc.py xlsx-spec` with one `--evaluation` per investor (the Investors sheet has one row per investor, a column per required document, disposition, risk, screening and refresh due; the Open items sheet lists every reason) and run `fund_report.py companion --report <tracker report> --spec <spec>`. Exit 3 means openpyxl is missing: rerun with `--format csv` and say so.
+
 ## Expiry and prioritisation
 
 Calculate W-8 validity from the applicable form instructions: the general rule ends on 31 December of the third succeeding calendar year, subject to exceptions and earlier invalidating changes. W-9s do not have that routine expiry. Use the actual policy for ID/document refresh periods, with event-driven checks.
@@ -59,7 +67,7 @@ Write `KYC-TRACKER-[fund]-[date].md` in the isolated run output directory define
 3. Separate verification and screening dashboard retaining every unresolved status.
 4. Ageing, expiry, change-in-circumstances and EDD action queues.
 5. Owner, target date, dependency and next action; estimates labelled as operational estimates.
-6. Preliminary readiness summary and outstanding human decisions.
+6. Preliminary readiness summary and outstanding human decisions, with each investor's disposition from the helper, the rules grid used and the reader mode.
 
 Never report ACCEPT/REJECT or “KYC cleared” from collection scores. Do not send reminders or update external records unless authorised. Mask sensitive identifiers to at most the last four characters; use aliases and evidence references, omitting birth dates, residential addresses and raw bank details.
 

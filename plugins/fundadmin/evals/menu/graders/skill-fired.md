@@ -1,8 +1,13 @@
 ---
-type: tool_used
+type: regex
 name: skill-fired
-tool: Skill
-input_match: "fund"
-min: 1
-arm: with-only
+target: last_message
+pattern: "AI Fund Administration Assistant[\\s\\S]{0,80}62 Commands"
+flags: i
+weight: 1
 ---
+
+Slash-command path: `/fundadmin:fund` injects the fund skill body via host
+`<command-name>` (Skill tool_use count may be 0). Treat that injected-skill
+answer shape as skill-fired — requiring `tool_used: Skill` is a false negative
+for this host path; skill-body prose cannot force a redundant Skill call.

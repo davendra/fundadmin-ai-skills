@@ -13,13 +13,17 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 EVALS = ROOT / "plugins" / "fundadmin" / "evals"
-# Candidate-bound smoke set documented for release evidence (14 prompt.md dirs).
+# Candidate-bound smoke set documented for release evidence (18 prompt.md dirs).
 EXPECTED_CASES = frozenset(
     {
         "ambiguous-reconcile",
         "capital-call-autotrigger",
         "capital-rounding",
         "injection-boundary",
+        "kyc-disposition",
+        "kyc-no-grid",
+        "kyc-reader-injection",
+        "kyc-tracker-xlsx",
         "menu",
         "performance-unrealised",
         "privacy-mask",

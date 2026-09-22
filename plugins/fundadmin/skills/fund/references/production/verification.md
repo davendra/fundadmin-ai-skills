@@ -1,6 +1,18 @@
 # Verification record
 
+## Gate 3 was not run for 1.2.0
+
+22 September 2026: **1.2.0 was published without candidate-bound host evidence.** The 14 (now 18) installed-plugin eval cases were not run against this candidate: `claude plugin eval` refuses to start on the maintainer's machine ("the Docker (~/.docker, DOCKER_CONFIG) credential store on this machine holds a symbolic link inside it"), and the maintainer chose to publish rather than defer. `tools/publish_plugin.sh`'s evidence gate was therefore bypassed for this release, and no evidence record was created or claimed.
+
+What did run, on the published tree: production-policy sync, the generated-tree freshness check, `tools/verify_production.py`, 884 source tests, the 43 packaged contract tests, and strict plugin and marketplace validation with the pinned Claude Code 2.1.278. Those are offline checks of structure, contracts and arithmetic. They say nothing about host behaviour: whether skills auto-trigger, mask identifiers, refuse payment approval or hold back an unavailable score in a real session is **unverified for 1.2.0**.
+
+Four of the new KYC cases were smoke-run on a real host during development, on Claude Code **2.1.280**, and gave the expected disposition. Those runs are development checks, not release evidence: they were not on the pinned 2.1.278, not across the whole suite, and not recorded with hashed artefacts or a named reviewer.
+
+Run the eval suite before relying on this release in a supervised pilot, and record the result here.
+
 ## Baseline
+
+22 September 2026: 1.1.0 was published as `fundadmin--v1.1.0`. The `production-hardening` line and the fixes made directly on the public repository after that release were then merged into `main`, which is now the source lineage; the next candidate was 1.1.1, which was folded unpublished into 1.2.0. The entries below are the record as of 21 September.
 
 21 September 2026: published tree baseline `bdd706d` / version 1.0.2; correct source lineage is `plugin-release`, base `a0879f277c97738a80df8220ae050d986048b265`. The source `main` branch does not contain the plugin builder. All 17 original generated-plugin structural tests passed before regeneration. The published baseline clone remains unchanged.
 
@@ -59,4 +71,4 @@ No live provider, mailbox, investor vault or production system has been tested. 
 
 The results above describe the first hardening pass, not the later candidate. The second review found installer path-alias overwrite, relative executable paths, conflicting readiness/scoring and allocation checks, missing NAV in the PME instruction, incorrect signed-YTD checks, direct-skill filename incompatibility and unsupported active claims. Regression tests now cover these corrected behaviours; the current required suite also exercises report-to-PDF integration and stale/missing behavioural evidence rejection.
 
-The expanded host suite includes the original ten cases plus capital-rounding, performance-unrealised, signed-ytd and wire-readiness. Actual execution status must come from the candidate-bound evidence record, not this fixture inventory. See the operator guide's evidence contract. The workspace progress page and private second-pass verification record preserve the manager's results without embedding mutable test traces in the generated plugin. No claim is made here that every host case has passed merely because its fixture exists.
+The expanded host suite includes the original ten cases plus capital-rounding, performance-unrealised, signed-ytd and wire-readiness, and from 1.2.0 the four KYC routing cases kyc-disposition, kyc-reader-injection, kyc-no-grid and kyc-tracker-xlsx. Actual execution status must come from the candidate-bound evidence record, not this fixture inventory. See the operator guide's evidence contract. The workspace progress page and private second-pass verification record preserve the manager's results without embedding mutable test traces in the generated plugin. No claim is made here that every host case has passed merely because its fixture exists.

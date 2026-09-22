@@ -24,9 +24,9 @@ Turns LP-unfavorable LPA provisions into counter-proposal language, ranked P0 to
 
 ## `/fundadmin:fund benchmark <file>` {#benchmark}
 
-Terms benchmarking against market standards
+Terms compared with this suite's illustrative ranges
 
-Scores economic and governance terms against this skill's reference ranges, classing each LP-Friendly, Market Standard, or GP-Favorable with a 0-100 score. Use when the user runs `/fundadmin:fund benchmark`, asks if terms are at market, or shares an LPA.
+Compares economic and governance terms with the illustrative reference ranges in this skill, not a licensed market dataset, and describes each difference and its effect. Use when the user runs `/fundadmin:fund benchmark`, asks if terms are at market, or shares an LPA.
 
 | Host | Invocation |
 |---|---|

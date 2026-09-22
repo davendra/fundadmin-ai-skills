@@ -1,16 +1,10 @@
 ---
-type: llm
+type: regex
 name: catches-issues
+target: last_message
+pattern: "(?=[\\s\\S]*(?:no (?:preferred return|hurdle)|preferred return[\\s\\S]{0,80}omitted|25%\\s+of\\s+[\\s\\S]{0,60}proceeds))(?=[\\s\\S]*clawback)(?=[\\s\\S]*(?:step[- ]?down|never steps down|management fee))(?=[\\s\\S]*(?:fee offset|offsets?[\\s\\S]{0,60}discretion|discretionary))(?=[\\s\\S]*(?:exten(?:d|sion|sions)|sole discretion|without[\\s\\S]{0,40}(?:LP|Limited Partner) consent|no LP consent))(?=[\\s\\S]*(?:affiliate|advisory committee|LPAC|consultative))(?=[\\s\\S]*(?:key person|excuse|exclusion))(?=[\\s\\S]*(?:120[- ]?day|deemed[\\s\\S]{0,40}consent|forfeit|no[- ]cure))[\\s\\S]+"
+flags: i
 weight: 3
 ---
 
-The document is a deliberately flawed LPA. PASS only if the response flags at least SIX of these eight issues as risks or negotiation points:
-1. 25% carried interest with no preferred return / hurdle.
-2. Deal-by-deal (American) waterfall combined with a weak, unsecured, principal-limited clawback.
-3. Management fee stays at 2% of commitments after the commitment period (no step-down to invested capital).
-4. Fee offsets at the GP's discretion rather than 100% mandatory.
-5. GP may extend the commitment period and the fund term unilaterally.
-6. Affiliate transactions without LPAC consent; the LPAC itself is optional and consultative.
-7. Free assignment of the GP interest to affiliates; no key person provision; no excuse/exclusion rights.
-8. The 120-day deemed-consent trap for amendments, and the punitive no-cure default forfeiture.
-FAIL if fewer than six are flagged, or if the response claims the terms are market standard.
+Deterministic precheck for the eight flawed-LPA issue themes (carry/no hurdle, weak clawback, no fee step-down, discretionary offsets, unilateral extensions, affiliate/optional LPAC, key-person/excuse gaps, 120-day deemed consent / no-cure forfeiture). Passes without an LLM judge when all eight theme markers appear in the answer.

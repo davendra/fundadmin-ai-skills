@@ -1,6 +1,6 @@
 {
   "name": "fundadmin",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Supervised-pilot release candidate: 62 fund administration workflows plus the fund menu for Claude Code, Cowork and Codex. Review documents, prepare drafts and evidence-linked calculations for human review. Python 3.9+ is required for report helpers; external checks depend on authorised tools and evidence. Not certified for production operations or automated investment, admission, clearance, filing or payment decisions.",
   "author": {
     "name": "Davendra Patel",
@@ -45,7 +45,7 @@
       "Write"
     ],
     "websiteURL": "https://fundadmin.dev",
-    "privacyPolicyURL": "https://github.com/davendra/fundadmin-ai-skills#privacy",
+    "privacyPolicyURL": "https://help.fundadmin.dev/guide/privacy",
     "termsOfServiceURL": "https://github.com/davendra/fundadmin-ai-skills/blob/main/LICENSE",
     "defaultPrompt": [
       "Review this LPA with v2 document favourability, separate evidence coverage and source-linked findings for human review.",

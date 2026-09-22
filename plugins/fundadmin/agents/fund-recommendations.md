@@ -1,6 +1,6 @@
 ---
 name: fund-recommendations
-description: "Recommendations analyst for the /fund review-lpa pipeline (unscored synthesis). Use last: it consumes the terms, risk, compliance and obligations outputs and produces priority-ranked negotiation points, alternative language and action items with market-standard comparisons for the LPA review report."
+description: "Recommendations analyst for the /fund review-lpa pipeline (unscored synthesis). Use last: it consumes the terms, risk, compliance and obligations outputs and drafts priority-ranked negotiation points, alternative language and action items for qualified human review, comparing terms only with the illustrative reference ranges in this suite."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->

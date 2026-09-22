@@ -1,6 +1,6 @@
 ---
 name: fund-waterfall-review
-description: "Extracts waterfall tiers, preferred return, catch-up, carry, clawback and fee terms, checks consistency, and scores each against market standard. Use when the user runs `/fund waterfall-review`, asks about fund economics, or shares waterfall provisions. Writes `WATERFALL-REVIEW-[fund]-[date].md`."
+description: "Extracts waterfall tiers, preferred return, catch-up, carry, clawback and fee terms, checks consistency and compares each with the illustrative ranges in this skill. Use when the user runs `/fund waterfall-review`, asks about fund economics, or shares waterfall provisions. Writes `WATERFALL-REVIEW-[fund]-[date].md`."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->
@@ -203,11 +203,11 @@ Perform each of the following checks and report PASS, WARNING, or FAIL:
 
 ---
 
-## Phase 4: Compare Against Market Standards
+## Phase 4: Compare With This Suite's Illustrative Ranges
 
 ### 4.1 Market Standard Benchmarks
 
-Compare the extracted waterfall terms against market standards for the identified fund type:
+Compare the extracted waterfall terms with the illustrative reference ranges in this suite for the identified fund type (not a licensed market dataset):
 
 #### Private Equity (Buyout) Market Standard
 
@@ -271,6 +271,8 @@ For each term extracted, score the deviation from market standard:
 ## Phase 5: Generate Output File
 
 ### 5.1 Compile the Waterfall Review Report
+
+**Spreadsheet.** After `write-report` has saved the report, run `fund_report.py companion --report <report> --from-report` (the sibling `fund` skill's `scripts/`; `scripts/` in a source checkout) to save the report's tables as an `.xlsx` beside it, one sheet per table. The workbook copies the tables as written and never recalculates, so fix a figure in the report, not in the spreadsheet. Exit 3 means openpyxl is missing: rerun with `--format csv` and tell the user a CSV was produced instead.
 
 Generate `WATERFALL-REVIEW-[fund]-[date].md` with the following structure:
 

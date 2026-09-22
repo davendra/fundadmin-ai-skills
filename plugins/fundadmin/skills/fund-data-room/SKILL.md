@@ -1,6 +1,6 @@
 ---
 name: fund-data-room
-description: "Generates an ILPA-aligned virtual data room index across eight categories with Required/Recommended/Optional status, gap priorities, and access tiers by investor type. Use when the user runs `/fund data-room <type>` or asks how to organize a fundraising data room. Writes DATA-ROOM-[type]-[date].md."
+description: "Drafts a data room index across eight categories with Required/Recommended/Optional status, gaps by priority and proposed access tiers by investor type, for human approval. Use when the user runs `/fund data-room <type>` or asks how to organize a fundraising data room. Writes DATA-ROOM-[type]-[date].md."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->

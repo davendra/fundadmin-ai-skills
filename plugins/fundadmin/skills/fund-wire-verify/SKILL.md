@@ -1,6 +1,6 @@
 ---
 name: fund-wire-verify
-description: "Flags bank/beneficiary changes and missing callback evidence for wire instructions; issues a masked verification checklist. Use for `/fund wire-verify`, `/fundadmin:fund wire-verify`, new bank details, payment-instruction checks, or a shareable wire report that must mask account/tax/passport IDs."
+description: "Flags bank/beneficiary changes and missing callback evidence for wire instructions; prepares a masked checklist; no payment approval. Use for `/fund wire-verify`, `/fundadmin:fund wire-verify`, new bank details, payment-instruction checks, or a shareable wire report that must mask account/tax/passport IDs."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->

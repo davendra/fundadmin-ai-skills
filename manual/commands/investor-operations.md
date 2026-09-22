@@ -10,9 +10,9 @@ pageClass: commands
 
 ## `/fundadmin:fund investor-onboard <type>` {#investor-onboard}
 
-Prepares an investor onboarding checklist and evidence-gap draft for human review.
+Investor onboarding checklist & workflow
 
-Prepares an investor onboarding checklist and evidence-gap draft for human review.
+Prepares an onboarding checklist by investor type: documents to collect, the qualification, tax and screening reviews to run, owners and a timeline. Does not screen or admit an investor. Use when the user runs `/fundadmin:fund investor-onboard` or describes an incoming investor.
 
 | Host | Invocation |
 |---|---|
@@ -54,7 +54,7 @@ Maps a fund structure into a Mermaid diagram, entity registry, ownership chain a
 
 Virtual data room organizer & checklist
 
-Generates an ILPA-aligned virtual data room index across eight categories with Required/Recommended/Optional status, gap priorities, and access tiers by investor type. Use when the user runs `/fundadmin:fund data-room <type>` or asks how to organize a fundraising data room.
+Drafts a data room index across eight categories with Required/Recommended/Optional status, gaps by priority and proposed access tiers by investor type, for human approval. Use when the user runs `/fundadmin:fund data-room <type>` or asks how to organize a fundraising data room.
 
 | Host | Invocation |
 |---|---|

@@ -434,7 +434,7 @@ Include the following comparison only when the comparable dataset and its defini
 3. [ ] Compare against other funds in the portfolio of the same vintage
 4. [ ] Review unrealized NAV composition (portfolio company valuations)
 5. [ ] Run `/fund waterfall-review` to understand how returns flow through the waterfall
-6. [ ] Run `/fund benchmark` to compare fund terms against market standards
+6. [ ] Run `/fund benchmark` to compare fund terms with this suite's illustrative ranges
 ```
 
 ### Step 7: Present to User

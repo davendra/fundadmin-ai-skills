@@ -1,6 +1,6 @@
 ---
 name: fund-audit-support
-description: "Builds an audit package from capital account data: draft auditor confirmation letter, partner capital, and management fee schedules. Use when the user runs `/fund audit-support`, asks to prepare for the annual audit, or shares capital account data. Writes AUDIT-SUPPORT-[fund]-[date].md."
+description: "Drafts an audit package from capital account data: auditor confirmation letter, partner capital and management fee schedules for the preparer and auditor to check. Use when the user runs `/fund audit-support`, asks to prepare for the annual audit, or shares capital account data. Writes AUDIT-SUPPORT-[fund]-[date].md."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->

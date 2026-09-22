@@ -222,6 +222,38 @@ def write_report(run, folder, filename, report, markdown):
     return output
 
 
+def write_companion(report_path, spec_path, fmt):
+    """Write a spreadsheet of the report's tables beside an already written report.
+
+    The Markdown stays the record: the companion is refused unless the report
+    and its sidecar are intact, and it gets its own sidecar tying it to them.
+    With spec_path None the sheets are built from the report's own tables.
+    """
+    required(fmt in {'xlsx', 'csv'}, 'Unknown companion format')
+    report_path = no_symlinks(report_path)
+    valid_filename(report_path.name)
+    required(report_path.is_file(), 'Report must already exist')
+    sidecar = load(no_symlinks(report_path.parent / (report_path.name + '.json')))
+    required(sidecar.get('markdown_sha256') == digest(report_path), 'Report differs from its sidecar')
+    required(nonempty(sidecar.get('run_id')), 'Report sidecar has no run')
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    import fund_xlsx
+    output = report_path.with_suffix('.' + fmt)
+    if spec_path is None:
+        fund_xlsx.build(report_path, output, fmt, from_markdown=True)
+    else:
+        fund_xlsx.build(no_symlinks(spec_path), output, fmt)
+    try:
+        private_json(output.parent / (output.name + '.json'), {
+            'schema_version': VERSION, 'run_id': sidecar['run_id'], 'report_id': sidecar.get('report_id'),
+            'report_filename': report_path.name, 'markdown_sha256': sidecar['markdown_sha256'],
+            'format': fmt, 'companion_sha256': digest(output), 'human_review_required': True})
+    except Exception:
+        output.unlink()  # the companion was created by this call
+        raise
+    return output
+
+
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     commands = p.add_subparsers(dest='command', required=True)
@@ -243,6 +275,12 @@ def main():
     write = commands.add_parser('write-report')
     for field in ('run', 'folder', 'filename', 'report', 'markdown'):
         write.add_argument('--' + field, required=True)
+    companion = commands.add_parser('companion', help='Write an .xlsx or .csv of a written report\'s tables beside it')
+    companion.add_argument('--report', required=True, help='The Markdown report written by write-report')
+    source = companion.add_mutually_exclusive_group(required=True)
+    source.add_argument('--spec', help='Table spec JSON (see docs/production/xlsx.md)')
+    source.add_argument('--from-report', action='store_true', help="Use the report's own Markdown tables")
+    companion.add_argument('--format', choices=['xlsx', 'csv'], default='xlsx')
     args = p.parse_args()
     try:
         if args.command == 'slug':
@@ -254,6 +292,12 @@ def main():
         elif args.command == 'validate':
             validate(load(args.report))
             print('VALID: structure only; factual and professional review still required')
+        elif args.command == 'companion':
+            try:
+                print(write_companion(args.report, args.spec, args.format))
+            except RuntimeError as exc:  # openpyxl missing: say so, the skill falls back to CSV
+                print(f'ERROR: {exc}', file=sys.stderr)
+                return 3
         else:
             print(write_report(args.run, args.folder, args.filename, load(args.report), Path(args.markdown).read_text(encoding='utf-8')))
     except (ValueError, OSError, TypeError, KeyError):

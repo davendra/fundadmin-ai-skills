@@ -1,6 +1,6 @@
 ---
 name: fund-esg-report
-description: "Builds a preliminary ESG report for applicable SFDR, climate, EDCI, PRI and Taxonomy frameworks using verified versions, supplied data and explicit gaps. Use when the user runs `/fund esg-report`, asks for an SFDR or PAI disclosure, or shares portfolio ESG data. Writes ESG-REPORT-[fund]-[date].md."
+description: "Drafts a preliminary ESG report for applicable SFDR, climate, EDCI, PRI and Taxonomy frameworks from supplied data, with explicit gaps; does not certify SFDR compliance. Use when the user runs `/fund esg-report`, asks for an SFDR or PAI disclosure, or shares portfolio ESG data. Writes ESG-REPORT-[fund]-[date].md."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->

@@ -52,9 +52,9 @@ Models fund outcomes under Downside, Base Case and Upside assumptions: IRR, TVPI
 
 ## `/fundadmin:fund fee-audit <file>` {#fee-audit}
 
-Fee calculation audit & verification
+Fee recomputation against supplied LPA terms
 
-Audits management fee basis, offsets and expense caps, plus preferred return, catch-up, carry and clawback, against LPA terms and the ILPA Fee Reporting Template. Use when the user runs `/fundadmin:fund fee-audit`, asks if fees are correct, or shares fee workpapers.
+Recomputes management fee, offset, preferred return, catch-up, carry and clawback arithmetic and compares it with the supplied LPA terms, flagging differences and unsupported models. Use when the user runs `/fundadmin:fund fee-audit`, asks if fees are correct, or shares fee workpapers.
 
 | Host | Invocation |
 |---|---|

@@ -179,7 +179,7 @@ Reference: FinCEN CDD Rule (31 CFR 1010.230), FATCA, CRS, EU AMLD 5/6
 | **Reviewed By** (Compliance Officer) | [Name] | [date] | ____________________ |
 | **Approved By** (Senior Management) | [Name] | [date] | ____________________ |
 
-<!-- Senior Management approval is required for Enhanced risk classification investors. -->
+<!-- Whether Enhanced-risk investors need senior management sign-off is set by the firm's AML policy; record the policy basis. -->
 
 ### Review Notes
 
@@ -190,8 +190,8 @@ Reference: FinCEN CDD Rule (31 CFR 1010.230), FATCA, CRS, EU AMLD 5/6
 | Review Type | Frequency | Next Review Date |
 |-------------|-----------|-----------------|
 | **Sanctions Re-Screening** | [Quarterly / Semi-Annual / Annual] | [date] |
-| **KYC Refresh** | [Every 1 year (Enhanced) / 3 years (Standard) / 5 years (Simplified)] | [date] |
-| **Tax Document Renewal** | [Per expiry — W-8 forms expire 3 years from signing] | [date] |
+| **KYC Refresh** | [Cycle for this risk rating from the firm's rules grid (`refresh_months`); UNKNOWN if no grid] | [date] |
+| **Tax Document Renewal** | [Per the form's validity rule: W-8 generally through 31 December of the third succeeding year, subject to exceptions; W-9 has no routine expiry] | [date] |
 
 ---
 
@@ -210,11 +210,7 @@ TEMPLATE USAGE NOTES:
 4. Completeness Score should only count "Required = Y" items in the calculation.
 5. Screening must be performed at the entity level AND for all beneficial owners and control persons.
 6. PEP screening should cover domestic and foreign PEPs, as well as family members and close associates.
-7. For Enhanced due diligence investors:
-   - Obtain source of wealth declaration (not just source of funds)
-   - Require bank reference letter
-   - Obtain senior management approval before onboarding
-   - Set more frequent periodic review schedule (annual)
+7. Enhanced due diligence measures, approvals and review frequency come from the firm's approved AML/KYC policy and applicable law, as captured in its rules grid (`fund/references/kyc-rules-grid.example.yaml` shows the structure). Typical measures a policy may require include a source of wealth declaration, a bank reference and senior management sign-off; record which the policy requires and its basis.
 8. Document all screening results, including false positives and their resolution.
 9. FATCA and CRS classifications should be verified against the W-8 form and CRS self-certification.
 10. This checklist should be retained as part of the permanent KYC file for the investor.

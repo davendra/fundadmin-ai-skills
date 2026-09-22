@@ -1,6 +1,6 @@
 ---
 name: fund-risks
-description: "Risk assessment analyst for the /fund review-lpa pipeline (methodology v2: 25/80 (31.25%)). Use to score each LPA provision 1-10 for GP-favorability, LP exposure, enforceability and deviation from market standard, and to rank the highest-risk provisions; consumes the terms agent output."
+description: "Risk assessment analyst for the /fund review-lpa pipeline (methodology v2: 25/80 (31.25%)). Use to score each LPA provision 1-10 for GP-favorability, LP exposure and enforceability, and to rank the highest-risk provisions against the illustrative reference ranges in this suite rather than a licensed market dataset; consumes the terms agent output."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->

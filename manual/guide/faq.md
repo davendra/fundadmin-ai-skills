@@ -28,6 +28,10 @@ Claude Code: `claude plugin update fundadmin@fundadmin-ai-skills`, then restart.
 
 Use the [contact form](https://fundadmin.dev/#contact) on fundadmin.dev, and pick "A question about the plugin". Say which command you ran, on which host, and what you expected to happen. Please don't send pull requests to the plugin repository: it is regenerated on every release, so changes made there are overwritten.
 
+## Does it work with Anthropic's financial-services plugins?
+
+Yes, alongside them. Anthropic publishes a separate marketplace, [`anthropics/financial-services`](https://github.com/anthropics/financial-services), with general finance-operations plugins: ledger reconciliation, break tracing, accruals, roll-forwards, variance commentary, NAV tie-out, a KYC screener, financial models and market-data connectors. FundAdmin AI covers the private-fund documents those plugins do not: LPAs, side letters, PPMs, subscription documents, capital calls, distributions, capital accounts, K-1s, waterfalls, fees and MFN elections, with KYC routing built around fund investor types. The two install side by side and their skill names do not overlap. FundAdmin AI is independent and is not affiliated with or endorsed by Anthropic.
+
 ## Is it advice?
 
 No. FundAdmin AI produces document analysis and drafts to support fund administration work. It is not financial, legal or tax advice, and every report says so.

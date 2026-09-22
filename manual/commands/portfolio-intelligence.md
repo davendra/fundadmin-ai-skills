@@ -10,9 +10,9 @@ pageClass: commands
 
 ## `/fundadmin:fund portfolio-dashboard <files>` {#portfolio-dashboard}
 
-Multi-fund portfolio aggregation & analytics
+Multi-fund aggregation from supplied statements
 
-Aggregates several funds' documents into one LP view: TVPI/DPI/RVPI, strategy and GP mix, J-curve stage, and unfunded commitments. Use when the user runs `/fundadmin:fund portfolio-dashboard`, asks how the book is doing, or shares capital accounts across funds.
+Aggregates several funds' supplied statements into one LP view: TVPI/DPI/RVPI, strategy and GP mix, J-curve stage, and unfunded commitments. Use when the user runs `/fundadmin:fund portfolio-dashboard`, asks how the book is doing, or shares capital accounts across funds.
 
 | Host | Invocation |
 |---|---|

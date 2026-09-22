@@ -1,6 +1,6 @@
 ---
 name: fund-subscription-process
-description: "Orchestrates investor onboarding: classification, documents, suitability, FATCA/CRS, AML screening and subscription review, then an acceptance recommendation. Use when the user runs `/fund subscription-process` or asks what blocks an investor. Writes `SUBSCRIPTION-PROCESS-[investor]-[date].md`."
+description: "Coordinates the classification, documents, suitability, FATCA/CRS and screening reviews into one evidence and gap report; admission stays a separate human decision. Use when the user runs `/fund subscription-process` or asks what blocks an investor. Writes `SUBSCRIPTION-PROCESS-[investor]-[date].md`."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->
@@ -54,6 +54,7 @@ Use the evidence-validation adapter documented in regulatory.md for supplied scr
 ## Consolidation rules
 
 - Any missing, invalid or partial mandatory check: HOLD; show NOT PERFORMED/INCOMPLETE at the originating row.
+- When `/fund kyc-review` or `/fund aml-screen` produced a `fund_kyc.py` evaluation, take its `disposition`, `operational_readiness` and `reasons` from that JSON as returned, not from re-reading its report prose. ESCALATE FOR EDD consolidates as ESCALATE; REQUEST DOCUMENTS and HOLD consolidate as HOLD, with each reason listed.
 - Any potential match, supplied confirmed hit or unresolved material legal/risk issue: ESCALATE; retain other missing checks alongside it.
 - All required evidence complete and no unresolved flags: PRELIMINARY READY FOR HUMAN REVIEW.
 - Document completeness, risk scores, client representations and contractual signatures cannot override missing screening or qualification evidence.

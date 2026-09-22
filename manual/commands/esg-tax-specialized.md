@@ -10,9 +10,9 @@ pageClass: commands
 
 ## `/fundadmin:fund esg-report <data>` {#esg-report}
 
-ESG reporting & SFDR compliance
+ESG report draft (SFDR, PAI) — no compliance verdict
 
-Builds a preliminary ESG report for applicable SFDR, climate, EDCI, PRI and Taxonomy frameworks using verified versions, supplied data and explicit gaps. Use when the user runs `/fundadmin:fund esg-report`, asks for an SFDR or PAI disclosure, or shares portfolio ESG data.
+Drafts a preliminary ESG report for applicable SFDR, climate, EDCI, PRI and Taxonomy frameworks from supplied data, with explicit gaps; does not certify SFDR compliance. Use when the user runs `/fundadmin:fund esg-report`, asks for an SFDR or PAI disclosure, or shares portfolio ESG data.
 
 | Host | Invocation |
 |---|---|
@@ -52,9 +52,9 @@ Prepares a board, LPAC, annual, or special meeting memo with agenda, performance
 
 ## `/fundadmin:fund wire-verify <data>` {#wire-verify}
 
-Compares payment instructions and records independent verification evidence; no payment release.
+Wire change review & masked checklist — no approval
 
-Flags bank/beneficiary changes and missing callback evidence for wire instructions; issues a masked verification checklist. Use for `/fundadmin:fund wire-verify`, `/fundadmin:fund wire-verify`, new bank details, payment-instruction checks, or a shareable wire report that must mask account/tax/passport IDs.
+Flags bank/beneficiary changes and missing callback evidence for wire instructions; prepares a masked checklist; no payment approval. Use for `/fundadmin:fund wire-verify`, `/fundadmin:fund wire-verify`, new bank details, payment-instruction checks, or a shareable wire report that must mask account/tax/passport IDs.
 
 | Host | Invocation |
 |---|---|

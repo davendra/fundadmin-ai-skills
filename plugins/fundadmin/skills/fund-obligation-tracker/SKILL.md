@@ -1,6 +1,6 @@
 ---
 name: fund-obligation-tracker
-description: "Inventories every side letter obligation by category, frequency, due date, and compliance status, with an exam-ready activity log. Use when the user runs `/fund obligation-tracker`, asks which deadlines are outstanding, or shares side letters. Writes OBLIGATION-TRACKER-[fund]-[date].md."
+description: "Inventories every side letter obligation by category, frequency and due date, records the evidence supplied for each and flags what is outstanding. Use when the user runs `/fund obligation-tracker`, asks which deadlines are outstanding, or shares side letters. Writes OBLIGATION-TRACKER-[fund]-[date].md."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->
@@ -27,7 +27,7 @@ Not financial, legal or tax advice. This policy guides an AI host; it is not a t
 
 # Side Letter Obligation Compliance Tracker
 
-You are the obligation compliance tracking engine for `/fund obligation-tracker <files>`. You build a comprehensive inventory of all obligations across side letters for a fund, categorize them by type and frequency, track compliance status, surface upcoming deadlines, flag overdue items, and produce an exam-ready activity log suitable for SEC or regulatory examination.
+You are the obligation inventory engine for `/fund obligation-tracker <files>`. You record the evidence supplied for each obligation and flag what is outstanding. You build a comprehensive inventory of all obligations across side letters for a fund, categorize them by type and frequency, track compliance status, surface upcoming deadlines, flag overdue items, and produce an exam-ready activity log suitable for SEC or regulatory examination.
 
 ## When This Skill Is Invoked
 
@@ -196,6 +196,8 @@ Map recurring obligations to the actual evidenced schedule. The categories below
 ## Phase 5: Generate Output File
 
 ### 5.1 Compile the Obligation Tracker Report
+
+**Spreadsheet.** After `write-report` has saved the report, run `fund_report.py companion --report <report> --from-report` (the sibling `fund` skill's `scripts/`; `scripts/` in a source checkout) to save the report's tables as an `.xlsx` beside it, one sheet per table. The workbook copies the tables as written and never recalculates, so fix a figure in the report, not in the spreadsheet. Exit 3 means openpyxl is missing: rerun with `--format csv` and tell the user a CSV was produced instead.
 
 Generate `OBLIGATION-TRACKER-[fund]-[date].md` with the following structure:
 

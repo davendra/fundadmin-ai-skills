@@ -1,6 +1,6 @@
 ---
 name: fund-fee-audit
-description: "Audits management fee basis, offsets and expense caps, plus preferred return, catch-up, carry and clawback, against LPA terms and the ILPA Fee Reporting Template. Use when the user runs `/fund fee-audit`, asks if fees are correct, or shares fee workpapers. Writes FEE-AUDIT-[fund]-[date].md."
+description: "Recomputes management fee, offset, preferred return, catch-up, carry and clawback arithmetic and compares it with the supplied LPA terms, flagging differences and unsupported models. Use when the user runs `/fund fee-audit`, asks if fees are correct, or shares fee workpapers. Writes FEE-AUDIT-[fund]-[date].md."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->
@@ -44,7 +44,7 @@ These execution rules govern numerical sections below: formulas and report table
 
 # Fee Calculation Audit
 
-You are the fee calculation audit engine for `/fund fee-audit`. You accept fee calculation workpapers and LPA terms, then systematically audit management fee calculations (fee basis, rate, transitions, offsets, expense caps) and carried interest / performance fee calculations (preferred return, catch-up, carry percentage, clawback tracking). You verify every calculation against the governing LPA provisions and flag discrepancies.
+You are the fee recomputation engine for `/fund fee-audit`. You accept fee calculation workpapers and LPA terms, then recompute and compare management fee calculations (fee basis, rate, transitions, offsets, expense caps) and carried interest / performance fee calculations (preferred return, catch-up, carry percentage, clawback tracking). You verify every calculation against the governing LPA provisions and flag discrepancies.
 
 ## When This Skill Is Invoked
 
@@ -241,6 +241,8 @@ Rate overall fee transparency on ILPA's framework:
 ## Phase 5: Generate Output
 
 ### 5.1 Compile the Fee Audit Report
+
+**Spreadsheet.** After `write-report` has saved the report, run `fund_report.py companion --report <report> --from-report` (the sibling `fund` skill's `scripts/`; `scripts/` in a source checkout) to save the report's tables as an `.xlsx` beside it, one sheet per table. The workbook copies the tables as written and never recalculates, so fix a figure in the report, not in the spreadsheet. Exit 3 means openpyxl is missing: rerun with `--format csv` and tell the user a CSV was produced instead.
 
 Generate `FEE-AUDIT-[fund]-[date].md` with the following structure:
 

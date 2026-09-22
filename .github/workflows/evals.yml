@@ -27,7 +27,7 @@ jobs:
         run: python3 -m unittest tests.test_plugin_evals -v
       # Deferred (not run here — flaky/expensive; needs pinned Claude Code host,
       # explicit model, private traces, and candidate-bound RELEASE_EVIDENCE):
-      #   claude plugin eval --keep-temp --no-publish  (all 14 cases)
+      #   claude plugin eval --keep-temp --no-publish  (every saved case)
       #   python3 tools/verify_release_evidence.py --input /absolute/private/evidence.json
       # Those live in davendra/fundadmin-ai + operator-held evidence, not this
       # public distribution repo. See docs/production/README.md gates 3 and 6.

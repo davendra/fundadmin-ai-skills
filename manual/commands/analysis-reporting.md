@@ -10,9 +10,9 @@ pageClass: commands
 
 ## `/fundadmin:fund audit-support <file>` {#audit-support}
 
-Audit confirmation & schedule generation
+Draft auditor confirmations & supporting schedules
 
-Builds an audit package from capital account data: draft auditor confirmation letter, partner capital, and management fee schedules. Use when the user runs `/fundadmin:fund audit-support`, asks to prepare for the annual audit, or shares capital account data.
+Drafts an audit package from capital account data: auditor confirmation letter, partner capital and management fee schedules for the preparer and auditor to check. Use when the user runs `/fundadmin:fund audit-support`, asks to prepare for the annual audit, or shares capital account data.
 
 | Host | Invocation |
 |---|---|
@@ -24,9 +24,9 @@ Builds an audit package from capital account data: draft auditor confirmation le
 
 ## `/fundadmin:fund waterfall-review <file>` {#waterfall-review}
 
-Waterfall/fee calculation term review
+Waterfall/fee term review & consistency checks
 
-Extracts waterfall tiers, preferred return, catch-up, carry, clawback and fee terms, checks consistency, and scores each against market standard. Use when the user runs `/fundadmin:fund waterfall-review`, asks about fund economics, or shares waterfall provisions.
+Extracts waterfall tiers, preferred return, catch-up, carry, clawback and fee terms, checks consistency and compares each with the illustrative ranges in this skill. Use when the user runs `/fundadmin:fund waterfall-review`, asks about fund economics, or shares waterfall provisions.
 
 | Host | Invocation |
 |---|---|

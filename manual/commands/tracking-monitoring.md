@@ -24,9 +24,9 @@ Tracks MFN provisions across a fund's executed side letters, builds an eligibili
 
 ## `/fundadmin:fund obligation-tracker <files>` {#obligation-tracker}
 
-Obligation compliance tracking & deadlines
+Obligation inventory, evidence status & deadlines
 
-Inventories every side letter obligation by category, frequency, due date, and compliance status, with an exam-ready activity log. Use when the user runs `/fundadmin:fund obligation-tracker`, asks which deadlines are outstanding, or shares side letters.
+Inventories every side letter obligation by category, frequency and due date, records the evidence supplied for each and flags what is outstanding. Use when the user runs `/fundadmin:fund obligation-tracker`, asks which deadlines are outstanding, or shares side letters.
 
 | Host | Invocation |
 |---|---|
@@ -38,9 +38,9 @@ Inventories every side letter obligation by category, frequency, due date, and c
 
 ## `/fundadmin:fund covenant-monitor <file>` {#covenant-monitor}
 
-Debt covenant monitoring & breach alerts
+Covenant inventory, headroom recompute & threshold flags
 
-Extracts financial, reporting, and negative covenants from a credit facility and reports compliance status and headroom. Use when the user runs `/fundadmin:fund covenant-monitor`, asks about covenant breach risk, or shares a subscription line or loan agreement.
+Extracts financial, reporting and negative covenants from a credit facility and recomputes headroom from supplied data; no compliance verdict. Use when the user runs `/fundadmin:fund covenant-monitor`, asks about covenant breach risk, or shares a subscription line or loan agreement.
 
 | Host | Invocation |
 |---|---|

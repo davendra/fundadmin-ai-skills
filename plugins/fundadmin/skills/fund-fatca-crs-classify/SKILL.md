@@ -1,6 +1,6 @@
 ---
 name: fund-fatca-crs-classify
-description: "Determines an investor's FATCA Chapter 3 and 4 status, FFI or NFFE type, CRS classification, required tax forms and controlling person disclosure. Use when the user runs `/fund fatca-crs-classify` or shares a W-8 or CRS self-certification. Writes FATCA-CRS-CLASSIFICATION-[investor]-[date].md."
+description: "Reviews W-8, W-9 and CRS self-certifications into a preliminary FATCA Chapter 3/4 and CRS classification, marking unresolved facts, form gaps and treaty claims incomplete. Use when the user runs `/fund fatca-crs-classify` or shares a W-8 or CRS self-certification. Writes FATCA-CRS-CLASSIFICATION-[investor]-[date].md."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->
@@ -45,6 +45,8 @@ Determine US tax status from the relevant legal tests, not passport, address or 
 5. Active entity tests: check income AND assets for the relevant category and measurement period; other active/exempt categories have separate conditions. Certain professionally managed investment entities in non-participating CRS jurisdictions require passive-NFE treatment for due diligence. Verify the exact local definition.
 
 ## Forms and validity
+
+When a KYC record from `/fund kyc-review` exists for this investor, start the form inventory from its `tax_forms` entries and their locators, then read each form itself. The record lists what was found, not whether a form is valid or which classification it supports.
 
 Select W-9, W-8BEN, W-8BEN-E, W-8IMY with withholding statement/payee documents, W-8ECI or W-8EXP according to capacity and claim; non-US entities do not all use W-8BEN-E.
 

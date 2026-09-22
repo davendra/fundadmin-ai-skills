@@ -1,6 +1,6 @@
 ---
 name: fund-review-capital-call
-description: "Validates an incoming capital call notice: pro-rata math, fee line items, wire instructions, due dates, and LPA consistency, then scores it 1-10. Use when the user runs `/fund review-capital-call`, asks to verify a capital call, or shares a call notice. Writes CAPITAL-CALL-REVIEW-[fund]-[date].md."
+description: "Recomputes an incoming capital call notice: pro-rata math, fee line items, wire instructions, due dates, and LPA consistency, then scores it 1-10. Use when the user runs `/fund review-capital-call`, asks to verify a capital call, or shares a call notice. Writes CAPITAL-CALL-REVIEW-[fund]-[date].md."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->

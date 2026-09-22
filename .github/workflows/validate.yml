@@ -32,5 +32,7 @@ jobs:
         run: claude plugin validate --strict .
       - name: Install pinned build and PDF dependencies
         run: python3 -m pip install -r requirements-plugin.txt
+      - name: Build the manual
+        run: cd manual && npm ci --no-audit --no-fund && npm run docs:build
       - name: Structural and installed-runtime contracts
         run: python3 -m unittest discover -s tests -v

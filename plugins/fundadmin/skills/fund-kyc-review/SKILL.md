@@ -1,6 +1,6 @@
 ---
 name: fund-kyc-review
-description: "Scores one investor's KYC and AML package out of 100 across identity, beneficial ownership, sanctions and PEP screening and source of funds, and assigns a risk classification. Use when the user runs `/fund kyc-review` or shares a KYC package. Writes KYC-REVIEW-[investor]-[date].md."
+description: "Reviews one investor KYC/AML package: extracts a structured record, applies the firm's rules grid and routes it to request documents, escalate for EDD or hold, with collection completeness out of 100. Use when the user runs `/fund kyc-review` or shares a KYC package. Writes KYC-REVIEW-[investor]-[date].md."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->
@@ -47,14 +47,29 @@ Keep NOT PERFORMED, INCOMPLETE, POTENTIAL MATCH and NO MATCH REPORTED for each s
 
 FATF increased monitoring alone does not mandate EDD; retrieve the current statement and applicable domestic measures. Former PEP treatment is risk-based, subject to local minimum periods; no automatic 12-month clearance. Do not maintain country risk lists. Document the reason for any EDD measure or proposed risk tier.
 
+## Structured record, rules grid and routing
+
+The helpers live in the sibling `fund` skill: `scripts/fund_kyc.py` and `references/kyc-reader.md`, `kyc-record-schema.md` and `kyc-rules-grid.example.yaml` (source checkout: `scripts/` and `fund/references/`). The contract is `docs/production/kyc.md`.
+
+1. **Read.** Follow `kyc-reader.md`: a separate Explore subagent where the host has one, otherwise inline. The reader returns a KYC record; save it in the run folder and run `fund_kyc.py validate-record --record <file>`. Fix a failing record by reading again, never by editing it to pass.
+2. **Rules grid.** Use the firm's grid if the user supplied one; ask for it once if not. Without a grid, still evaluate: nothing is scored and the result is HOLD. The shipped example grid is for trying the skill; it caps every result at HOLD and the report says so. Never invent a grid or change one to alter an outcome.
+3. **Screening evidence.** Take it from `/fund aml-screen` or from supplied provider records in the `fund_screening.py` version 1 format. None supplied means screening NOT PERFORMED.
+4. **Evaluate.** `fund_kyc.py evaluate --record <file> [--grid <grid>] [--screening <evidence>]`. Report its risk rating, document matrix, each rule outcome with rule id and evidence, disposition and reasons as returned. A person may decide differently later; record that decision separately, never by editing the helper's result.
+5. **Spreadsheet.** After `write-report`, save `fund_kyc.py xlsx-spec --evaluation <evaluate output>` in the run folder and run `fund_report.py companion --report <report> --spec <spec>`. Exit 3 means openpyxl is missing: rerun with `--format csv` and tell the user a CSV was produced instead.
+
+The disposition is ESCALATE FOR EDD, REQUEST DOCUMENTS, HOLD or PRELIMINARY READY FOR HUMAN REVIEW; its `operational_readiness` is the readiness in the report. It routes work to a person and is never an admission or rejection.
+
 ## Report
 
 Write `KYC-REVIEW-[investor]-[date].md` in the isolated run output directory defined by the shared production contract, using an internal alias. Include:
 - Investor category, jurisdictions, source/effective-date register and unknowns.
 - Document checklist: RECEIVED, MISSING, EXPIRED, INCOMPLETE or VERIFIED WITH EVIDENCE.
-- KYC Completeness Score out of 100: received applicable items / known required items; show the denominator and unknown requirements separately. It measures document collection, not compliance or readiness. Use NOT CALCULABLE if applicability is unresolved.
+- KYC Completeness Score out of 100: received applicable items / known required items (the grid's required documents for this applicant type and risk, when a grid is supplied); show the denominator and unknown requirements separately. It measures document collection, not compliance or readiness. Use NOT CALCULABLE if applicability is unresolved.
 - Separate screening results and evidence-validation diagnostics.
 - Risk assessment (or UNASSESSED), EDD requirements, missing items, owner and target date.
+- Reader mode (`separate reading subagent (Explore)` or `inline, same context`) and any suspected injection, described without reproducing it.
+- Rules grid used (name, owner, effective date, or the example grid), disposition and every reason. Put the disposition on its own line as `Disposition: <value>`, in the report and again in your reply to the user.
+- Rule outcomes (rule id, outcome, routing, evidence) and the document matrix from the helper.
 - Preliminary operational readiness: HOLD, ESCALATE or PRELIMINARY READY FOR HUMAN REVIEW. No ACCEPT/REJECT decision.
 
 Do not suggest a general 30-day post-admission grace period for missing mandatory evidence. Refresh and retention periods require the actual applicable law and fund policy, including event-driven reviews. Carry unresolved statuses into all downstream outputs.

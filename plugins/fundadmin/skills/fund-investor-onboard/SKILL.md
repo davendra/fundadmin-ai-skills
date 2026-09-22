@@ -1,6 +1,6 @@
 ---
 name: fund-investor-onboard
-description: "Builds an onboarding checklist by investor type: required documents, accreditation and qualified purchaser tests, AML and KYC screening, and a day-by-day timeline. Use when the user runs `/fund investor-onboard` or describes an incoming investor. Writes ONBOARDING-CHECKLIST-[type]-[date].md."
+description: "Prepares an onboarding checklist by investor type: documents to collect, the qualification, tax and screening reviews to run, owners and a timeline. Does not screen or admit an investor. Use when the user runs `/fund investor-onboard` or describes an incoming investor. Writes ONBOARDING-CHECKLIST-[type]-[date].md."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->
@@ -51,6 +51,10 @@ Use [regulatory guidance](../../docs/production/regulatory.md). Record jurisdict
 Invoke only available skills; if a specialist cannot run, retain the affected workstream as NOT PERFORMED or INCOMPLETE. Do not imply a connector or verification service was used.
 
 Maintain distinct document collection, screening, qualification, tax and operational-readiness fields. Carry NOT PERFORMED, INCOMPLETE and POTENTIAL MATCH verbatim from each review. Even 100% document collection does not clear AML checks. No categorical country prohibitions, FATF-grey-list EDD rule or 12-month PEP clearance.
+
+## Document checklist from the rules grid
+
+When the firm has a KYC rules grid (see `docs/production/kyc.md`; the helpers are in the sibling `fund` skill), take the document checklist from its `required_documents` for this applicant type: the `low` list, plus the `medium` and `high` lists where the expected risk may reach them, each marked with the tier it comes from. Cite the grid's name, owner and effective date as the requirement basis. Without a firm grid, the requirement basis for each document is UNKNOWN (policy not supplied); the shipped example grid is structure only and is never a basis. The KYC workstream then runs `/fund kyc-review`, which evaluates the documents actually received against the same grid.
 
 ## Readiness and handoff
 

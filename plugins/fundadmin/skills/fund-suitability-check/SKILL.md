@@ -1,6 +1,6 @@
 ---
 name: fund-suitability-check
-description: "Verifies Accredited Investor, Qualified Purchaser and Qualified Client status from subscription documents, flagging borderline and specific-purpose cases. Use when the user runs `/fund suitability-check` or asks whether an investor qualifies. Writes `SUITABILITY-CHECK-[investor]-[date].md`."
+description: "Reviews supplied evidence for the accredited investor, qualified purchaser and qualified client tests, recording each as supported or incomplete; does not determine eligibility. Use when the user runs `/fund suitability-check` or asks whether an investor qualifies. Writes `SUITABILITY-CHECK-[investor]-[date].md`."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->

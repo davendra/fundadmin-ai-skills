@@ -1,6 +1,6 @@
 ---
 name: fund-review-lpa
-description: "Runs the 5-agent LPA pipeline (terms, risks, compliance, obligations, recommendations) and aggregates it into an LPA Safety Score with provision-by-provision analysis. Use when the user runs `/fund review-lpa`, asks to review fund terms, or shares an LPA. Writes `LPA-REVIEW-[fund]-[date].md`."
+description: "Runs the 5-agent LPA pipeline (terms, risks, compliance, obligations, recommendations) into methodology v2 heuristic document favourability, or an explicit unavailable result. Use when the user runs `/fund review-lpa`, asks to review fund terms, or shares an LPA. Writes `LPA-REVIEW-[fund]-[date].md`."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->

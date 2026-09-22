@@ -8,9 +8,9 @@ pageClass: commands
 
 ## `/fundadmin:fund check-compliance <file>` {#check-compliance}
 
-Compliance gap analysis (FATCA/CRS/AML/ERISA)
+Compliance evidence-gap review (FATCA/CRS/AML/ERISA)
 
-Audits a document against FATCA, CRS, AML/KYC, ERISA, Form PF, Form D, Form ADV, AIFMD, SFDR, and SEC Marketing Rule checks, scoring each framework. Use when the user runs `/fundadmin:fund check-compliance`, asks for a compliance gap check, or shares an LPA or PPM.
+Reviews a document for evidence gaps against FATCA, CRS, AML/KYC, ERISA, Form PF/D/ADV, AIFMD and SFDR requirements; document language is not operational compliance. Use when the user runs `/fundadmin:fund check-compliance`, asks for a compliance gap check, or shares an LPA or PPM.
 
 | Host | Invocation |
 |---|---|
@@ -22,9 +22,9 @@ Audits a document against FATCA, CRS, AML/KYC, ERISA, Form PF, Form D, Form ADV,
 
 ## `/fundadmin:fund kyc-review <file>` {#kyc-review}
 
-KYC/AML document completeness review
+KYC/AML file review, routed by the firm's rules grid
 
-Scores one investor's KYC and AML package out of 100 across identity, beneficial ownership, sanctions and PEP screening and source of funds, and assigns a risk classification. Use when the user runs `/fundadmin:fund kyc-review` or shares a KYC package.
+Reviews one investor KYC/AML package: extracts a structured record, applies the firm's rules grid and routes it to request documents, escalate for EDD or hold, with collection completeness out of 100. Use when the user runs `/fundadmin:fund kyc-review` or shares a KYC package.
 
 | Host | Invocation |
 |---|---|
@@ -36,9 +36,9 @@ Scores one investor's KYC and AML package out of 100 across identity, beneficial
 
 ## `/fundadmin:fund regulatory-filing <type>` {#regulatory-filing}
 
-Prepares filing drafts and evidence gaps; no submission or compliance certification.
+Filing draft prep (Form PF/D/ADV) — no submission
 
-Prepares filing drafts and evidence gaps; no submission or compliance certification.
+Prepares a filing draft for Form PF/D/ADV, FATCA/CRS, Form 13F or FBAR: extracts required data points, scores completeness and flags gaps against the deadline; no submission or certification. Use when the user runs `/fundadmin:fund regulatory-filing` or asks to prepare a filing.
 
 | Host | Invocation |
 |---|---|

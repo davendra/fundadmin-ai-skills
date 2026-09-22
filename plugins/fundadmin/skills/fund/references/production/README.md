@@ -2,7 +2,7 @@
 
 ## Release status
 
-Version 1.1.0 is a **supervised-pilot release candidate**, not approval for unattended fund administration. The plugin supplies instructions and bounded local helpers; the host controls model execution, access and tools. Automated tests do not certify legal accuracy, investor eligibility, sanctions clearance, tax classification or payment safety.
+Version 1.2.0 is a **supervised-pilot release candidate**, not approval for unattended fund administration. The plugin supplies instructions and bounded local helpers; the host controls model execution, access and tools. Automated tests do not certify legal accuracy, investor eligibility, sanctions clearance, tax classification or payment safety.
 
 The scope of this hardening is the skills/plugin distribution. The source repository's commercial web applications, MCP server and deployment infrastructure require their own security, tenancy, authentication, backup and operational reviews before production use.
 
@@ -17,8 +17,10 @@ The scope of this hardening is the skills/plugin distribution. The source reposi
 | AML/KYC screening | Validation of supplied provider evidence; not a screening service | Approved current provider evidence and compliance review |
 | Email and vault workflows | Host connector-dependent; no implicit send/delete/write permission | Approved connectors and narrowly scoped access |
 | PDF reports | Rendering of supplied report, not independent verification | Pinned ReportLab environment; source report retained |
+| KYC routing | Rules-grid evaluation of an extracted record; routes to a person, never admits or clears | `fund_kyc.py`, the firm's own rules grid, supplied screening evidence ([kyc.md](kyc.md)) |
+| Spreadsheet companions | The report's tables as `.xlsx` or CSV beside the report; no formulas, no new figures | `fund_xlsx.py`; openpyxl for `.xlsx`, CSV without it |
 
-Detailed boundaries: [calculations](calculations.md), [LPA scoring](lpa-scoring.md), [regulatory](regulatory.md), [intake](intake.md), [PDF](pdf.md). Packaged `skills/fund/references/` contains the shared production and evidence contracts.
+Detailed boundaries: [calculations](calculations.md), [LPA scoring](lpa-scoring.md), [regulatory](regulatory.md), [intake](intake.md), [PDF](pdf.md), [installation and release channels](installation-and-release-channels.md). Packaged `skills/fund/references/` contains the shared production and evidence contracts.
 
 ## Data handling
 
@@ -30,9 +32,11 @@ Select a retention period with the business/data owner. Record the run ID, reaso
 
 ## Installation and upgrade
 
-Use a reviewed source checkout from the `plugin-release` lineage; do not execute an unreviewed remote shell script. Build the plugin with `python3 tools/build_plugin.py`. The generated `.fundadmin-generated.json` records a fixed source baseline commit plus SHA-256 hashes of actual working-tree inputs, so uncommitted changes are distinguishable without making the generated tree stale every time it is committed. The publishing commit separately records the exact source revision.
+User installation routes, release channels and what a supervised pilot pins and records are in [installation and release channels](installation-and-release-channels.md). This section covers the maintainer build and the plain-skills route.
 
-Create a virtual environment and install `requirements-plugin.txt` for build/PDF checks. Core evidence, calculation, score and screening helpers use the Python standard library. For a plain skills installation, run the reviewed local `install.sh`; `FUNDADMIN_CLAUDE_DIR` can point to a dedicated test directory. An existing installation requires explicit `FUNDADMIN_ALLOW_UPDATE=1` and is backed up first. No real host installation is required to run the test suite.
+Use a reviewed source checkout of `main` in `davendra/fundadmin-ai` (the release lineage since the 1.1.0 line was merged into it on 22 September 2026); do not execute an unreviewed remote shell script. Build the plugin with `python3 tools/build_plugin.py`. The generated `.fundadmin-generated.json` records a fixed source baseline commit plus SHA-256 hashes of actual working-tree inputs, so uncommitted changes are distinguishable without making the generated tree stale every time it is committed. The publishing commit separately records the exact source revision.
+
+Create a virtual environment and install `requirements-plugin.txt` for build/PDF checks. Core evidence, calculation, score and screening helpers use the Python standard library; the spreadsheet companion needs `openpyxl` for `.xlsx` and falls back to CSV without it ([xlsx.md](xlsx.md)). For a plain skills installation, run the reviewed local `install.sh`; `FUNDADMIN_CLAUDE_DIR` can point to a dedicated test directory. An existing installation requires explicit `FUNDADMIN_ALLOW_UPDATE=1` and is backed up first. No real host installation is required to run the test suite.
 
 ## Verification and launch gates
 
@@ -47,7 +51,13 @@ Create a virtual environment and install `requirements-plugin.txt` for build/PDF
 
 ## Candidate-bound behavioural evidence
 
-Run installed-plugin evaluations with the pinned Claude Code 2.1.278 CLI, an explicitly selected model, `--keep-temp`, `--no-publish`, a bounded cost ceiling and only required local tools. Do not enable real MCP servers or network tools for synthetic qualification. Preserve each actual response, trace and structured result in approved private storage outside generated build inputs. Record the resolved model identifier from the trace, not just an alias such as `sonnet`. Inspection of the actual output is separate from automated grader scores.
+Run installed-plugin evaluations with the pinned Claude Code 2.1.278 CLI, an explicitly selected model, `--keep-temp`, `--no-publish`, a bounded cost ceiling and only required local tools. The host command must pass `--allow-tools Bash Write Edit` (and `Skill Read Glob Grep` for frontmatter parity); case `allowed_tools` alone does not grant gated tools to the operator session — without the flag, `command_permissions.allowedTools` is empty and write/Bash cases fail. Canonical argv lives in `tools/gate3_eval_argv.py`:
+
+```bash
+claude plugin eval plugin/plugins/fundadmin --trust-plugin --keep-temp --no-publish -j 1 --max-cost-usd 5 --judge-model haiku --allow-tools Bash Write Edit Skill Read Glob Grep
+```
+
+Do not enable real MCP servers or network tools for synthetic qualification. Preserve each actual response, trace and structured result in approved private storage outside generated build inputs. Record the resolved model identifier from the trace, not just an alias such as `sonnet`. Inspection of the actual output is separate from automated grader scores.
 
 The evidence JSON uses `schema_version: 1`, `candidate_sha256` from `tools.build_plugin.provenance()['source_inputs_sha256']`, `host: "Claude Code"`, `host_version: "2.1.278"`, `resolved_model`, a timezone-aware `recorded_at`, and `scope: "synthetic-installed-plugin-smoke"`. Its `cases` must include each directory with `tools/plugin/evals/*/prompt.md`, once, with `name`, `passed: true`, `manual_review: {outcome: "pass", reviewer, notes}`, and hashed `artifacts` of kinds `result`, `trace` and `output`. Each artefact has a non-empty relative `path` and `sha256`; parent traversal and symlinks are rejected. Evidence is not self-authenticating and this structure does not replace independent professional review.
 

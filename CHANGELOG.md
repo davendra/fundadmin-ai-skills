@@ -1,19 +1,92 @@
 # Changelog — fundadmin plugin
 
-## Unpublished 1.1.0 candidate — second-review corrections
+All notable changes to the published plugin. The source repository
+(`davendra/fundadmin-ai`) keeps the full project changelog.
+
+## 1.2.0 — 2026-09-22
+
+- **Published without host-evaluation evidence.** The installed-plugin eval
+  cases were not run against this candidate; the offline contract, helper and
+  validation suites were. Host behaviour is unverified for this release. See
+  `docs/production/verification.md`.
+
+1.1.1 was never published. Its changes ship in this release and are listed
+after the new work.
+
+- KYC routing. `kyc-review`, `aml-screen` and `kyc-tracker` now read the
+  onboarding documents into a structured record first (in a separate Explore
+  subagent where Claude Code has one, inline otherwise, and the report says
+  which), then `fund_kyc.py` applies the firm's own rules grid and any supplied
+  screening evidence. The result is a risk rating, a document matrix, one outcome
+  per rule and a disposition for a person to act on: ESCALATE FOR EDD, REQUEST
+  DOCUMENTS, HOLD or PRELIMINARY READY FOR HUMAN REVIEW. Nothing admits, rejects
+  or clears an investor. Without a firm grid nothing is scored and the result is
+  HOLD; the shipped example grid shows the structure and caps every result at
+  HOLD. `investor-onboard` takes its document checklist from the grid,
+  `fatca-crs-classify` starts from the record's tax forms, and
+  `subscription-process` reads the disposition as returned.
+- `aml-screen` can run checks through a screening provider connector the firm has
+  approved, when the user authorises sending the subjects' details to it; without
+  one, checks stay NOT PERFORMED.
+- KYC reviews and the KYC tracker save an Excel workbook beside the report (a CSV
+  when openpyxl is not installed). So do `review-capital-account`, `reconcile`,
+  `fee-audit`, `waterfall-review` and `obligation-tracker`: their workbook is the
+  report's own tables, one sheet each, copied as written and never recalculated.
+- Four new host eval cases: `kyc-disposition`, `kyc-reader-injection`,
+  `kyc-no-grid` and `kyc-tracker-xlsx` (18 in all).
+- `fund_xlsx.py`, a spreadsheet companion helper: a review's tables as an
+  `.xlsx` workbook (openpyxl) or a CSV file, written beside the Markdown report
+  with its own sidecar. It never writes formulas, and without openpyxl it says so
+  instead of writing a workbook.
+- The user manual (https://help.fundadmin.dev) is generated from the plugin
+  source again and ships in `manual/`, so a release can no longer drop it.
+  Its agents and output-files pages describe methodology v2 and the shared
+  contract v1 run layout; the letter-grade scale and the 1.0 LPA-pipeline and
+  onboarding figures are gone. README graphics live in
+  `manual/public/images/` (not `docs/images/`), and the README links the
+  manual's privacy page.
+- Brings in the fixes made directly on this repository after 1.1.0 (#1, #2,
+  #5–#8): skill write paths aligned with shared contract v1; `report-pdf`
+  recognises capital-call, distribution and K-1 reports; corrected filename
+  labels for `wire-verify`, `ingest` and `report-pdf`; firmer trigger wording
+  so the bare `/fundadmin:fund` menu and `wire-verify` load their skills; the
+  eval-fixture workflow (`.github/workflows/evals.yml`) and its structural
+  tests. They now come from the source repository, so the next release keeps them.
+- Gate-3 eval graders: deterministic regex prechecks for the capital-rounding,
+  privacy-mask and review-lpa cases, JavaScript-compatible regex flags, and
+  the menu case counts a `/fundadmin:fund` slash invocation as the skill firing.
+- The contract suite caps skill descriptions at 320 characters (the menu
+  skill's at 1,024) instead of 1.0.3's 200, and keeps the manual, licence and
+  Codex-link checks.
+- Installation guidance is now one hierarchy, in the README, the manual and
+  `catalog.json`: the plugin marketplace for Claude Code and Cowork
+  (recommended), a workspace marketplace import pinned to the reviewed release
+  tag for Codex and ChatGPT teams, and third-party skill installers described
+  accurately as developer compatibility that copies selected raw skill files
+  and neither the agents, the metadata nor the report helper. The manual no
+  longer tells anyone to pipe a remote script into a shell, and the README no
+  longer claims the marketplace serves an older baseline than the release it
+  ships in. New page: `docs/production/installation-and-release-channels.md`
+  (what `main` is, immutable `fundadmin--vX.Y.Z` tags, what a pilot pins and
+  records, one installation method per environment).
+- Descriptions and the `/fund` menu state the real boundary. Wording that
+  claimed screening, clearance, certification, eligibility determination,
+  admission, filing submission, payment approval or a market-standard verdict
+  is replaced by what the skills do: review supplied evidence, recompute
+  arithmetic, draft documents, record checks as incomplete or not performed.
+  The doc-only overrides that used to patch this downstream are gone, so the
+  menu a user sees and the published catalogue now say the same thing, and a
+  contract test fails if a claim comes back.
+
+## 1.1.0 — 2026-09-21 — Supervised-pilot release candidate
+
+Published as `fundadmin--v1.1.0` on 2026-09-22. Second-review corrections included in it:
 
 - Validate installer path components consistently before update checks and writes; reject unsafe aliases and hard-linked targets. Resolve selected release executables before directory changes.
 - Separate capital-call risk blockers from descriptive scores; align eligible-pool allocation review with deterministic currency-unit rounding.
 - Add bounded NAV-inclusive KS-PME, signed YTD reconciliation and capital-call status workpapers; remove contradictory financial interpretations.
 - Share safe slug/filename generation between direct and routed skills; distinguish local candidates from the older public baseline and qualify host support.
 - Exercise synthetic source-to-sidecar-to-Markdown-to-PDF workflows; require preserved, candidate-bound host evidence before actual publication. Offline test success is not host or professional approval.
-
-All notable changes to the published plugin. The source repository
-(`davendra/fundadmin-ai`) keeps the full project changelog.
-
-## 1.1.0 — 2026-09-21 — Supervised-pilot release candidate
-
-Local source candidate only; this entry does not establish publication.
 
 - Nine deterministic Decimal calculation operations with reproducible workpapers,
   explicit rounding, conservative IRR ambiguity handling and bounded waterfall support.
@@ -47,6 +120,60 @@ Local source candidate only; this entry does not establish publication.
   remote shell script is piped into a shell. Existing host commands are retained.
 
 The entries below describe historical releases, not current runtime guarantees.
+
+## 1.0.8 — 2026-09-22
+
+- The manual now points to the new contact form on fundadmin.dev from its
+  navbar, footer, FAQ and privacy page, replacing links to GitHub issues
+  that visitors could not open while the repositories are private. The
+  privacy page covers fundadmin.dev and what the form collects.
+
+## 1.0.7 — 2026-09-22
+
+- `LICENSE` is now the plain MIT text. It used to carry the source
+  repository's scope paragraph, which named folders and a second license
+  that are not in this repository. The README's License section says what
+  the license covers: everything here.
+- The Codex manifest's privacy link pointed at a README anchor that did not
+  exist. It now points at a new privacy page in the manual, which says what
+  the plugin and the manual site do and do not send anywhere, including
+  that a skill given a URL asks the host to fetch it.
+
+## 1.0.6 — 2026-09-22
+
+- Manual: figures for the quick start, output files and sample documents
+  pages, and a new social preview card in the same style (the old card was
+  from the previous site and quoted a 60-second review).
+
+## 1.0.5 — 2026-09-22
+
+- Manual: every command category now opens with an illustration in the
+  README style, eleven new ones drawn for the categories that had none
+  (drafting, compliance, reporting, negotiation, tracking, analytics,
+  investor operations, portfolio, knowledge base, cross-document analysis,
+  ESG and tax).
+
+## 1.0.4 — 2026-09-22
+
+- Manual redesign: a navy and teal theme with IBM Plex type and a navy dark
+  mode, the Quorum ring as the home mark, category icons on the home page and
+  command index, the LPA pipeline, batch intake and onboarding graphics on
+  their category pages, and on the agents page a weights ring and grade scale
+  drawn from the same numbers as `catalog.json`.
+
+## 1.0.3 — 2026-09-21
+
+- A user manual, published at https://help.fundadmin.dev and shipped in this
+  repository under `manual/`. The command reference (one page per category,
+  every command with its arguments, hosts and output file), the agents page
+  and the output-files page are generated from the same data as
+  `catalog.json`. The README graphics moved from `docs/images/` to
+  `manual/public/images/`.
+- Shorter skill and agent descriptions. Every session loads all 63 skill
+  descriptions and the 5 agent descriptions, so they were trimmed to 200
+  characters or fewer (about 18,000 characters down to under 12,000) while keeping
+  what matters for choosing a skill: what it does, its `/fund` command, and the
+  file it writes. The contract suite now enforces the limit.
 
 ## 1.0.2 — 2026-09-21
 

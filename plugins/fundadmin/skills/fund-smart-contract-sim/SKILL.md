@@ -283,7 +283,7 @@ GP receives $0. GP commitment loss: $[X].
 3. [ ] Validate clawback mechanics with GP counsel
 4. [ ] Compare results against fund administrator's waterfall model
 5. [ ] Run `/fund waterfall-review` for a full provision-by-provision waterfall analysis
-6. [ ] Run `/fund benchmark` to compare waterfall terms against market standards
+6. [ ] Run `/fund benchmark` to compare waterfall terms with this suite's illustrative ranges
 7. [ ] Run `/fund lpa-negotiate` to generate counter-proposals for GP-favorable terms
 ```
 

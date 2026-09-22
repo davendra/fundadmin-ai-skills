@@ -1,0 +1,127 @@
+# EXAMPLE KYC/AML rules grid for scripts/fund_kyc.py (schema version 1).
+#
+# This file shows the structure. It is NOT firm policy, NOT a legal standard and
+# NOT a recommendation of thresholds, documents or refresh cycles. Every value
+# below is a placeholder chosen to exercise the helper. Because `example: true`,
+# any evaluation with this grid is capped at HOLD and marked
+# "EXAMPLE RULES GRID: NOT FIRM POLICY".
+#
+# To use a real grid: copy this file, have the firm's compliance owner set every
+# value from the firm's approved AML/KYC procedures and applicable law, set
+# `example: false`, and fill in `owner` and `effective_date`.
+#
+# Jurisdiction lists are deliberately not maintained here. Populate them from the
+# current FATF statements, sanctions programmes and the firm's own risk
+# assessment on the review date. "ZZ" is a placeholder code, not a country.
+
+schema_version: 1
+name: Example grid (structure only)
+example: true
+# owner: Head of Compliance, <firm>          # required when example is false
+# effective_date: 2026-10-01                 # required when example is false
+
+ubo_threshold_pct: 25          # placeholder; set from the firm's policy and applicable law
+expiry_warning_days: 60        # documents expiring within this window show as EXPIRING
+
+jurisdiction_lists:
+  higher_risk: [ZZ]            # placeholder only
+
+# Risk rating: points from PRESENT factors; thresholds give medium and high.
+# A factor with forces_high: true makes the rating high on its own.
+risk_factors:
+  - id: RF-JUR
+    text: Applicant or an owner is connected to a higher-risk jurisdiction
+    when: {type: jurisdiction_in_list, list: higher_risk}
+    points: 3
+    forces_high: true
+  - id: RF-PEP
+    text: Applicant declared a politically exposed person connection
+    when: {type: pep_declared_in, values: ["yes"]}
+    points: 3
+    forces_high: true
+  - id: RF-STRUCTURE
+    text: Ownership runs through more than two layers
+    when: {type: chain_depth_over, depth: 2}
+    points: 2
+  - id: RF-TYPE
+    text: Trust, nominee or other structure that can obscure ownership
+    when: {type: applicant_type_in, values: [trust, nominee_intermediary, other]}
+    points: 2
+  - id: RF-SOW
+    text: Source of wealth asserted without support
+    when: {type: funds_status_in, field: source_of_wealth, values: [asserted, not_stated]}
+    points: 1
+
+risk_thresholds:
+  medium: 2
+  high: 5
+
+# Documents required by applicant type and risk. Higher tiers add to lower ones.
+# `default` applies to any applicant type not listed.
+required_documents:
+  individual:
+    low: [passport, proof_of_address]
+    medium: [source_of_funds_evidence]
+    high: [source_of_wealth_evidence]
+  corporate:
+    low: [certificate_of_incorporation, register_of_directors, ubo_declaration, authorised_signatory_list]
+    medium: [source_of_funds_evidence]
+    high: [source_of_wealth_evidence, ownership_chart]
+  trust:
+    low: [trust_deed, trustee_identification, ubo_declaration]
+    medium: [source_of_funds_evidence]
+    high: [source_of_wealth_evidence]
+  default:
+    low: [constitutional_document, ubo_declaration, authorised_signatory_list]
+    medium: [source_of_funds_evidence]
+    high: [source_of_wealth_evidence]
+
+# Months between completed reviews, by rating. Placeholders.
+refresh_months:
+  low: 36
+  medium: 24
+  high: 12
+
+# Each rule's text states a problem. TRIGGERED means the problem is present,
+# and on_trigger routes it: request-docs, escalate-edd or hold. Phrase firm
+# rules the same way, so a TRIGGERED row reads correctly in the workbook.
+rules:
+  - id: R-1.1
+    text: No natural person at or above the ownership threshold is identified (non-individual applicant)
+    applies_to: [corporate, partnership, trust, fund, foundation_endowment, nominee_intermediary, other]
+    when: {type: no_natural_person_owner_at_threshold}
+    on_trigger: request-docs
+  - id: R-1.2
+    text: A disclosed owner has no ownership percentage
+    when: {type: unknown_ownership_pct}
+    on_trigger: request-docs
+  - id: R-1.3
+    text: No controller or authorised signatory is identified (non-individual applicant)
+    when: {type: no_controller_identified}
+    on_trigger: request-docs
+  - id: R-2.1
+    text: The individual's passport has expired
+    applies_to: [individual]
+    when: {type: document_expired, document: passport}
+    on_trigger: request-docs
+  - id: R-3.1
+    text: Source of funds is asserted or not stated, not documented
+    when: {type: funds_status_in, field: source_of_funds, values: [asserted, not_stated]}
+    on_trigger: request-docs
+  - id: R-3.2
+    text: Source of wealth is asserted or not stated for a medium- or high-risk applicant
+    min_risk: medium
+    when: {type: funds_status_in, field: source_of_wealth, values: [asserted, not_stated]}
+    on_trigger: request-docs
+  - id: R-4.1
+    text: A PEP connection is declared
+    when: {type: pep_declared_in, values: ["yes"]}
+    on_trigger: escalate-edd
+  - id: R-4.2
+    text: No PEP declaration is given
+    when: {type: pep_declared_in, values: [not_stated]}
+    on_trigger: request-docs
+  - id: R-5.1
+    text: The applicant or an owner is connected to a higher-risk jurisdiction
+    when: {type: jurisdiction_in_list, list: higher_risk}
+    on_trigger: escalate-edd

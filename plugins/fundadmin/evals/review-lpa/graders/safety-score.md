@@ -1,7 +1,10 @@
 ---
-type: llm
+type: regex
 name: safety-score
+target: last_message
+pattern: "(?=[\\s\\S]*(?:methodology v2|document favourability))(?=[\\s\\S]*terms)(?=[\\s\\S]*risk)(?=[\\s\\S]*compliance)(?=[\\s\\S]*obligations)(?=[\\s\\S]*(?:unavailable|\\bnull\\b|aggregate[\\s\\S]{0,40}withheld))[\\s\\S]+"
+flags: i
 weight: 2
 ---
 
-Pass only if any aggregate is explicitly methodology v2 document favourability (not investment safety), uses terms/risk/compliance/obligations with recommendations excluded, and shows supporting dimensions. If evidence is insufficient, the aggregate must be unavailable rather than invented. Fail on a manufactured score or recommendations contributing to the aggregate.
+Deterministic precheck: methodology v2 favourability shape with terms/risk/compliance/obligations and an unavailable/null/withheld aggregate when evidence is insufficient. Passes without an LLM judge when this shape is present.

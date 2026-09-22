@@ -1,6 +1,6 @@
 ---
 name: fund-ingest
-description: "Classifies a folder of mixed fund PDFs, routes each to its `/fund review-*` skill, auto-reconciles matching pairs and runs the portfolio dashboard at 3+ funds. Use when the user runs `/fund ingest` or drops a folder of GP portal PDFs. Writes INGEST-REPORT-[date].md and INGEST-MANIFEST.md."
+description: "Classifies a folder of mixed fund PDFs, routes each to its `/fund review-*` skill, runs reconciliation on matching pairs and the portfolio dashboard at 3+ funds. Use when the user runs `/fund ingest` or drops a folder of GP portal PDFs. Writes INGEST-REPORT-[date].md and INGEST-MANIFEST.md."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->
@@ -216,7 +216,7 @@ As each document is processed, log a one-line status:
 
 ---
 
-### Step 5: Auto-Reconcile — Match Complementary Documents
+### Step 5: Reconcile — Match Complementary Documents
 
 After individual reviews complete, reconcile only unique, evidenced matches on `(fund identity, investor identity, currency, period relationship)`. Preserve exact source identities; aliases require a documented user-approved mapping. The period relationship must be explicit: transaction within statement period, distribution within tax year with complete coverage, or adjacent statement periods. Missing fields, conflicting revisions, multiple candidates or uncertain coverage stop the affected match as `BLOCKED`; no inferred joins from similar names, amounts or filenames. Unrelated reviews may continue. Pass this gate to `/fund reconcile`.
 

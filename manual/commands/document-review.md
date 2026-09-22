@@ -8,9 +8,9 @@ pageClass: commands
 
 ## `/fundadmin:fund review-lpa <file>` {#review-lpa}
 
-Reviews LPA provisions using methodology v2 heuristic document favourability, separate coverage confidence and source-linked findings.
+Full LPA review (5 dependency-ordered agents)
 
-Reviews LPA provisions using methodology v2 heuristic document favourability, separate coverage confidence and source-linked findings.
+Runs the 5-agent LPA pipeline (terms, risks, compliance, obligations, recommendations) into methodology v2 heuristic document favourability, or an explicit unavailable result. Use when the user runs `/fundadmin:fund review-lpa`, asks to review fund terms, or shares an LPA.
 
 | Host | Invocation |
 |---|---|
@@ -38,7 +38,7 @@ Scores a PPM or offering memorandum on risk factor completeness, fee disclosure 
 
 Subscription agreement review
 
-Verifies investor qualification, FATCA/CRS forms, AML and ERISA representations and signatures in a subscription agreement, then scores it. Use when the user runs `/fundadmin:fund review-subscription`, asks to check subscription documents, or shares one.
+Reviews a subscription agreement for identity, qualification, tax forms, AML and ERISA representations and signatures; a signed representation is not verification. Use when the user runs `/fundadmin:fund review-subscription`, asks to check subscription documents, or shares one.
 
 | Host | Invocation |
 |---|---|
@@ -64,9 +64,9 @@ Builds an obligation inventory from a side letter, categorizes every right, rate
 
 ## `/fundadmin:fund review-capital-call <file>` {#review-capital-call}
 
-Capital call notice validation & scoring
+Capital call math & terms check, scored 1-10
 
-Validates an incoming capital call notice: pro-rata math, fee line items, wire instructions, due dates, and LPA consistency, then scores it 1-10. Use when the user runs `/fundadmin:fund review-capital-call`, asks to verify a capital call, or shares a call notice.
+Recomputes an incoming capital call notice: pro-rata math, fee line items, wire instructions, due dates, and LPA consistency, then scores it 1-10. Use when the user runs `/fundadmin:fund review-capital-call`, asks to verify a capital call, or shares a call notice.
 
 | Host | Invocation |
 |---|---|
@@ -78,9 +78,9 @@ Validates an incoming capital call notice: pro-rata math, fee line items, wire i
 
 ## `/fundadmin:fund review-distribution-notice <file>` {#review-distribution-notice}
 
-Distribution notice validation & tax checks
+Distribution notice math & tax field checks
 
-Validates a distribution notice to 8 decimals: imputation credits, RWT, and return-of-capital versus income classification. Use when the user runs `/fundadmin:fund review-distribution-notice`, asks to check a distribution, or shares a distribution notice.
+Recomputes a distribution notice to 8 decimals: imputation credits, RWT, and return-of-capital versus income classification. Use when the user runs `/fundadmin:fund review-distribution-notice`, asks to check a distribution, or shares a distribution notice.
 
 | Host | Invocation |
 |---|---|
@@ -94,7 +94,7 @@ Validates a distribution notice to 8 decimals: imputation credits, RWT, and retu
 
 Capital account statement review & math check
 
-Validates a capital account statement to the dollar: extracts every field, checks ending capital arithmetic, reconciles tranches. Use when the user runs `/fundadmin:fund review-capital-account`, asks to verify a statement, or shares a capital account statement.
+Recomputes a capital account statement to the dollar: extracts every field, checks ending capital arithmetic, reconciles tranches. Use when the user runs `/fundadmin:fund review-capital-account`, asks to verify a statement, or shares a capital account statement.
 
 | Host | Invocation |
 |---|---|

@@ -4,23 +4,32 @@
 
 ---
 
-## Fund Safety Score: [SCORE]/100 — Grade: [LETTER] ([LABEL])
+## LPA Document Favourability: [score/100 or unavailable] — Methodology v2
 
-<!--
-Scoring Guide:
-  90-100 = A+ (LP-Favorable) — Strong LP protections, market-standard or better terms
-  80-89  = A  (Balanced)     — Minor issues, generally balanced GP-LP terms
-  70-79  = B  (Acceptable)   — Some GP-favorable provisions need attention; revisions advised
-  60-69  = C  (Caution)      — Multiple GP-favorable provisions; revisions advised
-  40-59  = D  (GP-Heavy)     — Significantly GP-favorable; major revisions advised
-  0-39   = F  (Aggressive)   — Significant concerns across LP protections; major revisions advised
+Heuristic document assessment, not a safety verdict, legal certification or investment recommendation. If the legacy “LPA Safety Score” label is used, retain this qualification.
 
-Each label describes the document's condition. This report does not advise on
-whether to commit capital: it says what a provision does, how far it sits from
-market, and what to negotiate. "Major revisions advised" is a statement about
-the document; "do not commit" would be investment advice, which the disclaimer
-above this line expressly declines to give.
--->
+## Score Calculation
+
+| Dimension | Raw value | Normalised favourability | Weight / 80 | Contribution | Evidence / rationale |
+|-----------|-----------|-------------------------|-------------|--------------|----------------------|
+| Terms | [0–100 or unavailable] | [same] | 20/80 | [value] | [finding/source IDs] |
+| Risk | [1–10 or unavailable; higher is worse] | [(10-risk) × 100/9] | 25/80 | [value] | [finding/source IDs] |
+| Compliance | [0–100 or unavailable] | [same] | 20/80 | [value] | [finding/source IDs and authority] |
+| Obligations | [0–100 or unavailable] | [same] | 15/80 | [value] | [finding/source IDs] |
+
+Recommendations are excluded. Use `scripts/fund_lpa_score.py` and retain its exact JSON input/output and item calculations, following `docs/production/lpa-scoring.md`. Any unknown required dimension makes the aggregate unavailable; do not renormalise over available dimensions. Round the final result to two decimals, half up.
+
+## Coverage and Confidence
+
+[Assessed/expected checks and percentage, reviewed pages/sections, exclusions, unreadable or missing material, confidence rationale and unresolved questions. Coverage is separate from favourability and is not a probability of correctness.]
+
+## Source Register
+
+| Source ID | Document / authority | Version / checked date | Page, section or lines | Availability |
+|-----------|----------------------|------------------------|------------------------|--------------|
+| [ID] | [file or retrieved authority] | [version/date] | [locator] | [verified / secondary only / missing] |
+
+Every finding below must carry a finding ID and source ID with an exact locator and quotation. Absence findings must describe the reviewed scope and search. Separate facts, assumptions and drafting proposals. All examples in this template are illustrative, not evidence: replace them with verified findings or unavailable values. Cite the source and scope of any benchmark; never infer market prevalence from sample ranges. Financial estimates require sourced inputs, formula and assumptions. No investment verdicts.
 
 ---
 
@@ -88,7 +97,7 @@ counsel decides the rest. -->
 
 <!-- Repeat this block for EACH high-risk provision found in the LPA. -->
 
-#### [Provision Name] — Section [X.X]
+#### [Finding ID] [Provision Name] — [Source ID], Section [X.X]
 
 - **What it says:** [Plain English summary of what this provision means. No legal jargon. Write as if explaining to an institutional LP operations team. Example: "The GP can extend the investment period by one year without any LP vote or LPAC consent, as long as the GP provides 30 days' notice."]
 
@@ -96,7 +105,7 @@ counsel decides the rest. -->
 
 - **Financial exposure:** [Quantified impact where possible. Example: "On a $500M fund at 2% management fee, a one-year extension could cost LPs an additional $10M in management fees that would otherwise have been reduced to invested-capital basis."]
 
-- **Market standard:** [What comparable funds typically provide. Example: "Market standard requires LPAC consent or majority-in-interest LP vote for investment period extensions. Most LPAs limit extensions to one year with a required supermajority (66-75%) LP vote."]
+- **Sourced comparator (or unavailable):** [What comparable funds typically provide. Example: "Market standard requires LPAC consent or majority-in-interest LP vote for investment period extensions. Most LPAs limit extensions to one year with a required supermajority (66-75%) LP vote."]
 
 - **Recommended change:** [Specific alternative language to propose. Example: "Replace with: 'The General Partner may extend the Investment Period for one (1) additional year only with the prior written approval of a majority in interest of the Limited Partners. During any such extension, the Management Fee shall be calculated on Invested Capital (at cost) rather than Committed Capital.'"]
 

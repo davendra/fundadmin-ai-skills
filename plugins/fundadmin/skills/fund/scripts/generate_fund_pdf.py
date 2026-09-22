@@ -18,8 +18,11 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import os
 import re
 import sys
+from html import escape
+from contextlib import contextmanager
 from datetime import datetime
 from pathlib import Path
 
@@ -146,21 +149,89 @@ def read_input_data(input_path: Path) -> dict:
         raise FileNotFoundError(f"Input file not found: {input_path}")
 
     raw = input_path.read_text(encoding="utf-8")
+    if not raw.strip():
+        raise ValueError("Input report is empty")
     stripped = raw.lstrip()
 
     if input_path.suffix.lower() == ".json" or stripped.startswith("{"):
+        def unique_object(pairs):
+            result = {}
+            for key, value in pairs:
+                if key in result:
+                    raise ValueError(f"Invalid JSON input: duplicate key {key!r}")
+                result[key] = value
+            return result
+
         try:
-            data = json.loads(raw)
+            data = json.loads(raw, object_pairs_hook=unique_object)
         except json.JSONDecodeError as exc:
             raise ValueError(f"Invalid JSON input: {exc.msg} (line {exc.lineno}, column {exc.colno})") from exc
         if not isinstance(data, dict):
             raise ValueError("JSON input must contain a top-level object")
         return normalize_report_data(data)
 
-    return normalize_report_data(parse_markdown_report(raw))
+    report = normalize_report_data({"source_markdown": raw})
+    report.markdown = raw
+    return report
+
+
+class NormalizedReport(dict):
+    """Internal provenance is kept outside user-supplied JSON fields."""
+    markdown = None
+
+
+def validate_report_data(data: dict) -> None:
+    """Reject malformed structured reports before creating an output file."""
+    if not isinstance(data, dict) or not data:
+        raise ValueError("Report must be a non-empty JSON object")
+
+    def finite(value, path):
+        if isinstance(value, float) and not math.isfinite(value):
+            raise ValueError(f"{path} must be finite")
+        if isinstance(value, dict):
+            for key, child in value.items():
+                finite(child, f"{path}.{key}")
+        elif isinstance(value, list):
+            for index, child in enumerate(value):
+                finite(child, f"{path}[{index}]")
+
+    finite(data, "report")
+    for key in ("details", "risks", "risk_counts"):
+        if key in data and not isinstance(data[key], dict):
+            raise ValueError(f"{key} must be an object")
+    for key in ("provisions", "clauses", "compliance_flags", "obligations",
+                "negotiation_priorities", "next_steps", "missing_protections"):
+        if key not in data:
+            continue
+        if not isinstance(data[key], list):
+            raise ValueError(f"{key} must be an array")
+        for item in data[key]:
+            expected = (dict,) if key in ("provisions", "clauses", "obligations") else (str, dict)
+            if not isinstance(item, expected):
+                raise ValueError(f"{key} contains an invalid item")
+    for key in ("risks", "risk_counts"):
+        for level in ("high", "medium", "low"):
+            value = data.get(key, {}).get(level, 0)
+            if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+                raise ValueError(f"{key}.{level} must be a non-negative integer")
+    score = data.get("score")
+    scale = data.get("score_scale", 100)
+    if isinstance(scale, bool) or not isinstance(scale, (int, float)) or scale <= 0:
+        raise ValueError("score_scale must be a positive number")
+    if score is not None and (isinstance(score, bool) or
+                              not isinstance(score, (int, float)) or not 0 <= score <= scale):
+        raise ValueError("score must be a number between zero and score_scale, or null")
+    for key in ("score_label", "grade", "grade_label", "executive_summary", "source_markdown"):
+        if key in data and data[key] is not None and not isinstance(data[key], str):
+            raise ValueError(f"{key} must be text")
+    if "score_label" in data and not str(data["score_label"] or "").strip():
+        raise ValueError("score_label must be non-empty text")
 
 
 def normalize_report_data(data: dict) -> dict:
+    if isinstance(data, NormalizedReport):
+        return data
+    validate_report_data(data)
     details = dict(data.get("details") or {})
     details.setdefault("fund_name", data.get("fund_name", "N/A"))
     details.setdefault("fund_type", data.get("fund_type", "N/A"))
@@ -200,8 +271,11 @@ def normalize_report_data(data: dict) -> dict:
         for item in data["missing_protections"]:
             compliance_flags.append({"status": "FAIL", "regulation": "", "detail": item})
 
-    return {
-        "score": int(data.get("score", 0) or 0),
+    report = NormalizedReport({
+        "score": data.get("score"),
+        "score_label": data.get("score_label", "LPA Safety Score"),
+        "score_scale": data.get("score_scale", 100),
+        "source_markdown": data.get("source_markdown"),
         "grade": grade,
         "grade_label": grade_label,
         "details": details,
@@ -219,7 +293,9 @@ def normalize_report_data(data: dict) -> dict:
         "obligations": list(data.get("obligations") or []),
         "negotiation_priorities": list(data.get("negotiation_priorities") or []),
         "next_steps": list(data.get("next_steps") or []),
-    }
+    })
+    report.source = data
+    return report
 
 
 def parse_markdown_report(markdown: str) -> dict:
@@ -235,6 +311,7 @@ def parse_markdown_report(markdown: str) -> dict:
     negotiation_priorities = extract_section_list(markdown, "Negotiation Priorities")
 
     return {
+        "source_markdown": markdown,
         "score": extract_score(markdown),
         "grade": extract_grade(markdown),
         "grade_label": extract_grade_label(markdown),
@@ -251,7 +328,7 @@ def parse_markdown_report(markdown: str) -> dict:
     }
 
 
-def extract_score(markdown: str) -> int:
+def extract_score(markdown: str):
     patterns = [
         r"(?:LPA Safety Score|Completeness Score|Safety Score|Compliance Score):\s*(\d+)\s*/\s*100",
         r"##\s+LPA Safety Score:\s*(\d+)\s*/\s*100",
@@ -260,7 +337,7 @@ def extract_score(markdown: str) -> int:
         match = re.search(pattern, markdown, re.IGNORECASE)
         if match:
             return int(match.group(1))
-    return 0
+    return None
 
 
 def extract_grade(markdown: str) -> str:
@@ -664,7 +741,7 @@ def _draw_footer(canvas_obj, doc, is_cover=False):
     page_num = canvas_obj.getPageNumber()
     canvas_obj.drawRightString(
         width - 0.75 * inch, 0.38 * inch,
-        f"Page {page_num} of {_PageCounter.placeholder}",
+        f"Page {page_num} of {getattr(canvas_obj, '_total_pages', _PageCounter.placeholder)}",
     )
 
     canvas_obj.restoreState()
@@ -1416,45 +1493,240 @@ def build_closing_page(data: dict, styles) -> list:
 # Main PDF builder
 # ---------------------------------------------------------------------------
 
+def fidelity_styles():
+    """Embed ReportLab's bundled TrueType fonts for portable text extraction."""
+    import reportlab
+    from reportlab.pdfbase import pdfmetrics
+    from reportlab.pdfbase.ttfonts import TTFont
+
+    font_dir = Path(reportlab.__file__).parent / "fonts"
+    for name, filename in (("ReportText", "Vera.ttf"), ("ReportBold", "VeraBd.ttf")):
+        if name not in pdfmetrics.getRegisteredFontNames():
+            pdfmetrics.registerFont(TTFont(name, str(font_dir / filename)))
+    body = ParagraphStyle("ReportBody", fontName="ReportText", fontSize=9,
+                          leading=13, spaceAfter=5, splitLongWords=True)
+    heading = ParagraphStyle("ReportHeading", parent=body, fontName="ReportBold",
+                             fontSize=13, leading=17, spaceBefore=12,
+                             textColor=COLORS["primary"], keepWithNext=False)
+    return body, heading
+
+
+def literal_paragraph(value, style):
+    from reportlab.pdfbase import pdfmetrics
+
+    glyphs = pdfmetrics.getFont(style.fontName).face.charToGlyph
+    text = "".join(char if ord(char) in glyphs or char in "\n\t" else
+                   f"[U+{ord(char):04X}]" for char in str(value))
+    return Paragraph(escape(text).replace("\n", "<br/>"), style)
+
+
+def markdown_story(markdown, body, heading):
+    """Render source blocks in order. Inline syntax remains literal and auditable."""
+    story = []
+    lines = markdown.splitlines()
+    index = 0
+    fence = None
+
+    def cells(line):
+        line = line.strip()
+        if line.startswith("|"):
+            line = line[1:]
+        if line.endswith("|") and not line.endswith(r"\|"):
+            line = line[:-1]
+        return [cell.strip().replace(r"\|", "|") for cell in
+                re.split(r"(?<!\\)\|", line)]
+
+    while index < len(lines):
+        line = lines[index]
+        marker = re.match(r"^\s*(`{3,}|~{3,})", line)
+        if marker:
+            if fence is None:
+                fence = marker.group(1)[0]
+            elif marker.group(1)[0] == fence:
+                fence = None
+            story.append(literal_paragraph(line, body))
+            index += 1
+            continue
+        if not fence and index + 1 < len(lines) and "|" in line:
+            separators = cells(lines[index + 1])
+            headers = cells(line)
+            if len(headers) == len(separators) and all(
+                    re.fullmatch(r":?-{3,}:?", cell) for cell in separators):
+                rows = [headers]
+                index += 2
+                while index < len(lines) and "|" in lines[index] and lines[index].strip():
+                    row = cells(lines[index])
+                    if len(row) != len(headers):
+                        break
+                    rows.append(row)
+                    index += 1
+                if len(headers) > 5 or any(len(cell) > 1200 for row in rows for cell in row):
+                    story.append(literal_paragraph(" | ".join(headers), heading))
+                    for row in rows[1:]:
+                        for label, value in zip(headers, row):
+                            story.append(literal_paragraph(f"{label}: {value}", body))
+                        story.append(Spacer(1, 8))
+                else:
+                    table = Table([[literal_paragraph(cell, body) for cell in row] for row in rows],
+                                  colWidths=[6.5 * inch / len(headers)] * len(headers),
+                                  repeatRows=1, splitByRow=1, splitInRow=1)
+                    table.setStyle(TableStyle([
+                        ("BACKGROUND", (0, 0), (-1, 0), COLORS["light_border"]),
+                        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+                        ("GRID", (0, 0), (-1, -1), .3, COLORS["light_border"]),
+                        ("LEFTPADDING", (0, 0), (-1, -1), 6),
+                        ("RIGHTPADDING", (0, 0), (-1, -1), 6),
+                    ]))
+                    story.extend([table, Spacer(1, 8)])
+                continue
+        if line.strip():
+            match = None if fence else re.match(r"^#{1,6}\s+(.*)$", line)
+            story.append(literal_paragraph(match.group(1) if match else line,
+                                           heading if match else body))
+        else:
+            story.append(Spacer(1, 5))
+        index += 1
+    return story
+
+
+def structured_story(source, body, heading):
+    """Render all structured fields, including extensions unknown to this tool."""
+    story = []
+    score = source.get("score")
+    if score is not None:
+        story.append(literal_paragraph(
+            f'{source.get("score_label", "LPA Safety Score")}: '
+            f'{score}/{source.get("score_scale", 100)}', heading))
+    else:
+        story.append(literal_paragraph("Score: Not supplied", body))
+
+    def render(value, label):
+        if isinstance(value, dict):
+            story.append(literal_paragraph(label, heading))
+            if not value:
+                story.append(literal_paragraph("{}", body))
+            for key, child in value.items():
+                render(child, str(key).replace("_", " "))
+        elif isinstance(value, list):
+            story.append(literal_paragraph(label, heading))
+            if not value:
+                story.append(literal_paragraph("[]", body))
+            for index, child in enumerate(value, 1):
+                render(child, str(index))
+        else:
+            text = "null" if value is None else str(value)
+            story.append(literal_paragraph(f"{label}: {text}", body))
+
+    for key, value in source.items():
+        if key not in ({"score", "score_label", "score_scale"} if score is not None else {"score"}):
+            render(value, str(key).replace("_", " "))
+    return story
+
+
+@contextmanager
+def private_pdf_output(output_path: Path):
+    """Reserve a new file and retain its descriptor through render and cleanup.
+
+    O_EXCL refuses existing files, including dangling symlinks. A directory
+    descriptor anchors cleanup if the parent is renamed during rendering.
+    """
+    directory_fd = os.open(output_path.parent, os.O_RDONLY | os.O_DIRECTORY)
+    fd = None
+    identity = None
+    try:
+        try:
+            fd = os.open(output_path.name, os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+                         0o600, dir_fd=directory_fd)
+        except FileExistsError:
+            raise ValueError("Output already exists; choose a unique path with --output. "
+                             "Existing files and symlinks are never overwritten.") from None
+        identity = os.fstat(fd)
+        try:
+            os.fchmod(fd, 0o600)
+            # Keep fd alive until cleanup finishes, including failures on close.
+            with os.fdopen(fd, "wb", closefd=False) as stream:
+                yield stream
+                stream.flush()
+                os.fsync(fd)
+                current = os.stat(output_path.name, dir_fd=directory_fd, follow_symlinks=False)
+                if (current.st_dev, current.st_ino) != (identity.st_dev, identity.st_ino):
+                    raise RuntimeError("Output path changed during rendering; choose a unique path "
+                                       "in a trusted output directory.")
+        except BaseException:
+            try:
+                current = os.stat(output_path.name, dir_fd=directory_fd, follow_symlinks=False)
+                if (current.st_dev, current.st_ino) == (identity.st_dev, identity.st_ino):
+                    os.unlink(output_path.name, dir_fd=directory_fd)
+            except FileNotFoundError:
+                pass
+            except OSError:
+                # Do not mask the render error or delete a different file.
+                print("WARNING: Could not remove incomplete PDF output; inspect the selected output path.",
+                      file=sys.stderr)
+            raise
+    finally:
+        if fd is not None:
+            os.close(fd)
+        os.close(directory_fd)
+
+
 def build_pdf(data: dict, output_path: Path) -> Path:
     ensure_reportlab()
-    styles = get_styles()
+    data = normalize_report_data(data)
+    output_path = Path(output_path)
+    try:
+        with private_pdf_output(output_path) as stream:
+            _render_pdf(data, stream)
+    except OSError as exc:
+        raise RuntimeError(f"Cannot write PDF output: {exc.strerror or 'I/O failure'}") from None
+    return output_path
 
-    counter = _PageCounter()
+
+def _render_pdf(data: dict, output_stream) -> None:
+    ensure_reportlab()
+    data = normalize_report_data(data)
+    body, heading = fidelity_styles()
+
+    from reportlab.pdfgen.canvas import Canvas
+
+    class NumberedCanvas(Canvas):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+            self._page_states = []
+
+        def showPage(self):
+            self._page_states.append(dict(self.__dict__))
+            self._startPage()
+
+        def save(self):
+            states = self._page_states
+            for state in states:
+                self.__dict__.update(state)
+                self._total_pages = len(states)
+                _draw_footer(self, None)
+                super().showPage()
+            super().save()
 
     doc = SimpleDocTemplate(
-        str(output_path),
+        output_stream,
         pagesize=letter,
         leftMargin=0.75 * inch,
         rightMargin=0.75 * inch,
         topMargin=0.75 * inch,
         bottomMargin=0.75 * inch,
-        pageCompression=0,  # Disable compression so Page X of Y replacement works
+        pageCompression=1,
     )
 
-    # Build all pages
-    story = []
-    story.extend(build_cover_page(data, styles))
-    story.extend(build_toc_page(data, styles))
-    story.extend(build_executive_summary_page(data, styles))
-    story.extend(build_risk_dashboard_page(data, styles))
-    story.extend(build_provision_pages(data, styles))
-    story.extend(build_compliance_page(data, styles))
-    story.extend(build_negotiation_page(data, styles))
-    story.extend(build_obligations_page(data, styles))
-    story.extend(build_next_steps_page(data, styles))
-    story.extend(build_closing_page(data, styles))
+    story = [literal_paragraph("Fund Document Review Report", heading)]
+    if data.markdown is not None:
+        story.extend(markdown_story(data.markdown, body, heading))
+    else:
+        story.extend(structured_story(data.source, body, heading))
+    story.append(literal_paragraph(
+        "AI-generated report. Not financial, legal, tax or investment advice. "
+        "Consult qualified professionals. Source limitations and citations remain applicable.", body))
 
-    doc.build(
-        story,
-        onFirstPage=counter.on_first_page,
-        onLaterPages=counter.on_later_pages,
-    )
-
-    # Patch in actual total page count
-    counter.finalize(str(output_path))
-
-    return output_path
+    doc.build(story, canvasmaker=NumberedCanvas)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -1463,9 +1735,11 @@ def main(argv: list[str] | None = None) -> int:
     output_path = Path(args.output_resolved)
 
     try:
+        if input_path.resolve() == output_path.resolve():
+            raise ValueError("Input and output must be different; choose a unique path with --output.")
         data = read_input_data(input_path)
         result = build_pdf(data, output_path)
-    except (FileNotFoundError, ValueError, RuntimeError) as exc:
+    except (OSError, ValueError, RuntimeError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 1
     except Exception as exc:  # pragma: no cover - defensive fallback

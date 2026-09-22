@@ -30,11 +30,7 @@ jobs:
         run: claude plugin validate --strict plugins/fundadmin
       - name: Validate marketplace
         run: claude plugin validate --strict .
-      - name: Build the manual
-        run: cd manual && npm ci --no-audit --no-fund && npm run docs:build
-      - name: Structural contracts
+      - name: Install pinned build and PDF dependencies
+        run: python3 -m pip install -r requirements-plugin.txt
+      - name: Structural and installed-runtime contracts
         run: python3 -m unittest discover -s tests -v
-      - name: PDF script smoke test
-        run: |
-          pip install reportlab
-          python3 plugins/fundadmin/skills/fund/scripts/generate_fund_pdf.py --help > /dev/null

@@ -1,5 +1,5 @@
 ---
-max_turns: 20
+max_turns: 30
 allowed_tools: [Skill, Read, Write, Glob, Grep]
 ---
 

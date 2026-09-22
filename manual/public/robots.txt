@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://help.fundadmin.dev/sitemap.xml

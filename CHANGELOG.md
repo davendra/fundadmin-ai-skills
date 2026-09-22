@@ -1,61 +1,52 @@
 # Changelog — fundadmin plugin
 
+## Unpublished 1.1.0 candidate — second-review corrections
+
+- Validate installer path components consistently before update checks and writes; reject unsafe aliases and hard-linked targets. Resolve selected release executables before directory changes.
+- Separate capital-call risk blockers from descriptive scores; align eligible-pool allocation review with deterministic currency-unit rounding.
+- Add bounded NAV-inclusive KS-PME, signed YTD reconciliation and capital-call status workpapers; remove contradictory financial interpretations.
+- Share safe slug/filename generation between direct and routed skills; distinguish local candidates from the older public baseline and qualify host support.
+- Exercise synthetic source-to-sidecar-to-Markdown-to-PDF workflows; require preserved, candidate-bound host evidence before actual publication. Offline test success is not host or professional approval.
+
 All notable changes to the published plugin. The source repository
 (`davendra/fundadmin-ai`) keeps the full project changelog.
 
-## 1.0.8 — 2026-09-22
+## 1.1.0 — 2026-09-21 — Supervised-pilot release candidate
 
-- The manual now points to the new contact form on fundadmin.dev from its
-  navbar, footer, FAQ and privacy page, replacing links to GitHub issues
-  that visitors could not open while the repositories are private. The
-  privacy page covers fundadmin.dev and what the form collects.
+Local source candidate only; this entry does not establish publication.
 
-## 1.0.7 — 2026-09-22
+- Nine deterministic Decimal calculation operations with reproducible workpapers,
+  explicit rounding, conservative IRR ambiguity handling and bounded waterfall support.
+- Supplied-screening-evidence validator with freshness, coverage, identity and
+  conflict checks; it never performs live screening or grants clearance.
+- Dated 30-entry regulatory source register, including failed retrievals; stale
+  blanket rules replaced by source- and jurisdiction-dependent checks.
+- PDF exporter preserves non-LPA content and unknown score states, renders real
+  tested tables, creates private files exclusively and refuses output collisions.
+- Revision-aware intake/matching instructions, shared masking rules, safer installer,
+  transactional generated builds, source fingerprints and expanded test/eval gates.
 
-- `LICENSE` is now the plain MIT text. It used to carry the source
-  repository's scope paragraph, which named folders and a second license
-  that are not in this repository. The README's License section says what
-  the license covers: everything here.
-- The Codex manifest's privacy link pointed at a README anchor that did not
-  exist. It now points at a new privacy page in the manual, which says what
-  the plugin and the manual site do and do not send anywhere, including
-  that a skill given a URL asks the host to fetch it.
+- Review and draft support requiring human review, not certified production operation.
+  Live host, connector and external operational qualification is not tested by the
+  local report/helper contracts. See `docs/production/README.md` for release limits.
+- Shared contract v1 applies to all 63 skills, whether invoked directly or routed.
+  Python 3.9+ standard-library helpers create isolated runs, validate evidence
+  sidecars and record source/output SHA-256 hashes. Reports live under
+  `reviews/<fund>/<date>/<run-id>/<subfolder>/<report-id>/<filename>`; no output
+  beside inputs or in the working-directory root, and no report overwrite.
+- LPA methodology v2 runs terms first, then risk/compliance/obligations in parallel,
+  then recommendations. Raw weights 20/25/20/15 over 80 normalise to
+  25/31.25/25/18.75%; recommendations carry zero weight. Unknown dimensions make
+  the aggregate unavailable. Coverage confidence is separate from heuristic
+  document favourability; the legacy Safety Score name is not a safety verdict.
+- Generated docs remove investment/admission verdicts and obsolete LPA/onboarding
+  image embeds, describe specific connector dependencies and host/provider data
+  flows, and expose capability/maturity fields for every catalogue entry.
+- Optional PDF dependencies are pinned in `requirements-plugin.txt`. Plain-skill
+  installation uses a reviewed local source checkout of `plugin-release`; no
+  remote shell script is piped into a shell. Existing host commands are retained.
 
-## 1.0.6 — 2026-09-22
-
-- Manual: figures for the quick start, output files and sample documents
-  pages, and a new social preview card in the same style (the old card was
-  from the previous site and quoted a 60-second review).
-
-## 1.0.5 — 2026-09-22
-
-- Manual: every command category now opens with an illustration in the
-  README style, eleven new ones drawn for the categories that had none
-  (drafting, compliance, reporting, negotiation, tracking, analytics,
-  investor operations, portfolio, knowledge base, cross-document analysis,
-  ESG and tax).
-
-## 1.0.4 — 2026-09-22
-
-- Manual redesign: a navy and teal theme with IBM Plex type and a navy dark
-  mode, the Quorum ring as the home mark, category icons on the home page and
-  command index, the LPA pipeline, batch intake and onboarding graphics on
-  their category pages, and on the agents page a weights ring and grade scale
-  drawn from the same numbers as `catalog.json`.
-
-## 1.0.3 — 2026-09-21
-
-- A user manual, published at https://help.fundadmin.dev and shipped in this
-  repository under `manual/`. The command reference (one page per category,
-  every command with its arguments, hosts and output file), the agents page
-  and the output-files page are generated from the same data as
-  `catalog.json`. The README graphics moved from `docs/images/` to
-  `manual/public/images/`.
-- Shorter skill and agent descriptions. Every session loads all 63 skill
-  descriptions and the 5 agent descriptions, so they were trimmed to 200
-  characters or fewer (about 18,000 characters down to under 12,000) while keeping
-  what matters for choosing a skill: what it does, its `/fund` command, and the
-  file it writes. The contract suite now enforces the limit.
+The entries below describe historical releases, not current runtime guarantees.
 
 ## 1.0.2 — 2026-09-21
 
@@ -63,11 +54,8 @@ All notable changes to the published plugin. The source repository
   (20/25/20/15/20) with the 25% risk arc in teal. Ships as the app icon
   (`assets/icon.svg`, `assets/logo.png`), a bare mark, and light and dark
   lockups used in the README header.
-- `review-lpa` runs the four independent agents in parallel, waits, then runs
-  the recommendations agent on their results, and writes the report once with
-  the final score. A headless run had previously saved a draft with score
-  placeholders while the last agent was still working. It also tells the user
-  up front that a full review takes 15–40 minutes.
+- The earlier `review-lpa` sequencing and duration claims are superseded by
+  methodology v2 in 1.1.0; terms is a dependency and no duration is guaranteed.
 
 ## 1.0.1 — 2026-09-21
 
@@ -94,4 +82,5 @@ First public release as a plugin for Claude Code, Claude Cowork and Codex.
   report when Python is unavailable.
 - `search-precedent` works from local review files when no vault MCP is present;
   `counsel-handoff` gained a full phase structure and output package.
-- No hooks, no MCP servers, no network calls.
+- No bundled hooks or MCP servers; host/provider traffic and optional connector
+  traffic still apply. This was not an offline-processing guarantee.

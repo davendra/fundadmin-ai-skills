@@ -1,16 +1,21 @@
 # Capital Call Notice
 
 <!--
-ILPA-Compliant Capital Call Notice Template
-Reference: ILPA Reporting Template & Best Practices (2024 Update)
+Capital call drafting template for qualified human review.
+No compliance certification. Populate contractual terms from identified sources;
+retain [MISSING] wherever the governing provision or required evidence is absent.
 -->
+
+> DRAFT — Not financial, legal or tax advice. Qualified human review is required.
+> This template does not issue a notice or approve payment. Any ILPA comparison
+> requires an identified publication/version, mapped checklist and supporting evidence.
 
 ---
 
 ## CAPITAL CALL NOTICE NO. [NUMBER]
 
 **[FUND LEGAL NAME]**
-(a [State] Limited Partnership)
+([Sourced entity form and jurisdiction; otherwise MISSING])
 
 ---
 
@@ -19,7 +24,8 @@ Reference: ILPA Reporting Template & Best Practices (2024 Update)
 | **Fund Name** | [Full legal name of the fund] |
 | **Capital Call Number** | [Sequential number — e.g., Capital Call No. 7] |
 | **Date of Notice** | [YYYY-MM-DD] |
-| **Due Date** | [YYYY-MM-DD — typically 10-15 business days from notice date] |
+| **Due Date** | [Sourced date, time and timezone; otherwise MISSING] |
+| **Notice Terms** | [Provision, service rules, business-day calendar and calculation; otherwise MISSING] |
 | **Total Amount Called** | $[Total amount being called from all LPs] |
 
 ---
@@ -28,7 +34,7 @@ Reference: ILPA Reporting Template & Best Practices (2024 Update)
 
 This Capital Call is made pursuant to Section [X.X] of the Amended and Restated Agreement of Limited Partnership of [Fund Legal Name], dated [LPA Date] (the "Partnership Agreement"). Capitalized terms used herein and not otherwise defined have the meanings assigned to them in the Partnership Agreement.
 
-The General Partner, [GP Entity Legal Name], hereby calls the following amounts from each Limited Partner in accordance with their respective Commitment Percentages.
+The General Partner, [GP Entity Legal Name], proposes the following call amounts under [sourced allocation provisions and eligible pools; otherwise MISSING].
 
 ---
 
@@ -62,10 +68,10 @@ The General Partner, [GP Entity Legal Name], hereby calls the following amounts 
 
 ## Recallable / Non-Recallable Designation
 
-<!-- Indicate whether the called capital is recallable under the terms of the LPA. -->
+<!-- Use only the actual LPA recallability/recycling terms; purpose alone does not establish them. -->
 
-- **Recallable Capital:** $[amount] — [Description of which portion is recallable and under what conditions per the LPA, e.g., "Amounts called for bridge financing that are expected to be refinanced and returned within 12 months."]
-- **Non-Recallable Capital:** $[amount] — [Description, e.g., "Amounts called for long-term equity investments and fund expenses."]
+- **Recallable Capital:** [Currency/amount, sourced conditions, time limits and provision; otherwise MISSING]
+- **Non-Recallable Capital:** [Currency/amount and sourced provision; otherwise MISSING]
 
 **Commitment Period Status:** [Active / Expired on [date]]
 
@@ -77,17 +83,13 @@ The General Partner, [GP Entity Legal Name], hereby calls the following amounts 
 
 **Payment Due Date:** [YYYY-MM-DD]
 
-All payments must be received in immediately available funds by 5:00 PM [timezone] on the Due Date.
+**Receipt and settlement requirements:** [Sourced cut-off time, timezone, currency and settlement terms; otherwise MISSING].
 
-**Late Payment Consequences** (per Section [X.X] of the Partnership Agreement):
+**Late Payment Consequences:** [Exact governing provision; otherwise MISSING].
 
-- **Default Interest:** [X]% per annum (or [prime rate + X]%) on unpaid amounts from the Due Date until paid
-- **Default Penalty:** A defaulting Limited Partner may be subject to:
-  - Forfeiture of up to [X]% of such Limited Partner's Capital Account balance
-  - Reduction of such Limited Partner's Unfunded Commitment to zero
-  - Forced sale of such Limited Partner's Partnership Interest at a discount of [X]% to fair market value
-  - Loss of voting rights until the default is cured
-  - Such other remedies as set forth in Section [X.X] of the Partnership Agreement
+- **Default trigger and cure period:** [Sourced conditions and timing; otherwise MISSING]
+- **Default Interest:** [Only the sourced rate, basis, accrual dates and conditions; otherwise MISSING]
+- **Other remedies:** [Only remedies established by the governing provisions, including conditions and limits; otherwise MISSING]
 
 **If you anticipate any difficulty in meeting the Due Date, please contact [Contact Name] at [email/phone] immediately.**
 
@@ -103,7 +105,7 @@ Please wire funds to the following account:
 | **Bank Address** | [Bank address] |
 | **ABA / Routing Number** | [routing number] |
 | **Account Name** | [Fund legal name or custodial account name] |
-| **Account Number** | [account number] |
+| **Account Number** | [masked — last four only] |
 | **SWIFT Code** | [SWIFT code — for international wires] |
 | **Reference** | [LP Name — Capital Call No. [X]] |
 
@@ -147,18 +149,15 @@ Date: ____________________________
 <!--
 TEMPLATE USAGE NOTES:
 
-1. Replace all [bracketed placeholders] with actual values.
-2. The Per-LP schedule should include ALL limited partners, including the GP commitment if applicable.
-3. Verify that the total of individual LP call amounts equals the Total Amount Called.
-4. Verify that Previously Called + This Call + Remaining Unfunded = Total Commitment for each LP.
+1. Use sourced values and citations; keep missing terms visible. Dollar placeholders are illustrative: use the actual single currency throughout.
+2. Identify eligible pools, excused/excluded LPs and any sourced GP participation; do not assume every partner participates in every purpose.
+3. Use fund_calculations.py allocate for each eligible pool; preserve the requests, rounded allocations and residual workpapers. Reconcile their sum to the total call amount.
+4. Reconcile commitments and capital activity against the supplied ledger and governing recycling/recallability terms, recording adjustments explicitly rather than assuming a simple identity fits all structures.
 5. Late payment terms should match the specific provisions in the LPA — do not use generic terms.
 6. Wire instructions should be verified with the fund administrator before each capital call.
-7. For bridge financing or short-term calls, clearly designate as recallable.
+7. Designate recallability only from governing terms; bridge financing or a short duration does not establish recallability.
 8. If the commitment period has expired, confirm the LPA basis for the call.
-9. ILPA best practices recommend:
-   - Minimum 10 business days between notice and due date
-   - Clear purpose designation for each dollar called
-   - Cumulative call summary showing total called to date
-   - Recallable/non-recallable designation
+9. Derive the notice interval, service rules, cut-off and business-day calendar from identified governing provisions. Do not substitute a customary minimum or assumed time.
 10. This template should be reviewed by fund counsel before first use.
+11. Preserve the full legal fund name in content. Obtain the CAPITAL-CALL basename from fund_report.py filename and save using the shared report contract's isolated run and write-report helper; never create a basename by replacing spaces alone.
 -->

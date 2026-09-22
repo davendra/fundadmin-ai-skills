@@ -1,6 +1,8 @@
-evals/results/
+**/evals/results/
+reviews/
+.env*
+*.private.json
+.venv*/
 __pycache__/
 *.pyc
 .DS_Store
-.vercel/
-.env*.local

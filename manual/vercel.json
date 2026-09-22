@@ -1,9 +1,0 @@
-{
-  "buildCommand": "npm run docs:build",
-  "outputDirectory": ".vitepress/dist",
-  "framework": "vitepress",
-  "cleanUrls": true,
-  "redirects": [
-    { "source": "/guide", "destination": "/guide/install", "permanent": false }
-  ]
-}

@@ -1,7 +1,7 @@
 {
   "name": "fundadmin",
-  "version": "1.0.8",
-  "description": "62 fund administration skills for Claude Code, Cowork and Codex: review LPAs, PPMs, side letters, capital calls, distributions, K-1s and capital account statements; draft notices and investor letters; run compliance, KYC/AML and FATCA/CRS checks; track obligations and MFN elections; model performance and cash flows; and produce PDF reports.",
+  "version": "1.1.0",
+  "description": "Supervised-pilot release candidate: 62 fund administration workflows plus the fund menu for Claude Code, Cowork and Codex. Review documents, prepare drafts and evidence-linked calculations for human review. Python 3.9+ is required for report helpers; external checks depend on authorised tools and evidence. Not certified for production operations or automated investment, admission, clearance, filing or payment decisions.",
   "author": {
     "name": "Davendra Patel",
     "email": "davendra@gmail.com",
@@ -35,8 +35,8 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "FundAdmin AI",
-    "shortDescription": "Fund document review, drafting, compliance and analytics for fund administrators",
-    "longDescription": "62 fund administration skills for Claude Code, Cowork and Codex: review LPAs, PPMs, side letters, capital calls, distributions, K-1s and capital account statements; draft notices and investor letters; run compliance, KYC/AML and FATCA/CRS checks; track obligations and MFN elections; model performance and cash flows; and produce PDF reports.",
+    "shortDescription": "Supervised-pilot release candidate for fund document review and drafting",
+    "longDescription": "Supervised-pilot release candidate: 62 fund administration workflows plus the fund menu for Claude Code, Cowork and Codex. Review documents, prepare drafts and evidence-linked calculations for human review. Python 3.9+ is required for report helpers; external checks depend on authorised tools and evidence. Not certified for production operations or automated investment, admission, clearance, filing or payment decisions.",
     "developerName": "Davendra Patel",
     "category": "Finance",
     "capabilities": [
@@ -45,10 +45,10 @@
       "Write"
     ],
     "websiteURL": "https://fundadmin.dev",
-    "privacyPolicyURL": "https://help.fundadmin.dev/guide/privacy",
+    "privacyPolicyURL": "https://github.com/davendra/fundadmin-ai-skills#privacy",
     "termsOfServiceURL": "https://github.com/davendra/fundadmin-ai-skills/blob/main/LICENSE",
     "defaultPrompt": [
-      "Review this LPA and give me the LPA Safety Score with the riskiest provisions.",
+      "Review this LPA with v2 document favourability, separate evidence coverage and source-linked findings for human review.",
       "Check this capital call notice for math errors and wire instruction changes.",
       "Draft an ILPA-style capital call notice for these commitments and this call amount."
     ],

@@ -1,7 +1,7 @@
 {
   "name": "fundadmin",
-  "version": "1.0.8",
-  "description": "62 fund administration skills for Claude Code, Cowork and Codex: review LPAs, PPMs, side letters, capital calls, distributions, K-1s and capital account statements; draft notices and investor letters; run compliance, KYC/AML and FATCA/CRS checks; track obligations and MFN elections; model performance and cash flows; and produce PDF reports.",
+  "version": "1.1.0",
+  "description": "Supervised-pilot release candidate: 62 fund administration workflows plus the fund menu for Claude Code, Cowork and Codex. Review documents, prepare drafts and evidence-linked calculations for human review. Python 3.9+ is required for report helpers; external checks depend on authorised tools and evidence. Not certified for production operations or automated investment, admission, clearance, filing or payment decisions.",
   "author": {
     "name": "Davendra Patel",
     "email": "davendra@gmail.com",

@@ -12,7 +12,7 @@ pageClass: commands
 
 Performance metrics (IRR, TVPI, DPI, RVPI)
 
-Computes IRR, TVPI, DPI, RVPI, MOIC and PME from cash flows or statements, with workpapers and J-curve. Use for `/fundadmin:fund performance-calc` or fund returns.
+Computes IRR, TVPI, DPI, RVPI, MOIC, and PME from cash flows or a capital account statement, with helper bisection workpapers and J-curve analysis. Use when the user runs `/fundadmin:fund performance-calc`, asks what a fund returned, or shares cash flow data.
 
 | Host | Invocation |
 |---|---|
@@ -26,7 +26,7 @@ Computes IRR, TVPI, DPI, RVPI, MOIC and PME from cash flows or statements, with 
 
 Cash flow forecasting & liquidity planning
 
-Projects quarterly calls, distributions and NAV (Takahashi-Alexander) with J-curve and sensitivities. Use for `/fundadmin:fund cashflow-forecast` or LP liquidity.
+Projects capital calls, distributions, and NAV from explicit dated assumptions using deterministic Decimal workpapers, with scenario comparisons. Use when the user runs `/fundadmin:fund cashflow-forecast` or asks to forecast calls or LP liquidity.
 
 | Host | Invocation |
 |---|---|
@@ -40,7 +40,7 @@ Projects quarterly calls, distributions and NAV (Takahashi-Alexander) with J-cur
 
 Scenario modeling & sensitivity analysis
 
-Models downside, base and upside cases: IRR, TVPI, DPI, carry, LP net returns, waterfall tier, breakeven. Use for `/fundadmin:fund scenario-model` or stress tests.
+Models fund outcomes under Downside, Base Case and Upside assumptions: IRR, TVPI, DPI, carried interest, LP net returns and waterfall tier reached, plus sensitivity and breakeven. Use when the user runs `/fundadmin:fund scenario-model` or asks to stress-test returns.
 
 | Host | Invocation |
 |---|---|
@@ -54,7 +54,7 @@ Models downside, base and upside cases: IRR, TVPI, DPI, carry, LP net returns, w
 
 Fee calculation audit & verification
 
-Audits management fees, offsets, expense caps, pref, catch-up, carry and clawback against the LPA and ILPA template. Use for `/fundadmin:fund fee-audit` or checking fees.
+Audits management fee basis, offsets and expense caps, plus preferred return, catch-up, carry and clawback, against LPA terms and the ILPA Fee Reporting Template. Use when the user runs `/fundadmin:fund fee-audit`, asks if fees are correct, or shares fee workpapers.
 
 | Host | Invocation |
 |---|---|

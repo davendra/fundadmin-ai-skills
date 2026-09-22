@@ -12,7 +12,7 @@ pageClass: commands
 
 Multi-document cross-reference analysis
 
-Cross-references related fund documents for provision conflicts, amendment lineage and MFN cascades. Use for `/fundadmin:fund multi-doc-analyze` or an LPA plus side letters.
+Cross-references 2+ related fund documents for provision conflicts, amendment lineage, and MFN cascades. Use when the user runs `/fundadmin:fund multi-doc-analyze`, asks how an LPA, side letters, and amendments interact, or shares several fund documents together.
 
 | Host | Invocation |
 |---|---|
@@ -26,7 +26,7 @@ Cross-references related fund documents for provision conflicts, amendment linea
 
 Waterfall simulation & scenario calculator
 
-Simulates a distribution waterfall as code: tier-by-tier traces, edge cases, clawback checks, pseudocode. Use for `/fundadmin:fund smart-contract-sim`.
+Simulates a distribution waterfall as programmable logic: tier-by-tier execution traces, edge cases, clawback validation and pseudocode. Use when the user runs `/fundadmin:fund smart-contract-sim`, asks how a waterfall would execute, or shares LPA waterfall terms.
 
 | Host | Invocation |
 |---|---|
@@ -40,7 +40,7 @@ Simulates a distribution waterfall as code: tier-by-tier traces, edge cases, cla
 
 Conversational fund administration query
 
-Answers ad hoc questions over fund documents and prior `/fund` outputs with section and quote citations, naming the command that fills a gap. Use for `/fundadmin:fund chat`. Answers inline.
+Conversational query interface over fund documents and prior `/fund` outputs, answering with document, section, and exact-quote citations and routing to the command that fills a data gap. Use when the user runs `/fundadmin:fund chat` or asks ad hoc questions about their fund documents. Answers inline.
 
 | Host | Invocation |
 |---|---|
@@ -54,7 +54,7 @@ Answers ad hoc questions over fund documents and prior `/fund` outputs with sect
 
 LPA/side letter amendment drafting
 
-Drafts an LPA amendment: recitals, clauses, ratification, signatures, old-vs-new redline. Use for `/fundadmin:fund amendment-draft` or amending an LPA.
+Drafts a formatted LPA amendment with recitals, amendment clauses, ratification, signature blocks, and a redline of old versus new text. Use when the user runs `/fundadmin:fund amendment-draft`, asks to amend an LPA, or shares an LPA with the changes wanted.
 
 | Host | Invocation |
 |---|---|

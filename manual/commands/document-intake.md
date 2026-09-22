@@ -12,7 +12,7 @@ pageClass: commands
 
 Auto-classify & batch process folder of mixed fund documents
 
-Classifies a folder of fund PDFs, routes each to its review skill, reconciles pairs, adds a dashboard at 3+ funds. Use for `/fundadmin:fund ingest`.
+Classifies a folder of mixed fund PDFs, routes each to its `/fundadmin:fund review-*` skill, auto-reconciles matching pairs and runs the portfolio dashboard at 3+ funds. Use when the user runs `/fundadmin:fund ingest` or drops a folder of GP portal PDFs.
 
 | Host | Invocation |
 |---|---|
@@ -26,7 +26,7 @@ Classifies a folder of fund PDFs, routes each to its review skill, reconciles pa
 
 Parse email + attachments, cross-validate, extract action items
 
-Parses a GP email and attachments, checking stated amounts, dates and funds against the documents for mismatches and wire fraud. Use for `/fundadmin:fund ingest-email`.
+Parses an email or .eml and its attachments, then cross-validates the amounts, deadlines and fund names it claims against the documents to flag mismatches and wire fraud. Use when the user runs `/fundadmin:fund ingest-email` or pastes a GP email with attachments.
 
 | Host | Invocation |
 |---|---|

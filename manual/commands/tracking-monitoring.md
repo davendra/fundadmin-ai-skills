@@ -12,7 +12,7 @@ pageClass: commands
 
 MFN election tracking across side letters
 
-Tracks MFN rights across a fund's side letters: per-LP eligibility, cascade risk, election forms, disclosures. Use for `/fundadmin:fund mfn-tracker`.
+Tracks MFN provisions across a fund's executed side letters, builds an eligibility matrix per LP, flags cascade risk, and drafts election forms and a redacted disclosure schedule. Use when the user runs `/fundadmin:fund mfn-tracker` or shares several side letters.
 
 | Host | Invocation |
 |---|---|
@@ -26,7 +26,7 @@ Tracks MFN rights across a fund's side letters: per-LP eligibility, cascade risk
 
 Obligation compliance tracking & deadlines
 
-Inventories side letter obligations by type, frequency, due date and status, with an exam-ready log. Use for `/fundadmin:fund obligation-tracker`.
+Inventories every side letter obligation by category, frequency, due date, and compliance status, with an exam-ready activity log. Use when the user runs `/fundadmin:fund obligation-tracker`, asks which deadlines are outstanding, or shares side letters.
 
 | Host | Invocation |
 |---|---|
@@ -40,7 +40,7 @@ Inventories side letter obligations by type, frequency, due date and status, wit
 
 Debt covenant monitoring & breach alerts
 
-Extracts financial, reporting and negative covenants from a credit facility; reports compliance and headroom. Use for `/fundadmin:fund covenant-monitor`.
+Extracts financial, reporting, and negative covenants from a credit facility and reports compliance status and headroom. Use when the user runs `/fundadmin:fund covenant-monitor`, asks about covenant breach risk, or shares a subscription line or loan agreement.
 
 | Host | Invocation |
 |---|---|
@@ -54,7 +54,7 @@ Extracts financial, reporting and negative covenants from a credit facility; rep
 
 Regulatory filing calendar generation
 
-12-month filing calendar (Form ADV, PF, D, FATCA/CRS, AIFMD Annex IV) with 90/60/30-day alerts. Use for `/fundadmin:fund regulatory-calendar` or upcoming filings.
+Builds a 12-month filing calendar from fund type, registration, and AUM, spanning Form ADV, Form PF, Form D, FATCA/CRS, and AIFMD Annex IV, with 90/60/30-day alerts. Use when the user runs `/fundadmin:fund regulatory-calendar` or asks what filings are due.
 
 | Host | Invocation |
 |---|---|

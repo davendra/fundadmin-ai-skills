@@ -12,7 +12,7 @@ pageClass: commands
 
 LPA negotiation strategy & redline suggestions
 
-Turns LP-unfavorable LPA terms into counter-language ranked P0-P4, with a negotiation roadmap and concessions. Use for `/fundadmin:fund lpa-negotiate`.
+Turns LP-unfavorable LPA provisions into counter-proposal language, ranked P0 to P4 with likelihood of GP acceptance, a four-round roadmap and concession matrix. Use when the user runs `/fundadmin:fund lpa-negotiate` or asks for LPA negotiation strategy.
 
 | Host | Invocation |
 |---|---|
@@ -26,7 +26,7 @@ Turns LP-unfavorable LPA terms into counter-language ranked P0-P4, with a negoti
 
 Terms benchmarking against market standards
 
-Scores economic and governance terms against reference ranges, LP-Friendly to GP-Favorable, 0-100. Use for `/fundadmin:fund benchmark` or market checks.
+Scores economic and governance terms against this skill's reference ranges, classing each LP-Friendly, Market Standard, or GP-Favorable with a 0-100 score. Use when the user runs `/fundadmin:fund benchmark`, asks if terms are at market, or shares an LPA.
 
 | Host | Invocation |
 |---|---|
@@ -40,7 +40,7 @@ Scores economic and governance terms against reference ranges, LP-Friendly to GP
 
 Plain English translation of fund documents
 
-Translates a fund document clause by clause into plain English: impact, risk flags, glossary, worked examples. Use for `/fundadmin:fund plain-english`.
+Translates a fund document clause by clause into plain English: practical impact, risk flags, a defined-terms glossary, and worked waterfall and clawback examples. Use when the user runs `/fundadmin:fund plain-english`, asks what a clause means, or shares an LPA or PPM.
 
 | Host | Invocation |
 |---|---|
@@ -54,7 +54,7 @@ Translates a fund document clause by clause into plain English: impact, risk fla
 
 Terms playbook from multiple fund documents
 
-Tracks how a GP's LPA terms drift across vintages and builds a playbook of positions and red lines. Use for `/fundadmin:fund playbook` or LPAs from several vintages.
+Tracks how a firm's LPA terms drift across fund vintages and builds a negotiation playbook of standard positions and red lines. Use when the user runs `/fundadmin:fund playbook`, asks how terms changed between Fund II and Fund III, or shares LPAs from several vintages.
 
 | Host | Invocation |
 |---|---|
@@ -68,7 +68,7 @@ Tracks how a GP's LPA terms drift across vintages and builds a playbook of posit
 
 Search prior reviews for similar provisions & negotiation precedent
 
-Searches prior reviews for matching provisions, ranked by fund, vintage and section, flagging outliers. Use for `/fundadmin:fund search-precedent`.
+Searches prior review outputs for provisions matching a query, ranks matches by fund, vintage and section, and compares corpus positions versus outliers. Use when the user runs `/fundadmin:fund search-precedent` or asks how a clause was handled on past funds.
 
 | Host | Invocation |
 |---|---|
@@ -82,7 +82,7 @@ Searches prior reviews for matching provisions, ranked by fund, vintage and sect
 
 Package review analysis for external legal counsel
 
-Packages an LPA, PPM or side letter review into a counsel brief: P0-P3 triage, redlines, open questions. Use for `/fundadmin:fund counsel-handoff`.
+Packages an LPA, PPM or side letter review into a brief for external counsel: P0-P3 triage, redline requests and open questions with section citations. Use when the user runs `/fundadmin:fund counsel-handoff`, asks to brief outside counsel, or shares a review file.
 
 | Host | Invocation |
 |---|---|

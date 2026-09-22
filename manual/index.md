@@ -69,7 +69,7 @@ features:
 
 <img class="figure" src="/images/how-it-works.jpg" alt="How FundAdmin AI works: drop in a fund document, a skill reviews it, get a scored report" />
 
-A fund document goes in. The `/fundadmin:fund` menu, or the host's own skill matching, hands it to one of 62 skills. The skill follows a written workflow, launching specialist agents where it needs them, and writes a markdown report next to your documents. `report-pdf` can turn any report into a PDF, and every skill writes to a [fixed filename](/guide/outputs) so later skills can build on earlier output.
+A fund document goes in. The `/fundadmin:fund` menu, or the host's own skill matching, hands it to one of 62 skills. The skill follows a written workflow, launching specialist agents where it needs them, and writes a markdown report under the [shared run tree](/guide/outputs) (`reviews/<fund>/<date>/<run-id>/…`). `report-pdf` can turn any report into a PDF, and every skill writes to a fixed filename family so later skills can build on earlier output.
 
 ## The LPA review
 

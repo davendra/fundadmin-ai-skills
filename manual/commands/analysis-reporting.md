@@ -40,7 +40,9 @@ Extracts waterfall tiers, pref, catch-up, carry, clawback and fees, checks consi
 
 Professional PDF report with score gauge and risk dashboard
 
-Renders the latest fund review as a branded PDF with score gauge, risk dashboard and priorities; needs Python and ReportLab. Use for `/fundadmin:fund report-pdf`.
+Renders a fund review Markdown (or structured JSON) as a branded PDF, preserving content, score labels and limitations; needs Python and ReportLab. Use for `/fundadmin:fund report-pdf`. Prefer a report from the current run or one the user selects — do not pick the newest file across funds.
+
+Recognised filename families include `LPA-REVIEW-*.md`, `PPM-REVIEW-*.md`, `SUBSCRIPTION-REVIEW-*.md`, `SIDE-LETTER-REVIEW-*.md`, `WATERFALL-REVIEW-*.md`, `AUDIT-SUPPORT-*.md`, `COMPLIANCE-REVIEW-*.md`, `KYC-REVIEW-*.md`, **`CAPITAL-CALL-REVIEW-*.md` / `CAPITAL-CALL-*.md`**, **`DISTRIBUTION-REVIEW-*.md` / `DISTRIBUTION-NOTICE-*.md`**, and **`K1-REVIEW-*.md`**. Other report Markdown is also supported, including unscored reports.
 
 | Host | Invocation |
 |---|---|

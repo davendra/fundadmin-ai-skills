@@ -41,6 +41,11 @@ Use the report explicitly selected by the user or produced by the current run. O
 - `AUDIT-SUPPORT-*.md`
 - `COMPLIANCE-REVIEW-*.md`
 - `KYC-REVIEW-*.md`
+- `CAPITAL-CALL-REVIEW-*.md`
+- `CAPITAL-CALL-*.md`
+- `DISTRIBUTION-REVIEW-*.md`
+- `DISTRIBUTION-NOTICE-*.md`
+- `K1-REVIEW-*.md`
 
 Other report Markdown is also supported, including unscored reports. Do not require LPA headings or a score. If no source exists, explain that a review is needed; do not fabricate one.
 

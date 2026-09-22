@@ -210,6 +210,33 @@ class BodyContractTests(unittest.TestCase):
                     with self.subTest(path=path.name, vendor=vendor):
                         self.assertNotIn(vendor, line)
 
+    def test_report_pdf_recognises_capital_distribution_k1_families(self):
+        """PDF discovery must list capital-call, distribution and K-1 families.
+
+        Those skills write CAPITAL-CALL*, DISTRIBUTION-* and K1-REVIEW* Markdown.
+        Without them in the recognised list, /fund report-pdf agents miss the
+        authorised inputs even though the renderer accepts any Markdown.
+        """
+        text = (SKILLS / "fund-report-pdf" / "SKILL.md").read_text(encoding="utf-8")
+        block = re.search(
+            r"Recognised filename families include:(.*?)(?:\n\nOther report|\n\n##)",
+            text,
+            re.S,
+        )
+        self.assertIsNotNone(block, "fund-report-pdf must publish a recognised-families list")
+        recognised = set(re.findall(r"`([A-Z][A-Z0-9\-]+)-\*\.md`", block.group(1)))
+        required = {
+            "CAPITAL-CALL-REVIEW",
+            "CAPITAL-CALL",
+            "DISTRIBUTION-REVIEW",
+            "DISTRIBUTION-NOTICE",
+            "K1-REVIEW",
+        }
+        self.assertTrue(
+            required.issubset(recognised),
+            f"PDF discovery missing {sorted(required - recognised)}; have {sorted(recognised)}",
+        )
+
     def test_orchestrator_lists_every_skill(self):
         text = (SKILLS / "fund" / "SKILL.md").read_text(encoding="utf-8")
         for d in skill_dirs():

@@ -1,0 +1,20 @@
+{
+  "name": "fundadmin-ai-skills",
+  "interface": {
+    "displayName": "FundAdmin AI"
+  },
+  "plugins": [
+    {
+      "name": "fundadmin",
+      "source": {
+        "source": "local",
+        "path": "./plugins/fundadmin"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Finance"
+    }
+  ]
+}

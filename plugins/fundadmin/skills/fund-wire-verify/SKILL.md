@@ -1,6 +1,6 @@
 ---
 name: fund-wire-verify
-description: "Compares wire instructions against historical records to flag bank and beneficiary changes, FATF jurisdiction risk and timing anomalies, then scores risk and issues a verification checklist. Use when the user runs `/fund wire-verify`, asks to verify payment instructions, or shares new bank details."
+description: "Compares wire instructions to history for bank/beneficiary changes, FATF risk and timing anomalies, with a risk score and verification checklist. Use when the user runs `/fund wire-verify`, asks to verify payment instructions, or shares new bank details. Writes WIRE-VERIFY-[fund]-[date].md."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->

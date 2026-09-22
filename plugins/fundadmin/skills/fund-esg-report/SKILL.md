@@ -62,7 +62,7 @@ No invented “industry median” or benchmark without an authorised current dat
 
 ## Report
 
-Write `ESG-REPORT-[fund]-[date].md` with scope and framework applicability; source/version/effective-date register; disclosure mapping; metric tables and calculations; coverage dashboard; uncertainty and data gaps; collection owners/targets; and preliminary readiness for human review. Use INCOMPLETE where required data or authoritative templates are unavailable. Do not claim regulatory filing readiness or assurance from a completeness score.
+Write `ESG-REPORT-[fund]-[date].md` in the isolated run output directory defined by the shared production contract with scope and framework applicability; source/version/effective-date register; disclosure mapping; metric tables and calculations; coverage dashboard; uncertainty and data gaps; collection owners/targets; and preliminary readiness for human review. Use INCOMPLETE where required data or authoritative templates are unavailable. Do not claim regulatory filing readiness or assurance from a completeness score.
 
 Retain any linked screening NOT PERFORMED, INCOMPLETE or POTENTIAL MATCH; an ESG score cannot clear these. Mask personal/financial identifiers and use aggregation where individual employee or incident data could identify a person.
 

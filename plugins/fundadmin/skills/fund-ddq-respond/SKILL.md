@@ -158,7 +158,7 @@ For questions where fund-specific data is not available, provide industry-standa
 
 ### Step 6: Generate the Output
 
-Write a file called `DDQ-RESPONSE-[fund]-[date].md` with the following structure:
+Write a file called `DDQ-RESPONSE-[fund]-[date].md` in the isolated run output directory defined by the shared production contract. Use the following structure:
 
 ```markdown
 # DDQ Response: [Investor Name] — [Fund Name]

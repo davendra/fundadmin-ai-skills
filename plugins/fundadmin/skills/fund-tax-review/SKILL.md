@@ -56,7 +56,7 @@ Do not use fixed K-1 box/code mappings across years. Read the actual form: partn
 
 ## Output
 
-Write `TAX-REVIEW-[fund]-[date].md` with scope; document inventory; extracted amounts/codes linked to evidence; arithmetic and reconciliations; partner-specific issues; source/effective-date register; unavailable sources; missing information; and actions for the tax preparer.
+Write `TAX-REVIEW-[fund]-[date].md` in the isolated run output directory defined by the shared production contract with scope; document inventory; extracted amounts/codes linked to evidence; arithmetic and reconciliations; partner-specific issues; source/effective-date register; unavailable sources; missing information; and actions for the tax preparer.
 
 Use SUPPORTED PRELIMINARY, DISCREPANCY, INCOMPLETE, NOT PERFORMED or N/A WITH BASIS. A completeness score measures known required evidence only. If linked screening has NOT PERFORMED, INCOMPLETE or POTENTIAL MATCH status, retain it separately; tax-document completion does not clear onboarding. Readiness is HOLD, ESCALATE or PRELIMINARY READY FOR HUMAN REVIEW.
 

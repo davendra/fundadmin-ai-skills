@@ -46,7 +46,7 @@ Unknown fund exemptions, unverified legal thresholds or missing supporting docum
 
 ## Report
 
-Write `SUBSCRIPTION-REVIEW-[investor]-[date].md` using an internal alias. Include:
+Write `SUBSCRIPTION-REVIEW-[investor]-[date].md` in the isolated run output directory defined by the shared production contract, using an internal alias. Include:
 - Review scope, document inventory, fund/investor facts and source register.
 - Qualification matrix with separate tests, evidence and preliminary outcomes.
 - Tax-form and AML/KYC evidence status, including per-check unresolved screening states.

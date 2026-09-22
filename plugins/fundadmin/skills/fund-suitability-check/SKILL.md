@@ -61,7 +61,7 @@ SEC Order IA-6961, effective 29 June 2026, sets the monetary tests at at least $
 
 ## Output and controls
 
-Write `SUITABILITY-CHECK-[investor]-[date].md` using an alias. Include a separate row for each test: applicability, cited rule/version/effective date, facts, evidence, arithmetic, conditions, and SUPPORTED PRELIMINARY / NOT SUPPORTED / INCOMPLETE / N/A WITH BASIS. Explain borderline valuations and missing documents. A completeness score, if requested, measures evidence only.
+Write `SUITABILITY-CHECK-[investor]-[date].md` in the isolated run output directory defined by the shared production contract, using an alias. Include a separate row for each test: applicability, cited rule/version/effective date, facts, evidence, arithmetic, conditions, and SUPPORTED PRELIMINARY / NOT SUPPORTED / INCOMPLETE / N/A WITH BASIS. Explain borderline valuations and missing documents. A completeness score, if requested, measures evidence only.
 
 Carry AML screening NOT PERFORMED, INCOMPLETE and POTENTIAL MATCH into readiness without reinterpreting them. Use HOLD, ESCALATE or PRELIMINARY READY FOR HUMAN REVIEW; never ACCEPT/REJECT or a recommendation to invest. Mask sensitive financial account and tax/ID numbers; retain only necessary amounts and secure evidence references.
 

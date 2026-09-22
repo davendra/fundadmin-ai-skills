@@ -63,7 +63,7 @@ Use the evidence-validation adapter documented in regulatory.md for supplied scr
 
 ## Output
 
-Write `SUBSCRIPTION-PROCESS-[investor]-[date].md` using an internal alias. Include:
+Write `SUBSCRIPTION-PROCESS-[investor]-[date].md` in the isolated run output directory defined by the shared production contract, using an internal alias. Include:
 1. Investor/fund profile, scope, jurisdictions and review date.
 2. Pipeline status dashboard with source review/evidence reference, timestamp and missing dependencies.
 3. Document collection percentage with denominator, separate from verification.

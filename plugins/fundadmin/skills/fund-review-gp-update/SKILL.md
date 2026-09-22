@@ -295,7 +295,7 @@ One-line assessment per fund: "[Fund name] — [Vintage] — Gross MOIC [X.Xx] �
 
 ### Step 11: Generate the Output
 
-Write a file called `GP-UPDATE-REVIEW-[fund]-[date].md` using this structure:
+Write a file called `GP-UPDATE-REVIEW-[fund]-[date].md` in the isolated run output directory defined by the shared production contract. Use this structure:
 
 ```markdown
 # GP Activity Update Review

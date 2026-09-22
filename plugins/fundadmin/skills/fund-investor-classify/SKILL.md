@@ -50,7 +50,7 @@ Use a primary legal category (individual, company/partnership, trust, benefit pl
 
 Build a document checklist tailored to the supported categories: identity/existence, authority, ownership/control, tax and CRS forms, securities representations, plan/tax-exemption evidence, funds/wealth evidence and screening. For every item show law/contract/policy basis, applicability, status, evidence reference and action owner. Do not promise a universally complete checklist.
 
-Write `INVESTOR-CLASSIFICATION-[investor]-[date].md` with:
+Write `INVESTOR-CLASSIFICATION-[investor]-[date].md` in the isolated run output directory defined by the shared production contract with:
 - Investor alias, legal form and jurisdiction, tax status, review date and document inventory.
 - Separate classifications with basis, confidence, contradictory evidence and unknowns.
 - Document requirements and known-item collection percentage, separate from verification.

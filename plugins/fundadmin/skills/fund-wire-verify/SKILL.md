@@ -61,7 +61,7 @@ Do not place calls, send confirmations, alter beneficiary records or release fun
 
 ## Output
 
-Write `WIRE-VERIFY-[fund]-[date].md`. Include instruction comparison, checks performed versus NOT PERFORMED, anomalies with evidence and uncertainty, required screening states, source/effective-date register, verification checklist and action owners.
+Write `WIRE-VERIFY-[fund]-[date].md` in the isolated run output directory defined by the shared production contract. Include instruction comparison, checks performed versus NOT PERFORMED, anomalies with evidence and uncertainty, required screening states, source/effective-date register, verification checklist and action owners.
 
 Compare full account values privately but display only masked last-four values and a separate full-value match/difference flag; identical suffixes do not establish equality. Mask tax/ID/passport identifiers too. Omit residential addresses, full dates of birth, signatures and raw provider/contact data.
 

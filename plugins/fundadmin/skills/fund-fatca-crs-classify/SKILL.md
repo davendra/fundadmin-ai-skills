@@ -60,7 +60,7 @@ Retrieve the applicable treaty, protocols and effective dates for the payment. C
 
 ## Output
 
-Write `FATCA-CRS-CLASSIFICATION-[investor]-[date].md` using an internal alias. Include profile and scope; separate Chapter 3, FATCA and CRS analyses; claimed versus supported classifications; forms/revision/validity matrix; controlling-person gaps; treaty analysis; withholding questions; sources and outstanding actions.
+Write `FATCA-CRS-CLASSIFICATION-[investor]-[date].md` in the isolated run output directory defined by the shared production contract, using an internal alias. Include profile and scope; separate Chapter 3, FATCA and CRS analyses; claimed versus supported classifications; forms/revision/validity matrix; controlling-person gaps; treaty analysis; withholding questions; sources and outstanding actions.
 
 Use SUPPORTED PRELIMINARY CLASSIFICATION, INCOMPLETE or NOT APPLICABLE WITH BASIS. Carry related screening NOT PERFORMED, INCOMPLETE and POTENTIAL MATCH statuses without upgrading them. Operational readiness remains HOLD or ESCALATE until issues are resolved; complete evidence is only PRELIMINARY READY FOR HUMAN REVIEW.
 

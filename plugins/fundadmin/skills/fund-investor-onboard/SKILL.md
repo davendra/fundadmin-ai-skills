@@ -58,7 +58,7 @@ Use HOLD for absent/incomplete required evidence, ESCALATE for matches or unreso
 
 Record officer/legal/GP decisions separately with their actual evidence and dates; do not fabricate sign-offs. State unresolved identity, beneficial ownership, mandatory screening and tax-form requirements as dependencies, not post-closing administrative grace periods.
 
-Write `ONBOARDING-CHECKLIST-[type]-[date].md`. Include scope; per-workstream status and evidence references; document checklist with requirement basis; outstanding actions and owners; indicative day-by-day preparation timeline tied to dependencies; source/effective-date register; and preliminary readiness. No guaranteed completion dates.
+Write `ONBOARDING-CHECKLIST-[type]-[date].md` in the isolated run output directory defined by the shared production contract. Include scope; per-workstream status and evidence references; document checklist with requirement basis; outstanding actions and owners; indicative day-by-day preparation timeline tied to dependencies; source/effective-date register; and preliminary readiness. No guaranteed completion dates.
 
 Use aliases in analytical reports. Mask TIN/ID/passport/bank numbers to at most four trailing characters and omit full birth dates, residential addresses and signatures.
 

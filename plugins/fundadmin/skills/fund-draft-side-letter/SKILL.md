@@ -353,7 +353,7 @@ Insert these into the side letter body in the appropriate location, numbered seq
 
 ### Step 3: Generate the Output
 
-Save the side letter as: `SIDE-LETTER-[LP]-[fund]-[date].md`
+Save the side letter as `SIDE-LETTER-[LP]-[fund]-[date].md` in the isolated run output directory defined by the shared production contract.
 
 Example: `SIDE-LETTER-StateTeachersPension-ObrelundFundVII-2026-04-03.md`
 

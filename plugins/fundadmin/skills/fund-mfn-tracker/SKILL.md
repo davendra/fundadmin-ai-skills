@@ -190,7 +190,7 @@ Create the MFN disclosure schedule with appropriate confidentiality redactions:
 
 ### Step 8: Generate the Output
 
-Write a file called `MFN-TRACKER-[fund]-[date].md` with the following structure:
+Write a file called `MFN-TRACKER-[fund]-[date].md` in the isolated run output directory defined by the shared production contract. Use the following structure:
 
 ```markdown
 # MFN Election Tracker: [Fund Name]
@@ -366,7 +366,7 @@ For each LP with electable provisions, generate a form containing:
 3. **Disclosure Schedule**: Summary of all provisions being disclosed under MFN
 4. **Signature Block**: LP authorized signatory, date
 
-Save the election form to: `reviews/{fund-slug}/{date}/tracking/MFN-ELECTION-{lp-slug}-{date}.md`
+Save the election form to: `reviews/{fund-slug}/{date}/{run-id}/tracking/MFN-ELECTION-{lp-slug}-{date}.md` (isolated run path from the shared production contract)
 
 ### Status Tracking
 After generating forms, add Kanban cards to "Tracking & Monitoring" board:

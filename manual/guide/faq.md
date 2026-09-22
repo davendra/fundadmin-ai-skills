@@ -6,11 +6,11 @@ Use the plugin prefix: `/fundadmin:fund`, not the bare form (that is for the pla
 
 ## The PDF was not generated
 
-`report-pdf` needs Python 3 and `reportlab` (`pip3 install reportlab`). Without them it hands you the markdown report and the exact command to run elsewhere.
+`report-pdf` needs Python 3.9+ and the pinned PDF dependencies (`python3 -m pip install -r requirements-plugin.txt` from the plugin repository). Without them it keeps the validated markdown report and says that the PDF was not produced.
 
 ## An LPA review is taking a long time
 
-That is expected: five agents read the whole agreement, and a full review usually takes 15 to 40 minutes. Shorter documents are faster. The report is written once, at the end, with the final score; if you see a draft with placeholder scores, the run was interrupted.
+That is expected: five agents work through the whole agreement, in order. How long it takes depends on the host, the document and the tools available; no timing is guaranteed. A report with missing checks is marked `PARTIAL` or `BLOCKED`, and a score that could not be evidenced is reported as unavailable rather than filled in.
 
 ## The review flagged something that is fine
 
@@ -18,7 +18,7 @@ Every finding names the clause it came from. Read the clause. The skills describ
 
 ## Can I use it on real fund documents?
 
-Yes; that is what it is for. Everything under `samples/` is synthetic and marked as such. Documents go only where your AI host already sends them: the plugin has no hooks, no MCP servers and makes no network calls of its own. The [privacy page](/guide/privacy) has the details.
+Only within an authorised, supervised pilot, with data controls your organisation has approved and professional review of every output. This release is not certified for production use. Everything under `samples/` is synthetic and marked as such. Documents go only where your AI host already sends them: the plugin has no hooks, no MCP servers and makes no network calls of its own. The [privacy page](/guide/privacy) has the details.
 
 ## How do I update?
 

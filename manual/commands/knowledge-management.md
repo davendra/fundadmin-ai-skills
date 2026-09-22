@@ -12,7 +12,7 @@ pageClass: commands
 
 Create Obsidian vault with dashboards, templates & Dataview queries
 
-Creates an Obsidian vault for fund administration: review folders, Dataview dashboards, Fund and Investor templates and an Inbox. Use for `/fundadmin:fund vault-init` or setting up a fund knowledge base.
+Creates an Obsidian vault for fund administration: review subfolders, Dataview dashboards, Fund and Investor templates, and an Inbox ready for `/fundadmin:fund ingest`. Use when the user runs `/fundadmin:fund vault-init` or asks to set up a fund vault or knowledge base.
 
 | Host | Invocation |
 |---|---|
@@ -26,7 +26,7 @@ Creates an Obsidian vault for fund administration: review folders, Dataview dash
 
 Sync reviews into vault with frontmatter, tags & backlinks
 
-Syncs review outputs into the Obsidian vault with frontmatter, tags and Fund/Investor backlinks. Use for `/fundadmin:fund vault-sync` or filing reviews in the vault.
+Copies approved new reviews into the Obsidian vault with YAML frontmatter, tags and backlinks; proposes additions to existing Fund and Investor notes without overwriting them. Use when the user runs `/fundadmin:fund vault-sync` or asks to sync reviews into the vault.
 
 | Host | Invocation |
 |---|---|
@@ -40,7 +40,7 @@ Syncs review outputs into the Obsidian vault with frontmatter, tags and Fund/Inv
 
 Monitor Gmail for GP emails with PDF attachments, download to vault Inbox
 
-Scans Gmail for GP and administrator emails with PDF attachments and saves them to the vault Inbox; needs a Gmail connector. Use for `/fundadmin:fund monitor-email`.
+Reads an explicitly authorised Gmail scope for fund emails, stages PDF attachments in an isolated review run and logs provenance. Use when the user runs `/fundadmin:fund monitor-email` or asks to check for new GP documents.
 
 | Host | Invocation |
 |---|---|

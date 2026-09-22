@@ -8,7 +8,7 @@ hero:
   image:
     light: /images/ring-light.svg
     dark: /images/ring-dark.svg
-    alt: The FundAdmin AI mark, a ring split in the LPA Safety Score weights
+    alt: The FundAdmin AI mark, a ring split in the LPA review weights
   actions:
     - theme: brand
       text: Install
@@ -25,14 +25,14 @@ features:
       light: /images/icons/review-light.svg
       dark: /images/icons/review-dark.svg
     title: Review any fund document
-    details: LPAs, PPMs, subscription agreements, side letters, capital calls, distribution notices, capital account statements, K-1s, GP updates. Each review lands as a scored markdown report.
+    details: LPAs, PPMs, subscription agreements, side letters, capital calls, distribution notices, capital account statements, K-1s, GP updates. Each review lands as a source-linked markdown draft for professional review.
     link: /commands/document-review
     linkText: Document review
   - icon:
       light: /images/icons/compliance-light.svg
       dark: /images/icons/compliance-dark.svg
-    title: Five agents score an LPA
-    details: Terms, risks, compliance and obligations run in parallel, then recommendations. Weighted into an LPA Safety Score from 0 to 100 with a letter grade.
+    title: Five specialist perspectives on an LPA
+    details: Terms first, then risk, compliance and obligations, then recommendations. A heuristic favourability score from 0 to 100, or unavailable when an input is not evidenced. No letter grade.
     link: /agents
     linkText: How the agents work
   - icon:
@@ -46,7 +46,7 @@ features:
       light: /images/icons/investors-light.svg
       dark: /images/icons/investors-dark.svg
     title: Onboard and screen investors
-    details: Classification, FATCA/CRS, suitability, AML/KYC and subscription review in one seven-step process that returns one of five recommendations.
+    details: Classification, FATCA/CRS, suitability, AML/KYC and subscription review in one seven-step process that assembles the evidence and the open checks for a person to decide.
     link: /commands/investor-compliance-onboarding
     linkText: Investor compliance
   - icon:
@@ -67,28 +67,24 @@ features:
 
 ## How it works
 
-<img class="figure" src="/images/how-it-works.jpg" alt="How FundAdmin AI works: drop in a fund document, a skill reviews it, get a scored report" />
+<img class="figure" src="/images/how-it-works.jpg" alt="How FundAdmin AI works: drop in a fund document, a skill reviews it, get a report" />
 
 A fund document goes in. The `/fundadmin:fund` menu, or the host's own skill matching, hands it to one of 62 skills. The skill follows a written workflow, launching specialist agents where it needs them, and writes a markdown report under the [shared run tree](/guide/outputs) (`reviews/<fund>/<date>/<run-id>/…`). `report-pdf` can turn any report into a PDF, and every skill writes to a fixed filename family so later skills can build on earlier output.
 
 ## The LPA review
 
-<img class="figure" src="/images/lpa-pipeline.jpg" alt="LPA review pipeline: four agents in parallel, then recommendations, then the LPA Safety Score and the LPA-REVIEW report" />
-
-The flagship command. Four agents read the agreement in parallel, a fifth turns their findings into ranked negotiation points, and the five results are weighted into the LPA Safety Score. [How the agents and the score work](/agents).
+The flagship command. The terms agent inventories the agreement first; risk, compliance and obligations then work from the source and that inventory; a fifth agent turns their findings into ranked negotiation points and is not scored. The four scored dimensions give a heuristic favourability score, or none when one of them is not evidenced. [How the agents and the score work](/agents).
 
 ## Two more workflows
 
 <div class="figures">
   <figure>
     <img class="figure" src="/images/ingest-flow.jpg" alt="Batch intake: classify a folder of GP PDFs, review by priority, auto-reconcile, portfolio dashboard, ingest report" />
-    <figcaption><a href="/commands/document-intake#ingest">Batch intake</a> takes a folder of mixed PDFs from GP portals, reviews them in priority order and reconciles matching pairs.</figcaption>
-  </figure>
-  <figure>
-    <img class="figure" src="/images/onboarding-flow.jpg" alt="Investor onboarding: seven steps from classification to an acceptance recommendation with five possible outcomes" />
-    <figcaption><a href="/commands/investor-compliance-onboarding#subscription-process">Investor onboarding</a> runs seven checks in order; the most restrictive result decides, so one hard fail cannot be averaged away.</figcaption>
+    <figcaption><a href="/commands/document-intake#ingest">Batch intake</a> takes a folder of mixed PDFs from GP portals, reviews them in priority order and drafts reconciliations of matching pairs; ambiguous matches stay open.</figcaption>
   </figure>
 </div>
+
+[Investor onboarding](/commands/investor-compliance-onboarding#subscription-process) runs seven checks in order and assembles the documents, the evidence and the checks still open. Missing verification gives a `PARTIAL` or `BLOCKED` draft, not an admission decision; a name hit is not a confirmed match. Authorised people make admission and clearance decisions.
 
 ::: warning Not advice
 FundAdmin AI produces document analysis and drafts to support fund administration work. It is not financial, legal or tax advice. Every report says so. Have qualified professionals review anything you rely on.

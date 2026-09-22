@@ -10,9 +10,9 @@ pageClass: commands
 
 ## `/fundadmin:fund draft-capital-call <data>` {#draft-capital-call}
 
-Generate capital call notice (ILPA-compliant)
+Draft capital call notice from sourced terms (review required)
 
-Drafts an ILPA capital call notice: purpose, per-LP pro-rata table, default terms, wire instructions. Use for `/fundadmin:fund draft-capital-call`.
+Drafts a structured capital call notice with purpose breakdown, per-LP pro-rata table, recallable designation, default consequences, and wire instructions. Use when the user runs `/fundadmin:fund draft-capital-call` or asks to issue a capital call.
 
 | Host | Invocation |
 |---|---|
@@ -26,7 +26,7 @@ Drafts an ILPA capital call notice: purpose, per-LP pro-rata table, default term
 
 Generate distribution notice with waterfall
 
-Drafts a distribution notice: waterfall tier math, per-LP split, withholding, clawback reserve. Use for `/fundadmin:fund draft-distribution`.
+Drafts a distribution notice with waterfall tier math, per-LP split by return of capital, preferred return and profit, tax withholding, and clawback reserve. Use when the user runs `/fundadmin:fund draft-distribution` or asks to issue a distribution.
 
 | Host | Invocation |
 |---|---|
@@ -40,7 +40,7 @@ Drafts a distribution notice: waterfall tier math, per-LP split, withholding, cl
 
 Generate investor communications
 
-Drafts LP letters: quarterly update, meeting notice, welcome, closing, extension, wind-down. Use for `/fundadmin:fund draft-investor-letter <type>`.
+Drafts LP communications: quarterly update, annual meeting notice, onboarding welcome, closing announcement, investment period extension, or wind-down notice. Use when the user runs `/fundadmin:fund draft-investor-letter <type>` or asks to write to LPs.
 
 | Host | Invocation |
 |---|---|
@@ -54,7 +54,7 @@ Drafts LP letters: quarterly update, meeting notice, welcome, closing, extension
 
 Generate side letter from provisions
 
-Drafts an LP side letter from requested terms (fee discount, MFN, co-invest, ERISA) with LPA references. Use for `/fundadmin:fund draft-side-letter`.
+Drafts an LP side letter from requested provisions (fee discount, MFN, co-invest, reporting, ERISA) with LPA section references and MFN cascade risk. Use when the user runs `/fundadmin:fund draft-side-letter` or asks to draft a side letter for an LP.
 
 | Host | Invocation |
 |---|---|

@@ -12,7 +12,7 @@ pageClass: commands
 
 Audit confirmation & schedule generation
 
-Audit package from capital account data: auditor confirmation letter, partner capital and fee schedules. Use for `/fundadmin:fund audit-support` or annual audit prep.
+Builds an audit package from capital account data: draft auditor confirmation letter, partner capital, and management fee schedules. Use when the user runs `/fundadmin:fund audit-support`, asks to prepare for the annual audit, or shares capital account data.
 
 | Host | Invocation |
 |---|---|
@@ -26,7 +26,7 @@ Audit package from capital account data: auditor confirmation letter, partner ca
 
 Waterfall/fee calculation term review
 
-Extracts waterfall tiers, pref, catch-up, carry, clawback and fees, checks consistency, scores vs market. Use for `/fundadmin:fund waterfall-review`.
+Extracts waterfall tiers, preferred return, catch-up, carry, clawback and fee terms, checks consistency, and scores each against market standard. Use when the user runs `/fundadmin:fund waterfall-review`, asks about fund economics, or shares waterfall provisions.
 
 | Host | Invocation |
 |---|---|
@@ -38,11 +38,9 @@ Extracts waterfall tiers, pref, catch-up, carry, clawback and fees, checks consi
 
 ## `/fundadmin:fund report-pdf` {#report-pdf}
 
-Professional PDF report with score gauge and risk dashboard
+PDF of validated report, tables, findings and limitations
 
-Renders a fund review Markdown (or structured JSON) as a branded PDF, preserving content, score labels and limitations; needs Python and ReportLab. Use for `/fundadmin:fund report-pdf`. Prefer a report from the current run or one the user selects — do not pick the newest file across funds.
-
-Recognised filename families include `LPA-REVIEW-*.md`, `PPM-REVIEW-*.md`, `SUBSCRIPTION-REVIEW-*.md`, `SIDE-LETTER-REVIEW-*.md`, `WATERFALL-REVIEW-*.md`, `AUDIT-SUPPORT-*.md`, `COMPLIANCE-REVIEW-*.md`, `KYC-REVIEW-*.md`, **`CAPITAL-CALL-REVIEW-*.md` / `CAPITAL-CALL-*.md`**, **`DISTRIBUTION-REVIEW-*.md` / `DISTRIBUTION-NOTICE-*.md`**, and **`K1-REVIEW-*.md`**. Other report Markdown is also supported, including unscored reports.
+Renders fund review Markdown or structured JSON into a branded PDF, preserving report content, score labels and scales, evidence and limitations. Use when the user runs `/fundadmin:fund report-pdf` or asks for a PDF of a review.
 
 | Host | Invocation |
 |---|---|

@@ -6,13 +6,11 @@ pageClass: commands
 
 <div class="cat-head"><img class="light-only" src="/images/icons/investors-light.svg" alt="" /><img class="dark-only" src="/images/icons/investors-dark.svg" alt="" /><span>6 of the <a href="/commands/">62 commands</a>. Type each as shown in Claude Code or Cowork; Codex users name the skill.</span></div>
 
-<img class="figure" src="/images/onboarding-flow.jpg" alt="Investor onboarding: seven steps from classification to an acceptance recommendation" />
-
 ## `/fundadmin:fund investor-classify <file>` {#investor-classify}
 
 Auto-classify investor type & determine document requirements
 
-Classifies an investor's regulatory category, builds its document checklist, maps FATCA, CRS, ERISA, UBTI, ECI. Use for `/fundadmin:fund investor-classify`.
+Classifies an investor into a regulatory category, builds the document requirements checklist, and maps FATCA, CRS, ERISA, UBTI and ECI exposure. Use when the user runs `/fundadmin:fund investor-classify` or asks to classify an investor.
 
 | Host | Invocation |
 |---|---|
@@ -26,7 +24,7 @@ Classifies an investor's regulatory category, builds its document checklist, map
 
 FATCA/CRS tax classification & required forms determination
 
-Determines an investor's FATCA ch. 3/4 status, FFI/NFFE type, CRS class, forms, controlling persons. Use for `/fundadmin:fund fatca-crs-classify`.
+Determines an investor's FATCA Chapter 3 and 4 status, FFI or NFFE type, CRS classification, required tax forms and controlling person disclosure. Use when the user runs `/fundadmin:fund fatca-crs-classify` or shares a W-8 or CRS self-certification.
 
 | Host | Invocation |
 |---|---|
@@ -40,7 +38,7 @@ Determines an investor's FATCA ch. 3/4 status, FFI/NFFE type, CRS class, forms, 
 
 Qualified Purchaser / Accredited Investor / Qualified Client check
 
-Verifies Accredited Investor, Qualified Purchaser and Qualified Client status, flagging borderline cases. Use for `/fundadmin:fund suitability-check`.
+Verifies Accredited Investor, Qualified Purchaser and Qualified Client status from subscription documents, flagging borderline and specific-purpose cases. Use when the user runs `/fundadmin:fund suitability-check` or asks whether an investor qualifies.
 
 | Host | Invocation |
 |---|---|
@@ -52,9 +50,9 @@ Verifies Accredited Investor, Qualified Purchaser and Qualified Client status, f
 
 ## `/fundadmin:fund aml-screen <file>` {#aml-screen}
 
-AML screening — PEP, sanctions, source of funds, risk rating
+Reviews supplied screening evidence and records checks not performed; no sanctions clearance or admission decision.
 
-AML/CFT screen of an investor: ID, 25% UBOs, PEP, OFAC/UN sanctions, source of funds, adverse media, risk. Use for `/fundadmin:fund aml-screen`.
+Reviews supplied screening evidence and records checks not performed; no sanctions clearance or admission decision.
 
 | Host | Invocation |
 |---|---|
@@ -68,7 +66,7 @@ AML/CFT screen of an investor: ID, 25% UBOs, PEP, OFAC/UN sanctions, source of f
 
 Multi-investor KYC document collection tracker & refresh alerts
 
-Tracks KYC across a fund's investors: completeness, missing documents, expiry alerts, refresh cycles. Use for `/fundadmin:fund kyc-tracker` or fund-wide KYC status.
+Tracks KYC collection across every investor in a fund: per-investor completeness, outstanding document matrix, expiry alerts and refresh cycles by risk rating. Use when the user runs `/fundadmin:fund kyc-tracker` or asks where fund-wide KYC stands.
 
 | Host | Invocation |
 |---|---|
@@ -80,9 +78,9 @@ Tracks KYC across a fund's investors: completeness, missing documents, expiry al
 
 ## `/fundadmin:fund subscription-process <file>` {#subscription-process}
 
-End-to-end subscription pipeline — classify to acceptance
+Reviews classification, documents, suitability, FATCA/CRS, screening evidence and subscription gaps for human review.
 
-End-to-end investor onboarding: classify, documents, suitability, FATCA/CRS, AML, subscription, verdict. Use for `/fundadmin:fund subscription-process`.
+Reviews classification, documents, suitability, FATCA/CRS, screening evidence and subscription gaps for human review.
 
 | Host | Invocation |
 |---|---|

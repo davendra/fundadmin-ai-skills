@@ -10,9 +10,9 @@ pageClass: commands
 
 ## `/fundadmin:fund investor-onboard <type>` {#investor-onboard}
 
-Investor onboarding checklist & workflow
+Prepares an investor onboarding checklist and evidence-gap draft for human review.
 
-Onboarding checklist by investor type: documents, accreditation and QP tests, AML/KYC, timeline. Use for `/fundadmin:fund investor-onboard` or a new investor.
+Prepares an investor onboarding checklist and evidence-gap draft for human review.
 
 | Host | Invocation |
 |---|---|
@@ -26,7 +26,7 @@ Onboarding checklist by investor type: documents, accreditation and QP tests, AM
 
 DDQ/RFP response drafting from templates
 
-Drafts DDQ or RFP answers mapped to ILPA sections, citing sources, grading A-F, flagging items needing a human. Use for `/fundadmin:fund ddq-respond` or a DDQ.
+Drafts answers to an investor DDQ or RFP mapped to ILPA sections, citing sources, grading them A-F, and flagging the questions that need human input. Use when the user runs `/fundadmin:fund ddq-respond`, asks to answer a DDQ, or shares a due diligence questionnaire.
 
 | Host | Invocation |
 |---|---|
@@ -40,7 +40,7 @@ Drafts DDQ or RFP answers mapped to ILPA sections, citing sources, grading A-F, 
 
 Fund structure & entity relationship mapping
 
-Maps a fund structure: Mermaid diagram, entity registry, ownership and fee flows, blocker and ERISA gaps. Use for `/fundadmin:fund entity-map` or formation documents.
+Maps a fund structure into a Mermaid diagram, entity registry, ownership chain and fee-flow tables, flagging blocker, feeder and ERISA plan-asset gaps. Use when the user runs `/fundadmin:fund entity-map`, asks to diagram a structure, or shares formation documents.
 
 | Host | Invocation |
 |---|---|
@@ -54,7 +54,7 @@ Maps a fund structure: Mermaid diagram, entity registry, ownership and fee flows
 
 Virtual data room organizer & checklist
 
-ILPA-aligned data room index: eight categories, Required/Recommended/Optional status, gaps, access tiers. Use for `/fundadmin:fund data-room <type>` or fundraising.
+Generates an ILPA-aligned virtual data room index across eight categories with Required/Recommended/Optional status, gap priorities, and access tiers by investor type. Use when the user runs `/fundadmin:fund data-room <type>` or asks how to organize a fundraising data room.
 
 | Host | Invocation |
 |---|---|

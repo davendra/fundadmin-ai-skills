@@ -6,13 +6,11 @@ pageClass: commands
 
 <div class="cat-head"><img class="light-only" src="/images/icons/review-light.svg" alt="" /><img class="dark-only" src="/images/icons/review-dark.svg" alt="" /><span>12 of the <a href="/commands/">62 commands</a>. Type each as shown in Claude Code or Cowork; Codex users name the skill.</span></div>
 
-<img class="figure" src="/images/lpa-pipeline.jpg" alt="LPA review pipeline: four agents in parallel, then recommendations, then the LPA Safety Score" />
-
 ## `/fundadmin:fund review-lpa <file>` {#review-lpa}
 
-Full LPA review (methodology v2)
+Reviews LPA provisions using methodology v2 heuristic document favourability, separate coverage confidence and source-linked findings.
 
-Flagship LPA review: terms first, then risk/compliance/obligations in parallel, then recommendations (excluded from scoring). Raw weights 20/25/20/15 over 80 normalise to 25/31.25/25/18.75%. Use for `/fundadmin:fund review-lpa` or an LPA.
+Reviews LPA provisions using methodology v2 heuristic document favourability, separate coverage confidence and source-linked findings.
 
 | Host | Invocation |
 |---|---|
@@ -26,7 +24,7 @@ Flagship LPA review: terms first, then risk/compliance/obligations in parallel, 
 
 PPM/offering document review
 
-Scores a PPM or offering memo on risk factors, fee disclosure, regulatory status (Reg D, 3(c)(1)/(7), ERISA) and LPA fit. Use for `/fundadmin:fund review-ppm` or a PPM.
+Scores a PPM or offering memorandum on risk factor completeness, fee disclosure clarity, regulatory status (Reg D, 3(c)(1)/3(c)(7), ERISA) and LPA consistency. Use when the user runs `/fundadmin:fund review-ppm`, asks to review offering documents, or shares a PPM.
 
 | Host | Invocation |
 |---|---|
@@ -40,7 +38,7 @@ Scores a PPM or offering memo on risk factors, fee disclosure, regulatory status
 
 Subscription agreement review
 
-Checks a subscription agreement: qualification, FATCA/CRS forms, AML and ERISA reps, signatures; scores it. Use for `/fundadmin:fund review-subscription`.
+Verifies investor qualification, FATCA/CRS forms, AML and ERISA representations and signatures in a subscription agreement, then scores it. Use when the user runs `/fundadmin:fund review-subscription`, asks to check subscription documents, or shares one.
 
 | Host | Invocation |
 |---|---|
@@ -54,7 +52,7 @@ Checks a subscription agreement: qualification, FATCA/CRS forms, AML and ERISA r
 
 Side letter obligation extraction
 
-Inventories a side letter's rights and obligations, rates MFN cascade risk, flags LPA and side-letter conflicts. Use for `/fundadmin:fund review-side-letter`.
+Builds an obligation inventory from a side letter, categorizes every right, rates MFN cascade risk, and flags LPA and cross-side-letter conflicts. Use when the user runs `/fundadmin:fund review-side-letter`, asks about MFN exposure, or shares a side letter.
 
 | Host | Invocation |
 |---|---|
@@ -68,7 +66,7 @@ Inventories a side letter's rights and obligations, rates MFN cascade risk, flag
 
 Capital call notice validation & scoring
 
-Validates a capital call notice: pro-rata math, fees, wire instructions, due dates, LPA fit; scores 1-10. Use for `/fundadmin:fund review-capital-call`.
+Validates an incoming capital call notice: pro-rata math, fee line items, wire instructions, due dates, and LPA consistency, then scores it 1-10. Use when the user runs `/fundadmin:fund review-capital-call`, asks to verify a capital call, or shares a call notice.
 
 | Host | Invocation |
 |---|---|
@@ -82,7 +80,7 @@ Validates a capital call notice: pro-rata math, fees, wire instructions, due dat
 
 Distribution notice validation & tax checks
 
-Validates a distribution notice: tax credits, RWT, return of capital vs income. Use for `/fundadmin:fund review-distribution-notice` or a distribution notice.
+Validates a distribution notice to 8 decimals: imputation credits, RWT, and return-of-capital versus income classification. Use when the user runs `/fundadmin:fund review-distribution-notice`, asks to check a distribution, or shares a distribution notice.
 
 | Host | Invocation |
 |---|---|
@@ -96,7 +94,7 @@ Validates a distribution notice: tax credits, RWT, return of capital vs income. 
 
 Capital account statement review & math check
 
-Validates a capital account statement to the dollar: every field, ending capital math, tranches. Use for `/fundadmin:fund review-capital-account` or a statement.
+Validates a capital account statement to the dollar: extracts every field, checks ending capital arithmetic, reconciles tranches. Use when the user runs `/fundadmin:fund review-capital-account`, asks to verify a statement, or shares a capital account statement.
 
 | Host | Invocation |
 |---|---|
@@ -110,7 +108,7 @@ Validates a capital account statement to the dollar: every field, ending capital
 
 Schedule K-1 (Form 1065) review & UBTI/ECI flags
 
-Reviews a Schedule K-1 (Form 1065): every box and Section L, capital account math, UBTI/ECI flags, completeness. Use for `/fundadmin:fund review-k1` or a K-1.
+Extracts every box of a Schedule K-1 (Form 1065) including Section L, validates capital account arithmetic, flags UBTI and ECI exposure, and scores completeness. Use when the user runs `/fundadmin:fund review-k1`, asks to check a K-1, or shares a K-1 tax package.
 
 | Host | Invocation |
 |---|---|
@@ -124,7 +122,7 @@ Reviews a Schedule K-1 (Form 1065): every box and Section L, capital account mat
 
 Power of attorney review & risk assessment
 
-Reviews a power of attorney: grantor, attorneys, authority clauses, breadth of discretion, cross-border gaps. Use for `/fundadmin:fund review-poa` or a POA or mandate.
+Reviews a Power of Attorney used in fund transactions: extracts grantor, attorneys and authority clauses, rates breadth of discretion, and flags cross-border enforceability gaps. Use when the user runs `/fundadmin:fund review-poa`, asks to check a POA or mandate, or shares one.
 
 | Host | Invocation |
 |---|---|
@@ -138,7 +136,7 @@ Reviews a power of attorney: grantor, attorneys, authority clauses, breadth of d
 
 GP quarterly activity update analysis
 
-Analyzes a GP update: FPAUM bridge, deployment, realisations, fundraising, MOIC vs plan; scores 1-10. Use for `/fundadmin:fund review-gp-update` or a GP letter.
+Analyzes a GP activity update: FPAUM bridge, deployment pace, realisations, fundraising momentum, and gross MOIC against plan, scored 1-10. Use when the user runs `/fundadmin:fund review-gp-update`, asks how a GP is executing, or shares a GP activity update.
 
 | Host | Invocation |
 |---|---|
@@ -152,7 +150,7 @@ Analyzes a GP update: FPAUM bridge, deployment, realisations, fundraising, MOIC 
 
 Side-by-side document comparison
 
-Compares two fund documents, rating each difference material to cosmetic and who it favors. Use for `/fundadmin:fund compare` or what changed between versions.
+Compares two fund documents and rates each difference material, significant, administrative, or cosmetic, flagging who it favors, GP or LPs. Use when the user runs `/fundadmin:fund compare`, asks what changed between versions, or shares two LPAs or side letters.
 
 | Host | Invocation |
 |---|---|
@@ -166,7 +164,7 @@ Compares two fund documents, rating each difference material to cosmetic and who
 
 Key terms & definitions extraction
 
-Extracts defined terms, fees, key dates, governance and reporting duties with plain-English notes and section refs. Use for `/fundadmin:fund extract-terms`.
+Extracts all defined terms, fee provisions, key dates, governance and reporting obligations from a fund document, with plain English summaries and section references. Use when the user runs `/fundadmin:fund extract-terms` or asks to extract a document's terms.
 
 | Host | Invocation |
 |---|---|

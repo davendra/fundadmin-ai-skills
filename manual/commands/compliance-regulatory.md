@@ -6,13 +6,11 @@ pageClass: commands
 
 <div class="cat-head"><img class="light-only" src="/images/icons/compliance-light.svg" alt="" /><img class="dark-only" src="/images/icons/compliance-dark.svg" alt="" /><span>3 of the <a href="/commands/">62 commands</a>. Type each as shown in Claude Code or Cowork; Codex users name the skill.</span></div>
 
-<img class="figure" src="/images/compliance-regulatory.webp" alt="Compliance checks: a fund document checked against FATCA/CRS, AML/KYC, ERISA, Form PF/ADV, AIFMD and SFDR, scored 0 to 100" />
-
 ## `/fundadmin:fund check-compliance <file>` {#check-compliance}
 
 Compliance gap analysis (FATCA/CRS/AML/ERISA)
 
-Scores a fund document against FATCA, CRS, AML/KYC, ERISA, Form PF/D/ADV, AIFMD, SFDR and the Marketing Rule. Use for `/fundadmin:fund check-compliance`.
+Audits a document against FATCA, CRS, AML/KYC, ERISA, Form PF, Form D, Form ADV, AIFMD, SFDR, and SEC Marketing Rule checks, scoring each framework. Use when the user runs `/fundadmin:fund check-compliance`, asks for a compliance gap check, or shares an LPA or PPM.
 
 | Host | Invocation |
 |---|---|
@@ -26,7 +24,7 @@ Scores a fund document against FATCA, CRS, AML/KYC, ERISA, Form PF/D/ADV, AIFMD,
 
 KYC/AML document completeness review
 
-Scores one investor's KYC/AML package out of 100 (identity, UBOs, sanctions, PEP, source of funds) and rates risk. Use for `/fundadmin:fund kyc-review` or a KYC package.
+Scores one investor's KYC and AML package out of 100 across identity, beneficial ownership, sanctions and PEP screening and source of funds, and assigns a risk classification. Use when the user runs `/fundadmin:fund kyc-review` or shares a KYC package.
 
 | Host | Invocation |
 |---|---|
@@ -38,9 +36,9 @@ Scores one investor's KYC/AML package out of 100 (identity, UBOs, sanctions, PEP
 
 ## `/fundadmin:fund regulatory-filing <type>` {#regulatory-filing}
 
-Regulatory filing preparation (Form PF/D/ADV)
+Prepares filing drafts and evidence gaps; no submission or compliance certification.
 
-Preps a Form PF, D, ADV, 13F, FATCA/CRS or FBAR package: data points, completeness score, gaps. Use for `/fundadmin:fund regulatory-filing` or filing prep.
+Prepares filing drafts and evidence gaps; no submission or compliance certification.
 
 | Host | Invocation |
 |---|---|

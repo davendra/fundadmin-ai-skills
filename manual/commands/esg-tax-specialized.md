@@ -12,7 +12,7 @@ pageClass: commands
 
 ESG reporting & SFDR compliance
 
-ESG report across SFDR (Art. 6/8/9, PAI), TCFD, EDCI, UN PRI and EU Taxonomy, scoring data gaps. Use for `/fundadmin:fund esg-report` or an SFDR/PAI disclosure.
+Builds a preliminary ESG report for applicable SFDR, climate, EDCI, PRI and Taxonomy frameworks using verified versions, supplied data and explicit gaps. Use when the user runs `/fundadmin:fund esg-report`, asks for an SFDR or PAI disclosure, or shares portfolio ESG data.
 
 | Host | Invocation |
 |---|---|
@@ -26,7 +26,7 @@ ESG report across SFDR (Art. 6/8/9, PAI), TCFD, EDCI, UN PRI and EU Taxonomy, sc
 
 K-1/tax document review & analysis
 
-Analyzes a K-1 or tax package for UBTI, ECI, 199A, 163(j), state apportionment, PFIC and capital account ties. Use for `/fundadmin:fund tax-review` or K-1 tax effects.
+Analyzes a K-1 or tax package for UBTI, ECI, Section 199A QBI, 163(j) limits, state apportionment, PFIC exposure and capital account reconciliation. Use when the user runs `/fundadmin:fund tax-review` or asks what a K-1 means for UBTI, ECI, withholding or state filing.
 
 | Host | Invocation |
 |---|---|
@@ -40,7 +40,7 @@ Analyzes a K-1 or tax package for UBTI, ECI, 199A, 163(j), state apportionment, 
 
 Board/LPAC memo & resolution drafting
 
-Board, LPAC or annual meeting memo: agenda, performance, conflicts, resolutions, Q&A prep. Use for `/fundadmin:fund board-memo <type>` or LPAC meeting materials.
+Prepares a board, LPAC, annual, or special meeting memo with agenda, performance and portfolio sections, conflict disclosures, resolutions, and Q&A prep. Use when the user runs `/fundadmin:fund board-memo <type>` or asks to prepare LPAC or annual meeting materials.
 
 | Host | Invocation |
 |---|---|
@@ -52,9 +52,9 @@ Board, LPAC or annual meeting memo: agenda, performance, conflicts, resolutions,
 
 ## `/fundadmin:fund wire-verify <data>` {#wire-verify}
 
-Payment anomaly detection & verification
+Compares payment instructions and records independent verification evidence; no payment release.
 
-Checks new wire instructions against history for bank or beneficiary changes, FATF risk and timing anomalies, with a verification checklist. Use for `/fundadmin:fund wire-verify` or new bank details.
+Flags bank/beneficiary changes and missing callback evidence for wire instructions; issues a masked verification checklist. Use for `/fundadmin:fund wire-verify`, `/fundadmin:fund wire-verify`, new bank details, payment-instruction checks, or a shareable wire report that must mask account/tax/passport IDs.
 
 | Host | Invocation |
 |---|---|
@@ -62,4 +62,4 @@ Checks new wire instructions against history for bank or beneficiary changes, FA
 | Claude Code / Cowork, direct | `/fundadmin:fund-wire-verify <data>` |
 | Codex | `$fund-wire-verify <data>` |
 
-[Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-wire-verify/SKILL.md)
+**Writes** `WIRE-VERIFY-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-wire-verify/SKILL.md)

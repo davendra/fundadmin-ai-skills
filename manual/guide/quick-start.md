@@ -24,19 +24,19 @@ It lists every command with its arguments. Any command can be typed straight aft
 /fundadmin:fund review-lpa samples/OBRELUND-LPA-QUICKSTART.pdf
 ```
 
-The flagship. Five agents read the agreement and score it from 0 to 100; the sample carries 10 planted issues. A full review of a long LPA takes 15 to 40 minutes, so start it and come back. See [the agents](/agents) for what happens in between.
+The flagship. Five specialist agents review the agreement and draft findings that cite their clauses; the sample carries 10 planted issues. A full review takes a while and depends on your host, so start it and come back. See [the agents](/agents) for what happens in between.
 
 ```text
 /fundadmin:fund review-capital-call samples/OBRELUND-CAPITAL-CALL-1.pdf
 ```
 
-Checks the arithmetic, the deadline and the wire instructions against the LPA terms. Takes a minute or two.
+Checks the arithmetic, the deadline and the wire instructions against the LPA terms.
 
 ```text
 /fundadmin:fund wire-verify samples/email-wire-change-suspicious.md
 ```
 
-Reads a wire-instruction change request and scores it for fraud signals.
+Reads a wire-instruction change request, flags bank or beneficiary changes and missing callback evidence, and drafts a masked verification checklist. It never approves a payment.
 
 ## Where the output went
 
@@ -57,5 +57,5 @@ Later skills build on earlier output: `report-pdf` turns a review into a PDF, `c
 ## Next
 
 - [All 62 commands](/commands/), grouped by category
-- [The 5 agents](/agents) and the LPA Safety Score
+- [The 5 agents](/agents) and how the score works
 - [FAQ](/guide/faq) when something does not look right

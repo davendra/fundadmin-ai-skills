@@ -12,7 +12,7 @@ pageClass: commands
 
 Multi-fund portfolio aggregation & analytics
 
-Rolls several funds into one LP view: TVPI/DPI/RVPI, strategy and GP mix, J-curve stage, unfunded. Use for `/fundadmin:fund portfolio-dashboard` or book-level status.
+Aggregates several funds' documents into one LP view: TVPI/DPI/RVPI, strategy and GP mix, J-curve stage, and unfunded commitments. Use when the user runs `/fundadmin:fund portfolio-dashboard`, asks how the book is doing, or shares capital accounts across funds.
 
 | Host | Invocation |
 |---|---|
@@ -26,7 +26,7 @@ Rolls several funds into one LP view: TVPI/DPI/RVPI, strategy and GP mix, J-curv
 
 Cross-document reconciliation & discrepancy detection
 
-Reconciles two fund documents line by line: call vs statement, distribution vs K-1, or two statements. Use for `/fundadmin:fund reconcile` or balances that don't tie.
+Matches two fund documents line by line: capital call vs capital account, distribution vs K-1 Box 19, or sequential statements, then scores the result. Use when the user runs `/fundadmin:fund reconcile`, asks why balances do not tie, or shares two documents.
 
 | Host | Invocation |
 |---|---|
@@ -40,7 +40,7 @@ Reconciles two fund documents line by line: call vs statement, distribution vs K
 
 Deed of adherence / equity wrapper review
 
-Reviews a deed of adherence, equity wrapper or MIP agreement: obligations, vesting, leaver terms, access limits. Use for `/fundadmin:fund review-deed` or leaver terms.
+Reviews a deed of adherence, equity wrapper, or management participation agreement: obligations assumed, vesting, good and bad leaver terms, and information access limits. Use when the user runs `/fundadmin:fund review-deed`, asks to check leaver terms, or shares a deed.
 
 | Host | Invocation |
 |---|---|

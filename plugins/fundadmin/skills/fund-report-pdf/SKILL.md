@@ -99,7 +99,7 @@ The legacy positional interface is also supported:
 python3 [script_path] [analysis_input_path] "<current-run-report-dir>/FUND-REVIEW-REPORT.pdf"
 ```
 
-Keep the filename `FUND-REVIEW-REPORT.pdf` and the renderer's exclusive-create handling. If that destination already exists, leave it untouched and choose a fresh authorised run directory; do not delete the existing report or retry in the working directory.
+Keep the filename `FUND-REVIEW-REPORT.pdf` and the renderer's exclusive-create handling. Do not derive the PDF name from a Markdown basename or `fund_report.py filename` family; PDF output is fixed-name, not an `.md` family. If that destination already exists, leave it untouched and choose a fresh authorised run directory; do not delete the existing report or retry in the working directory.
 
 Use a Python environment with ReportLab. If Python, the helper or ReportLab is unavailable, provide the original Markdown and explain why no PDF was generated. If the user supplied Markdown in chat but its claimed source path cannot be verified, return that supplied Markdown verbatim, labelled as user-provided and unverified; do not imply the file exists. Provide the command above only after confirming both the helper path and input path exist and the output directory is authorised. Otherwise explain what must be saved or verified before it can run. Do not silently substitute a selective inline report generator.
 

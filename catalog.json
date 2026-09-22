@@ -52,7 +52,7 @@
       "command": "/fund",
       "claude_code": "/fundadmin:fund",
       "codex": "$fund",
-      "description": "Main menu and router for the 62 FundAdmin AI skills: fund document review, notice drafting, compliance, negotiation, tracking, analytics, intake and reporting. ALWAYS invoke this skill when the user types bare `/fund` or `/fundadmin:fund` with no subcommand \u2014 load it via the Skill tool and emit the full 62-command menu (including review-lpa, review-capital-call, draft-capital-call, report-pdf) in the same turn. Also use when the user asks what the fund administration assistant can do, lists commands, or asks for a fund admin task without naming a skill. Route `/fund <cmd>` and `/fundadmin:fund <cmd>` (including wire-verify) to the matching fund-<cmd> skill via the Skill tool.",
+      "description": "Main menu and router for the 62 FundAdmin AI skills: fund document review, notice drafting, compliance, negotiation, tracking, analytics, intake and reporting. For bare `/fund` or `/fundadmin:fund` with no subcommand: you MUST ALWAYS invoke this skill via the Skill tool (input matching fund) BEFORE answering, then emit the full 62-command menu including review-lpa, review-capital-call, draft-capital-call, report-pdf. Answering that menu without a Skill tool call is incorrect \u2014 do not reconstruct it from memory or catalog alone. Also use when the user asks what the assistant can do, lists commands, or asks for a fund admin task without naming a skill. Route `/fund <cmd>` and `/fundadmin:fund <cmd>` (including wire-verify) to the matching fund-<cmd> skill via the Skill tool.",
       "writes": "",
       "path": "plugins/fundadmin/skills/fund/SKILL.md",
       "capability": "review/draft only",

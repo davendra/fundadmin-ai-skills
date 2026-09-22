@@ -10,9 +10,9 @@ pageClass: commands
 
 ## `/fundadmin:fund review-lpa <file>` {#review-lpa}
 
-Full LPA review (5 parallel agents)
+Full LPA review (methodology v2)
 
-Flagship LPA review: five agents (terms, risks, compliance, obligations, recommendations) scored into an LPA Safety Score. Use for `/fundadmin:fund review-lpa` or an LPA.
+Flagship LPA review: terms first, then risk/compliance/obligations in parallel, then recommendations (excluded from scoring). Raw weights 20/25/20/15 over 80 normalise to 25/31.25/25/18.75%. Use for `/fundadmin:fund review-lpa` or an LPA.
 
 | Host | Invocation |
 |---|---|

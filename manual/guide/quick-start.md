@@ -40,14 +40,16 @@ Reads a wire-instruction change request and scores it for fraud signals.
 
 ## Where the output went
 
-Each skill writes a markdown file under a dated tree next to the documents:
+Each skill writes a markdown file under shared contract v1 (isolated run under the approved output root):
 
 ```text
 reviews/
 └── obrelund-capital-partners-fund-iii/
     └── 2026-09-21/
-        ├── reports/      LPA-REVIEW-…, CAPITAL-CALL-REVIEW-…
-        └── compliance/   WIRE-VERIFICATION-…
+        └── <run-id>/
+            ├── run.json
+            ├── reports/<report-id>/   LPA-REVIEW-…, CAPITAL-CALL-REVIEW-…
+            └── compliance/<report-id>/
 ```
 
 Later skills build on earlier output: `report-pdf` turns a review into a PDF, `counsel-handoff` packages it for external counsel, `search-precedent` finds comparable terms across past reviews. The full list of folders and filename families is on the [output files](/guide/outputs) page.

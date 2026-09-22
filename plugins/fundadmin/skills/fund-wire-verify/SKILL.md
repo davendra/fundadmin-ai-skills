@@ -1,6 +1,6 @@
 ---
 name: fund-wire-verify
-description: "Compares wire instructions to history for bank/beneficiary changes, FATF risk and timing anomalies, with a risk score and verification checklist. Use when the user runs `/fund wire-verify`, asks to verify payment instructions, or shares new bank details. Writes WIRE-VERIFY-[fund]-[date].md."
+description: "Flags bank/beneficiary changes and missing callback evidence for wire instructions; issues a masked verification checklist. Use for `/fund wire-verify`, `/fundadmin:fund wire-verify`, new bank details, payment-instruction checks, or a shareable wire report that must mask account/tax/passport IDs."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->
@@ -28,7 +28,9 @@ Not financial, legal or tax advice. This policy guides an AI host; it is not a t
 
 # Payment Instruction Anomaly Review
 
-Use for `/fund wire-verify <new instructions> <historical records>`. Compare supplied instructions with independently verified historical records and prepare a verification checklist. This is not account ownership verification, live sanctions screening or payment approval.
+Use for `/fund wire-verify` and `/fundadmin:fund wire-verify` (with or without pasted instructions/history). Compare supplied instructions with independently verified historical records and prepare a verification checklist. This is not account ownership verification, live sanctions screening or payment approval.
+
+When the user asks for a **shareable** report, ALWAYS mask full account numbers, tax IDs and passport/ID values (last four or redacted only) everywhere in the answer — including tables, quotations and metadata — and never approve payment or invent a completed callback.
 
 ## Intake and scope
 

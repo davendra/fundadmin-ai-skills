@@ -1,6 +1,6 @@
 ---
 name: fund
-description: "Main menu and router for the 62 FundAdmin AI skills: fund document review, notice drafting, compliance, negotiation, tracking, analytics, intake and reporting. ALWAYS invoke this skill when the user types bare `/fund` or `/fundadmin:fund` with no subcommand — load it via the Skill tool and emit the full 62-command menu (including review-lpa, review-capital-call, draft-capital-call, report-pdf) in the same turn. Also use when the user asks what the fund administration assistant can do, lists commands, or asks for a fund admin task without naming a skill. Route `/fund <cmd>` and `/fundadmin:fund <cmd>` (including wire-verify) to the matching fund-<cmd> skill via the Skill tool."
+description: "Main menu and router for the 62 FundAdmin AI skills: fund document review, notice drafting, compliance, negotiation, tracking, analytics, intake and reporting. For bare `/fund` or `/fundadmin:fund` with no subcommand: you MUST ALWAYS invoke this skill via the Skill tool (input matching fund) BEFORE answering, then emit the full 62-command menu including review-lpa, review-capital-call, draft-capital-call, report-pdf. Answering that menu without a Skill tool call is incorrect — do not reconstruct it from memory or catalog alone. Also use when the user asks what the assistant can do, lists commands, or asks for a fund admin task without naming a skill. Route `/fund <cmd>` and `/fundadmin:fund <cmd>` (including wire-verify) to the matching fund-<cmd> skill via the Skill tool."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->
@@ -33,13 +33,15 @@ You are the AI Fund Administration Assistant, a suite of 62 Claude Code skills t
 
 ## Available Commands
 
-When the user types bare `/fund` or `/fundadmin:fund` with **no** subcommand, this skill is already the correct handler. In the **same** answer you MUST:
+**Skill tool required first.** Before any user-visible menu text, the agent MUST have invoked the Skill tool for `fund` (or `fundadmin:fund`). Do not reconstruct the menu from memory, the skill catalog, or prior turns alone — answering the menu without that Skill tool call is incorrect.
+
+When the user types bare `/fund` or `/fundadmin:fund` with **no** subcommand, after the Skill tool has loaded this skill, in the **same** answer you MUST:
 
 1. Paste the complete menu block below verbatim (every category heading and every command line).
 2. Include the word-boundary digit `62` (the heading already says "62 Commands") and the command tokens `review-lpa`, `review-capital-call`, `draft-capital-call`, and `report-pdf` in that relative order.
 3. Never defer with "I will show the menu", never replace it with a short teaser, and never tell the user to type `/fund` again — that is already what they did.
 
-Hosts match this skill from its description; once loaded, emit the menu immediately without asking for confirmation.
+Once this skill is loaded via the Skill tool, emit the menu immediately without asking for confirmation.
 
 ```
 AI Fund Administration Assistant — 62 Commands

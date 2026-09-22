@@ -258,10 +258,14 @@ class SkillAutoTriggerContractTests(unittest.TestCase):
     def test_fund_description_forces_bare_menu_skill(self):
         fields = frontmatter(SKILLS / "fund" / "SKILL.md")
         desc = fields["description"]
+        self.assertLessEqual(len(desc), 1024, "fund description must stay within Skill host limits")
         self.assertIn("`/fund`", desc)
         self.assertIn("`/fundadmin:fund`", desc)
         self.assertIn("ALWAYS", desc)
-        self.assertIn("Skill", desc)
+        self.assertIn("MUST", desc)
+        self.assertIn("Skill tool", desc)
+        self.assertRegex(desc, r"(?i)BEFORE answering")
+        self.assertRegex(desc, r"(?i)incorrect")
         self.assertIn("62", desc)
         for token in ("review-lpa", "review-capital-call", "draft-capital-call", "report-pdf"):
             self.assertIn(token, desc, f"menu grader token missing from description: {token}")
@@ -271,6 +275,21 @@ class SkillAutoTriggerContractTests(unittest.TestCase):
         text = (SKILLS / "fund" / "SKILL.md").read_text(encoding="utf-8")
         # After frontmatter
         body = FRONTMATTER.sub("", text, count=1)
+        # First actionable instruction: Skill tool must fire before any menu text.
+        menu_idx = body.find("## Available Commands")
+        self.assertGreaterEqual(menu_idx, 0)
+        available = body[menu_idx:]
+        skill_req_idx = available.lower().find("skill tool")
+        menu_block_idx = available.find("AI Fund Administration Assistant — 62 Commands")
+        self.assertGreaterEqual(skill_req_idx, 0, "Available Commands must require Skill tool")
+        self.assertLess(
+            skill_req_idx,
+            menu_block_idx,
+            "Skill-tool requirement must appear before user-visible menu text",
+        )
+        self.assertRegex(available, r"(?i)MUST have invoked the Skill tool")
+        self.assertRegex(available, r"(?i)Do not reconstruct the menu from memory")
+        self.assertRegex(available, r"(?i)incorrect")
         self.assertRegex(body, r"\b62\b")
         self.assertRegex(
             body,

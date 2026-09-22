@@ -53,7 +53,7 @@ Prioritise unresolved matches, absent required screening, identity/ownership gap
 
 ## Output
 
-Write `KYC-TRACKER-[fund]-[date].md` with:
+Write `KYC-TRACKER-[fund]-[date].md` in the isolated run output directory defined by the shared production contract with:
 1. Scope, review date, jurisdictions and sources, including effective dates and unavailable sources.
 2. Per-investor document matrix and collection completeness (received / known applicable required items).
 3. Separate verification and screening dashboard retaining every unresolved status.

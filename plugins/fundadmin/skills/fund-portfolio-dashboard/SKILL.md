@@ -296,7 +296,7 @@ If all funds are in Harvesting simultaneously:
 
 ### Step 7: Generate the Output
 
-Write a file called `PORTFOLIO-DASHBOARD-[date].md` using this structure:
+Write a file called `PORTFOLIO-DASHBOARD-[date].md` in the isolated run output directory defined by the shared production contract. Use this structure:
 
 ```markdown
 # LP Portfolio Dashboard

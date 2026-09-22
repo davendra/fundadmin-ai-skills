@@ -56,7 +56,7 @@ FATF increased monitoring is not itself mandatory EDD. Do not maintain country l
 
 ## Findings and output
 
-Write `COMPLIANCE-REVIEW-[fund]-[date].md`. For each applicable control show:
+Write `COMPLIANCE-REVIEW-[fund]-[date].md` in the isolated run output directory defined by the shared production contract. For each applicable control show:
 - Requirement and official citation/version/effective date.
 - Document section/page and actual operational evidence, separately.
 - SUPPORTED PRELIMINARY, GAP IDENTIFIED, INCOMPLETE, NOT PERFORMED or N/A WITH BASIS.

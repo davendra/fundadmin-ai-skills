@@ -261,7 +261,7 @@ When translating, extract and standardize risk flags:
 
 ### Step 6: Generate the Output
 
-Write a file called `PLAIN-ENGLISH-[fund]-[date].md` with the following structure:
+Write a file called `PLAIN-ENGLISH-[fund]-[date].md` in the isolated run output directory defined by the shared production contract. Use the following structure:
 
 ```markdown
 # Plain English Translation: [Document Title]

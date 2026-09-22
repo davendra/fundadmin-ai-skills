@@ -49,7 +49,7 @@ FATF increased monitoring alone does not mandate EDD; retrieve the current state
 
 ## Report
 
-Write `KYC-REVIEW-[investor]-[date].md` using an internal alias. Include:
+Write `KYC-REVIEW-[investor]-[date].md` in the isolated run output directory defined by the shared production contract, using an internal alias. Include:
 - Investor category, jurisdictions, source/effective-date register and unknowns.
 - Document checklist: RECEIVED, MISSING, EXPIRED, INCOMPLETE or VERIFIED WITH EVIDENCE.
 - KYC Completeness Score out of 100: received applicable items / known required items; show the denominator and unknown requirements separately. It measures document collection, not compliance or readiness. Use NOT CALCULABLE if applicability is unresolved.

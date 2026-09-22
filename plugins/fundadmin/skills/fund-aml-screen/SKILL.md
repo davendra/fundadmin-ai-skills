@@ -64,7 +64,7 @@ Record adverse-media source, publication date, subject linkage, allegation versu
 
 Assess source of funds for this investment separately from source of wealth. List supporting documents, contradictions and gaps. Assign Low Risk, Medium Risk or High Risk only where evidence supports the assessment; otherwise use UNASSESSED/INCOMPLETE. Policy scoring cannot override missing screening or a potential match. Explain EDD requirements using the applicable law/policy; medium risk alone is not a universal statutory trigger.
 
-Write `AML-SCREENING-[investor]-[date].md`, using an internal investor alias in the filename. Include:
+Write `AML-SCREENING-[investor]-[date].md` in the isolated run output directory defined by the shared production contract, using an internal investor alias in the filename. Include:
 - Scope, jurisdictions, review date and source/effective-date register, including unavailable sources.
 - Identity/document inventory and ownership/control map using aliases.
 - Per-subject screening status, evidence references, coverage and freshness gaps.

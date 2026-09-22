@@ -55,7 +55,7 @@ Classify each as VERIFIED APPLICABLE, APPLICABILITY INCOMPLETE or NOT APPLICABLE
 
 For each verified deadline record base date/event, exact rule, period, calendar versus business days, time zone/cut-off, weekend/holiday handling, extension/relief basis and calculated deadline. Do not replace 60 days with “two months”. Label operational preparation targets separately.
 
-Write `REGULATORY-CALENDAR-[fund]-[date].md` containing:
+Write `REGULATORY-CALENDAR-[fund]-[date].md` in the isolated run output directory defined by the shared production contract containing:
 - Fund scope, inputs, unknowns and source/effective-date register.
 - Monthly/quarterly 12-month calendar and event-driven obligation queue.
 - Detail cards: filing, period, deadline or CURRENT VERIFICATION REQUIRED, owner, dependencies, expected preparation effort, review/sign-off and submission evidence.

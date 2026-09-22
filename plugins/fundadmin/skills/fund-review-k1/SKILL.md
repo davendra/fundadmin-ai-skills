@@ -64,7 +64,7 @@ Route wider issues to `/fund tax-review`.
 
 ## Report and handoff
 
-Write `K1-REVIEW-[fund]-[date].md`. Include form/year scope; document inventory; masked extraction by actual label/code; arithmetic checks; capital/liability reconciliation; preliminary UBTI/ECI and other exposure; source/effective-date register; unavailable sources; and prioritised questions for the preparer.
+Write `K1-REVIEW-[fund]-[date].md` in the isolated run output directory defined by the shared production contract. Include form/year scope; document inventory; masked extraction by actual label/code; arithmetic checks; capital/liability reconciliation; preliminary UBTI/ECI and other exposure; source/effective-date register; unavailable sources; and prioritised questions for the preparer.
 
 If a document-completeness score is useful, disclose its denominator and unknown requirements; it is not a correctness score. Carry linked screening NOT PERFORMED, INCOMPLETE and POTENTIAL MATCH without converting them into tax clearance. Preliminary readiness is HOLD, ESCALATE or PRELIMINARY READY FOR HUMAN REVIEW, never ACCEPT/REJECT.
 

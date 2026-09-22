@@ -231,7 +231,7 @@ Weighting for the aggregate score:
 
 ### Step 8: Generate the Output
 
-Write a file called `BENCHMARK-REPORT-[fund]-[date].md` with the following structure:
+Write a file called `BENCHMARK-REPORT-[fund]-[date].md` in the isolated run output directory defined by the shared production contract. Use the following structure:
 
 ```markdown
 # LPA Terms Benchmark Report

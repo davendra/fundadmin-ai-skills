@@ -296,7 +296,7 @@ Only with a supported comparable benchmark sample, report quartile placement:
 
 ### Step 6: Generate the Output
 
-Write a file called `PERFORMANCE-REPORT-[fund]-[date].md` with the following structure:
+Write a file called `PERFORMANCE-REPORT-[fund]-[date].md` in the isolated run output directory defined by the shared production contract. Use the following structure:
 
 ```markdown
 # Fund Performance Report

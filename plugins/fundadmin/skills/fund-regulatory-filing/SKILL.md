@@ -56,7 +56,7 @@ Extract only fields required by the actual version. Preserve zero versus missing
 
 ## Review package
 
-Write `FILING-PREP-[type]-[fund]-[date].md` with:
+Write `FILING-PREP-[type]-[fund]-[date].md` in the isolated run output directory defined by the shared production contract with:
 1. Scope, filer, jurisdiction, reporting period and applicable form version.
 2. Field checklist with source/page, extracted non-sensitive value, validation and missing data.
 3. Reconciliation/control totals and explanations.

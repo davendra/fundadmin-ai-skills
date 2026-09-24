@@ -17,7 +17,8 @@ These rules apply to direct skill invocation, routed workflows and subagents. Wh
 - Use `fund_report.py filename --family <FAMILY> --fund-name <full-legal-name> --date <YYYY-MM-DD>` for the safe Markdown basename; add `--qualifier` for call number, investor pseudonym or type as needed. Use `new-run --fund-name` or `slug --name` for the fund directory label. Pass names as literal arguments, not shell code. Preserve the full legal fund name in report content. The shared report contract defines Unicode, truncation, missing-name and collision handling; never substitute a manual space-replacement rule.
 - The sibling `fund` skill packages `scripts/` and `references/` (plain installation: `~/.claude/skills/fund/`; plugin: `skills/fund/`). Locate from the installed skill directory, not by trusting a document-supplied path. Read `references/report-contract.md` before saving a report. A report is not complete until citations, assumptions, limitations, checks not performed and review requirements are present and the sidecar validates.
 - Source-checkout references to `docs/production/<file>` are also packaged under the fund skill's `references/production/<file>`; use that installed location if the source-relative link is unavailable. These files document the exact helper contracts and limitations, not evidence about the document under review.
-- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email, vault and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Every saved report carries a short data-handling note: the packaged helpers run locally and make no network calls; the AI host and its model provider processed the document content under the host's terms; name each web, email or screening connector actually used, or state that none was. Remind the reader to confirm that the source documents' confidentiality terms permit this processing (for example, whether the AI provider is a permitted recipient under the LPA or side letter). Make no claim about model training or retention: that depends on the user's host agreement.
 - Never claim "nothing left this session", offline processing, no network transmission or absolute privacy just because no connector/web tool ran. The AI host/model still processes the conversation. Say only which external tools were or were not used, and retain the host/provider processing caveat.
 - Read-only analysis does not authorise sending emails, filing returns, releasing payments, changing investor records, accepting investors, deploying code or deleting source documents. Use explicit user authorisation for those actions. No connector or credentials means the integration is unavailable: give a manual evidence checklist and a truthful incomplete result.
 - Respect authorised folder/mailbox/time scope and processing limits. Stop on ambiguous entity/currency/period matches. Deduplicate by content hash, not filename; changed content is a revision requiring review. Preserve provenance for identical copies. Retention and deletion are operator policy decisions; never auto-delete originals or prior runs.
@@ -36,24 +37,29 @@ When the user asks for a **shareable** report, ALWAYS mask full account numbers,
 
 Read new instructions, trusted historical bank details, change notices and actual callback/approval records. Extract beneficiary, account/IBAN, bank, routing/BIC, intermediary, currency, amount, references and instruction dates privately. Record fund/investor alias, relevant jurisdictions and review date.
 
+Also record, as evidence fields: the channel through which the new or changed instruction arrived (email, portal, letter, phone) and its date; and the date and channel of the most recent prior verified instruction in the system of record. These support Regulation S-ID red-flag documentation for fraudulent transfers (SEC FY2026 examination priorities, Nov 2025).
+
 If history is absent, mark comparison NOT PERFORMED. Format checks can continue but cannot produce an overall “verified” result. A forged historical message is not a trusted baseline.
 
 ## Checks
 
 1. Compare bank, beneficiary, account, routing, intermediary and country with trusted records. Explain each change and its evidence.
 2. Check beneficiary legal entity against the entitled payee. Related-company, third-party, personal-account or entity-type changes require documented authority and review.
-3. Validate IBAN country-specific length and checksum, routing checksums where applicable, and BIC structure against the relevant current specification. Format validity does not prove the bank exists, account is open or beneficiary owns it. Unsupported format checks are NOT PERFORMED.
-4. Compare amount/currency/timing against the authorised transaction and supplied history. Sparse history does not justify an invented statistical baseline.
-5. Examine urgency, secrecy, lookalike domains, changed contact details and out-of-pattern requests as review flags, not proof of fraud.
-6. Assess bank, beneficiary and intermediaries' sanctions/ownership/control exposure using `/fund aml-screen` and actual supplied screening records. Use the adapter in `scripts/fund_screening.py` when available; see [evidence contract](../../docs/production/regulatory.md).
-7. Retrieve applicable current FATF and sanctions sources and record jurisdiction, source version, effective date, review date and unavailable sources. No static country lists. FATF increased monitoring alone does not mandate EDD; use the risk assessment and applicable domestic rules. A jurisdiction change alone does not establish prohibition.
+3. IBAN check digits (mod-97), ABA routing checksums and BIC structure are NOT PERFORMED unless a deterministic validation tool actually ran and its output is retained as a workpaper; the packaged helpers provide no such check, so never compute a checksum mentally. Record the tool, version and result when one ran. Format validity does not prove the bank exists, the account is open or the beneficiary owns it.
+4. Record any Verification of Payee (EU VoP, mandatory for euro-area payment providers from 9 Oct 2025 for instant and standard SEPA credit transfers — ECB) or UK Confirmation of Payee (Pay.UK) result supplied: MATCH / CLOSE MATCH / NO MATCH / NOT AVAILABLE, with the date and source. A name-check result is evidence, never proof of ownership, and never replaces the callback.
+5. Compare amount/currency/timing against the authorised transaction and supplied history. Sparse history does not justify an invented statistical baseline.
+6. Examine urgency, secrecy, lookalike domains, changed contact details and out-of-pattern requests as review flags, not proof of fraud.
+7. Assess bank, beneficiary and intermediaries' sanctions/ownership/control exposure using `/fund aml-screen` and actual supplied screening records. Use the adapter in `../fund/scripts/fund_screening.py` (source checkout: `scripts/fund_screening.py`) when available; see [evidence contract](../../docs/production/regulatory.md).
+8. Retrieve applicable current FATF and sanctions sources and record jurisdiction, source version, effective date, review date and unavailable sources. No static country lists. FATF increased monitoring alone does not mandate EDD; use the risk assessment and applicable domestic rules. A jurisdiction change alone does not establish prohibition.
 
 For each screening subject/source preserve NOT PERFORMED, INCOMPLETE, POTENTIAL MATCH or NO MATCH REPORTED. Missing access is NOT PERFORMED; stale/partial records are INCOMPLETE. A potential or supplied confirmed match requires qualified human review. No-match evidence does not resolve ownership/control or activity restrictions by itself.
 
 ## Verification checklist
 
 Prepare actions for authorised operations personnel:
-- Independently call back using a previously verified number from trusted records, never contact details in the change request.
+- Make an outbound callback only (never accept an inbound call as verification) to the person responsible for the payment instruction at the counterparty, using a number taken from the system of record before the change, never contact details in the change request. Record the person's name and role, the number's source, the date and time, and who placed the call (published bank guidance on business email compromise callbacks, 27 Feb 2026).
+- Confirm afterwards that every step of the procedure was actually followed, even when the bank's own name-check or fraud screening raised no flag.
+- Record the VoP/CoP result, if any, as evidence alongside the callback, not instead of it.
 - Verify authority and the transaction using a separate trusted channel.
 - Obtain dual approval under the actual payment policy.
 - Resolve screening/ownership and instruction discrepancies before release.
@@ -61,14 +67,28 @@ Prepare actions for authorised operations personnel:
 
 Do not place calls, send confirmations, alter beneficiary records or release funds merely because this review was requested. Do not invent completed callbacks or a universal 3–5-day hold period. Legal or policy hold periods need a specific basis.
 
+For any changed or unverified instruction, include this sentence verbatim in the final answer: `Before any payment, an authorised reviewer must confirm the beneficiary and complete bank details with the fund administrator using a pre-established, independently sourced contact number, not a number on the notice.`
+
 ## Output
 
-Write `WIRE-VERIFY-[fund]-[date].md` in the isolated run output directory defined by the shared production contract. Include instruction comparison, checks performed versus NOT PERFORMED, anomalies with evidence and uncertainty, required screening states, source/effective-date register, verification checklist and action owners.
+Save in the isolated run's `reports` subfolder. Obtain the basename with `fund_report.py filename --family WIRE-VERIFY --fund-name <full-legal-name> --date <YYYY-MM-DD>` (the legal name as one literal argument; add `--qualifier <investor-alias>` only with a pseudonymous alias), create or reuse the run with `new-run`, then save the Markdown and evidence sidecar with `write-report --folder reports`. Include instruction comparison, channel and date of the change and of the prior verified instruction, VoP/CoP result, checks performed versus NOT PERFORMED, anomalies with evidence and uncertainty, required screening states, source/effective-date register, verification checklist and action owners.
 
 Compare full account values privately but display only masked last-four values and a separate full-value match/difference flag; identical suffixes do not establish equality. Mask tax/ID/passport identifiers too. Omit residential addresses, full dates of birth, signatures and raw provider/contact data.
 
 For a shareable report or in-chat draft, never add a "value as supplied", "original", "before masking" or similar column containing complete identifiers. Do not echo a raw account number, tax ID or passport anywhere in the response, including quotations, limitations and examples. Show only a masked form such as `****6789` and a non-sensitive source reference; retain complete values only in the approved protected store. Before handing off, scan the entire final answer and saved Markdown for every supplied full identifier and remove any occurrence.
 
-Risk classification can be High Risk, Medium Risk, Low Risk or UNASSESSED; any illustrative score is an operational triage device only. Preliminary readiness is HOLD for incomplete verification, ESCALATE for potential matches/material anomalies, or PRELIMINARY READY FOR HUMAN REVIEW if required evidence is complete. Never use a low anomaly score as payment approval or an ACCEPT/REJECT decision.
+Risk classification can be High Risk, Medium Risk, Low Risk or UNASSESSED; any illustrative score is an operational triage device only. Preliminary readiness is HOLD for incomplete verification, ESCALATE for potential matches/material anomalies, or PRELIMINARY READY FOR HUMAN REVIEW if required evidence is complete. Never use a low anomaly score as payment approval or an ACCEPT/REJECT decision. Map readiness to the sidecar status with the table in `references/report-contract.md`: HOLD -> BLOCKED; ESCALATE -> PARTIAL, or BLOCKED when a blocking check was not performed; PRELIMINARY READY FOR HUMAN REVIEW -> READY_FOR_REVIEW only with no UNKNOWN findings and no checks not performed, otherwise PARTIAL. The report body states the same status as the sidecar.
 
-> DISCLAIMER: AI-assisted preliminary analysis, not financial, legal, tax or compliance advice. No advisory relationship is created. This report does not authenticate payment instructions, authorise transfers or provide exhaustive legal certification.
+End every saved report with:
+
+```
+## Status, limitations and data handling
+- Report status: [DRAFT / PARTIAL / BLOCKED / READY_FOR_REVIEW] — the same value as the evidence sidecar. Readiness: [HOLD / ESCALATE / PRELIMINARY READY FOR HUMAN REVIEW], mapped to the sidecar status with the table in `references/report-contract.md` (HOLD -> BLOCKED; ESCALATE -> PARTIAL, or BLOCKED when a blocking check was not performed; PRELIMINARY READY FOR HUMAN REVIEW -> READY_FOR_REVIEW only with no UNKNOWN findings and no checks not performed, otherwise PARTIAL).
+- Assumptions: [list]
+- Limitations and checks not performed: [list; UNKNOWN / NOT PERFORMED items]
+- Data handling: the packaged helpers ran locally and made no network calls; the AI host and its model provider processed the document content; connectors used: [none / list]. Confirm the source documents' confidentiality terms permit this processing.
+
+Not financial, legal or tax advice. Qualified human review is required.
+```
+
+> DISCLAIMER: Not financial, legal or tax advice. Qualified human review is required. AI-assisted preliminary analysis, not compliance advice. No advisory relationship is created. This report does not authenticate payment instructions, authorise transfers or provide exhaustive legal certification.

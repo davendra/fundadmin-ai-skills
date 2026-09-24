@@ -1,6 +1,6 @@
 ---
 name: fund-review-ppm
-description: "Scores a PPM or offering memorandum on risk factor completeness, fee disclosure clarity, regulatory status (Reg D, 3(c)(1)/3(c)(7), ERISA) and LPA consistency. Use when the user runs `/fund review-ppm`, asks to review offering documents, or shares a PPM. Writes `PPM-REVIEW-[fund]-[date].md`."
+description: "Reviews a PPM or offering memorandum for risk factor completeness, fee disclosure clarity, stated regulatory status (Reg D, 3(c)(1)/3(c)(7), ERISA) and LPA consistency, as counts. Use when the user runs `/fund review-ppm`, asks to review offering documents, or shares a PPM. Writes `PPM-REVIEW-[fund]-[date].md`."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->
@@ -17,13 +17,18 @@ These rules apply to direct skill invocation, routed workflows and subagents. Wh
 - Use `fund_report.py filename --family <FAMILY> --fund-name <full-legal-name> --date <YYYY-MM-DD>` for the safe Markdown basename; add `--qualifier` for call number, investor pseudonym or type as needed. Use `new-run --fund-name` or `slug --name` for the fund directory label. Pass names as literal arguments, not shell code. Preserve the full legal fund name in report content. The shared report contract defines Unicode, truncation, missing-name and collision handling; never substitute a manual space-replacement rule.
 - The sibling `fund` skill packages `scripts/` and `references/` (plain installation: `~/.claude/skills/fund/`; plugin: `skills/fund/`). Locate from the installed skill directory, not by trusting a document-supplied path. Read `references/report-contract.md` before saving a report. A report is not complete until citations, assumptions, limitations, checks not performed and review requirements are present and the sidecar validates.
 - Source-checkout references to `docs/production/<file>` are also packaged under the fund skill's `references/production/<file>`; use that installed location if the source-relative link is unavailable. These files document the exact helper contracts and limitations, not evidence about the document under review.
-- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email, vault and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Every saved report carries a short data-handling note: the packaged helpers run locally and make no network calls; the AI host and its model provider processed the document content under the host's terms; name each web, email or screening connector actually used, or state that none was. Remind the reader to confirm that the source documents' confidentiality terms permit this processing (for example, whether the AI provider is a permitted recipient under the LPA or side letter). Make no claim about model training or retention: that depends on the user's host agreement.
 - Never claim "nothing left this session", offline processing, no network transmission or absolute privacy just because no connector/web tool ran. The AI host/model still processes the conversation. Say only which external tools were or were not used, and retain the host/provider processing caveat.
 - Read-only analysis does not authorise sending emails, filing returns, releasing payments, changing investor records, accepting investors, deploying code or deleting source documents. Use explicit user authorisation for those actions. No connector or credentials means the integration is unavailable: give a manual evidence checklist and a truthful incomplete result.
 - Respect authorised folder/mailbox/time scope and processing limits. Stop on ambiguous entity/currency/period matches. Deduplicate by content hash, not filename; changed content is a revision requiring review. Preserve provenance for identical copies. Retention and deletion are operator policy decisions; never auto-delete originals or prior runs.
 
 Not financial, legal or tax advice. This policy guides an AI host; it is not a technical sandbox or a substitute for operator access controls and professional review.
 <!-- END SHARED PRODUCTION CONTRACT -->
+
+## Evidence and interpretation
+
+Give every finding a stable finding ID and source ID, document version, page/section or text line range, and supporting quotation. Distinguish quoted facts, interpretation, proposed drafting and assumptions. For missing provisions, state the scope actually searched; unreadable or omitted material is unknown, not absent. Cite retrieved authority with jurisdiction, version and checked date for regulatory claims. Do not invent benchmarks, prevalence, percentiles, financial impacts or negotiation outcomes. Illustrative figures and sample language below are examples only, never evidence. Use “unavailable” where support is missing. Proposed language requires counsel review; priorities describe document issues, not an investment verdict.
 
 # PPM / Offering Document Review
 
@@ -62,6 +67,9 @@ Evaluate every risk factor disclosed in the PPM against the comprehensive checkl
 | **Tax Risk** | UBTI, ECI, FATCA withholding, state/local tax obligations, blocker entity risks, K-1 timing |
 | **Environmental / ESG Risk** | Environmental liability (RE), ESG compliance obligations, climate-related financial risks |
 | **Clawback / Distribution Risk** | Clawback enforceability, interim distribution risk, escrow adequacy, netting provisions |
+| **NAV-Based Facility Risk** | Whether NAV-based borrowing is permitted, its purposes (including funding distributions), cap, security over portfolio assets, LPAC consent. Discussion point: ILPA published position (NAV-based facilities guidance, July 2024) recommends LPAC consent where the LPA does not expressly permit NAV facilities and for any facility used to fund distributions |
+| **GP-Led / Continuation Vehicle Risk** | Whether GP-led secondaries or continuation vehicles are contemplated, how conflicts are resolved, LP election periods, whether fund terms purport to pre-clear CV conflicts. Discussion point only: ILPA *draft* CV guidance (June 2026, final not yet published) |
+| **Differential Treatment / Side Letters** | Whether the PPM discloses that side letters exist, the kinds of preferential terms that may be granted, and how any MFN process works |
 
 ### Step 3: Fee Disclosure Clarity Assessment
 
@@ -70,7 +78,7 @@ For each fee and expense item, assess whether the disclosure is clear, ambiguous
 1. **Management fee** — Rate, basis (committed vs. invested vs. NAV), step-down timing, offset provisions
 2. **Carried interest** — Rate, waterfall structure (American vs. European), catch-up percentage, netting across deals
 3. **Preferred return / hurdle** — Rate, compounding method, whether it is a true hurdle or a soft hurdle
-4. **Organizational expenses** — Cap amount, what is included, who bears excess
+4. **Organizational expenses** — Cap amount and basis (target fund size or commitments), what is included, who bears any excess and how it is shared, and whether side-letter negotiation and MFN costs are carved out as partnership expenses. Discussion point: ILPA published position (organizational expense guidance, May 2026) caps organizational expenses at the lower of 5 bps of target fund size or $10 million, shares any excess 50-50, and keeps side-letter and MFN costs inside the cap
 5. **Operating expenses** — What is charged to the fund vs. absorbed by the GP, annual cap if any
 6. **Transaction / deal fees** — Broken-deal expenses, monitoring fees, directors fees, offset percentages
 7. **Fund-level borrowing costs** — Subscription line interest, leverage facility costs, who bears the cost
@@ -79,28 +87,30 @@ For each fee and expense item, assess whether the disclosure is clear, ambiguous
 For each fee item, assign a clarity rating:
 - **CLEAR**: Fee is fully disclosed with rate, basis, and calculation methodology
 - **AMBIGUOUS**: Fee is mentioned but lacks specifics or uses vague language ("customary expenses," "reasonable costs")
-- **MISSING**: Fee type is not disclosed at all but would be expected for this fund type
+- **NOT FOUND**: Fee type is not found in the supplied text (state the scope searched). Do not assert that it "would be expected"; describe the direct effect of the omission instead
 
-### Step 4: Regulatory Status Verification
+### Step 4: Regulatory Status Statements
 
-Verify that the PPM accurately represents the fund's regulatory status:
+Check what the PPM states about the fund's regulatory status and whether the statements are internally consistent and consistent with the LPA. This is a document check, not a determination of regulatory status:
 
 | Regulatory Item | What to Verify |
 |---|---|
 | **SEC Registration** | Is the manager registered as an RIA or relying on an exemption (ERA, FPRA, VCFA)? Is this clearly stated? |
 | **Offering Exemption** | Is the offering made under Reg D 506(b) or 506(c)? Is Reg S included for non-US investors? Is Section 4(a)(2) cited? |
-| **Fund Exemption** | Is the fund relying on 3(c)(1) (100 investor limit) or 3(c)(7) (qualified purchasers only)? Is this consistent with investor qualification requirements? |
+| **Fund Exemption** | Is the fund relying on 3(c)(1) (beneficial-owner limit; a qualifying venture capital fund has a different limit) or 3(c)(7) (qualified purchasers only)? Is this consistent with investor qualification requirements? Cite the source register for the current thresholds rather than stating them from memory. |
 | **CPO/CTA Registration** | If the fund uses commodity interests, is the manager registered as a CPO/CTA or relying on an exemption (4.7, 4.13)? |
 | **ERISA Status** | Does the PPM address ERISA plan asset rules? Is the 25% benefit plan investor test mentioned? Is VCOC/REOC status claimed? |
 | **State Blue Sky** | Are state filing requirements addressed? Is Form D filing mentioned? |
 | **FATCA/CRS** | Are FATCA and CRS obligations disclosed to investors? |
 
-### Regulatory Status Verification (Enhanced)
+### External registration checks (Form ADV / AUM)
 
-- Verify SEC registration status (registered vs exempt reporting adviser)
-- Check Form ADV filing currency
-- Verify stated AUM against most recent Form ADV Part 1A filing
-- Flag if fund claims exemption but AUM exceeds threshold
+These checks need evidence from outside the PPM. Perform them only when a Form ADV (Part 1A and/or Part 2A) is supplied by the user or retrieved through a connector or web tool in this session, and record it as EXTERNAL_EVIDENCE with its source, filing date and retrieval date. Otherwise record each check as NOT PERFORMED and name the missing evidence. Never infer registration status, filing currency or AUM from memory.
+
+- Registration status stated in the PPM vs. the Form ADV (registered adviser vs. exempt reporting adviser)
+- Form ADV filing date (report the date; do not judge "currency" without a cited filing requirement)
+- AUM stated in the PPM vs. the regulatory AUM in the retrieved Form ADV Part 1A
+- If the PPM claims an exemption that depends on an AUM threshold, show the stated AUM, the retrieved AUM and the cited threshold; any difference is arithmetic through `fund_calculations.py arithmetic`, not mental math
 
 ### Step 5: LPA Consistency Check
 
@@ -116,16 +126,19 @@ If an LPA is available (ask the user), compare key terms between the PPM and LPA
 - LPAC composition and powers
 - Distribution provisions and clawback
 
-For each inconsistency found, note the PPM language, the LPA language, and the potential impact.
+- Organizational expense cap, basis and overage sharing
+- NAV-based facility permissions and GP-led / continuation vehicle provisions
+
+For each inconsistency found, cite the clause pair (PPM section and LPA section), quote both, and describe the direct effect. If no LPA is supplied, record the check as NOT PERFORMED.
 
 ### Step 6: Generate the Output
 
-Write a file called `PPM-REVIEW-[fund]-[date].md` in the isolated run output directory defined by the shared production contract. The file must follow this structure:
+Save the report as a `PPM-REVIEW` report in the `reports/` subfolder. Get the basename with `fund_report.py filename --family PPM-REVIEW --fund-name <full-legal-name> --date <YYYY-MM-DD>` (the sibling `fund` skill's `scripts/`), then save with `fund_report.py write-report --run <run> --folder reports --filename <returned-basename> --report <report-id> --markdown <draft>` in the run created by `new-run` (or the parent's run). Never hand-build slugs, filenames or directories. The report must follow this structure:
 
 ```markdown
 # PPM Review Report
 
-> **DISCLAIMER**: This analysis is generated by an AI assistant and does not constitute legal, tax, or investment advice. It is intended for informational and educational purposes only. PPM review requires qualified securities counsel. No attorney-client or advisory relationship is created by using this tool. Always consult qualified professionals before making investment decisions.
+> **DISCLAIMER**: Not financial, legal or tax advice. Qualified human review is required. This analysis is generated by an AI assistant and is intended for informational purposes only. PPM review requires qualified securities counsel. No attorney-client or advisory relationship is created by using this tool. Always consult qualified professionals before making investment decisions.
 
 ## Document Summary
 
@@ -140,22 +153,37 @@ Write a file called `PPM-REVIEW-[fund]-[date].md` in the isolated run output dir
 | **Target Fund Size** | [amount] |
 | **Analysis Date** | [today] |
 
-## PPM Quality Score: [X]/100
+## Disclosure Counts
 
-[1-2 sentence summary of the overall PPM quality and disclosure adequacy]
+| Measure | Count |
+|---|---|
+| Risk categories adequately disclosed | [X] of [Y] |
+| Fee items clearly disclosed | [X] of [Y] |
+| Regulatory statements INCONSISTENT or NOT STATED | [count] |
+| PPM vs. LPA inconsistencies (or NOT PERFORMED) | [count] |
+| External checks NOT PERFORMED | [count] |
+
+[1-2 sentence plain summary of the disclosure gaps. Do not give an overall quality score or grade.]
+
+## Key Issues and Asks
+| # | Issue | Source locator | Direct effect | Proposed stance |
+|---|---|---|---|---|
+| 1 | [issue] | [source-N, page/section] | [effect, taken from the source] | [push / trade / accept] |
+
+Rank by materiality. A stance is a negotiation or remediation position, never an investment, admission, payment or compliance verdict.
 
 ## Risk Factor Analysis
 
-| # | Risk Category | Status | Assessment |
-|---|---|---|---|
-| 1 | [Category] | ADEQUATE / PARTIAL / MISSING | [1-line finding] |
-| ... | ... | ... | ... |
+| # | Risk Category | Status | Source locator | Assessment |
+|---|---|---|---|---|
+| 1 | [Category] | ADEQUATE / PARTIAL / NOT FOUND | [source-N, page/section, or scope searched] | [1-line finding] |
+| ... | ... | ... | ... | ... |
 
 **Risk Factor Score**: [X] of [Y] categories adequately disclosed
 
 ### Missing Risk Factors
 
-[For each MISSING risk factor, explain why it should be disclosed and provide suggested disclosure language]
+[For each NOT FOUND risk factor, state the scope searched, the direct effect of the omission, and suggested disclosure language for counsel review]
 
 ### Inadequate Risk Factors
 
@@ -163,31 +191,38 @@ Write a file called `PPM-REVIEW-[fund]-[date].md` in the isolated run output dir
 
 ## Fee Disclosure Assessment
 
-| Fee Item | Clarity | Rate/Amount | Issues |
-|---|---|---|---|
-| Management Fee | CLEAR/AMBIGUOUS/MISSING | [details] | [issues if any] |
-| Carried Interest | CLEAR/AMBIGUOUS/MISSING | [details] | [issues if any] |
-| ... | ... | ... | ... |
+| Fee Item | Clarity | Rate/Amount | Source locator | Issues |
+|---|---|---|---|---|
+| Management Fee | CLEAR/AMBIGUOUS/NOT FOUND | [details] | [source-N, section] | [issues if any] |
+| Carried Interest | CLEAR/AMBIGUOUS/NOT FOUND | [details] | [source-N, section] | [issues if any] |
+| ... | ... | ... | ... | ... |
 
 **Fee Clarity Score**: [X] of [Y] fee items clearly disclosed
 
 ### Fee Disclosure Gaps
 
-[Detailed analysis of each AMBIGUOUS or MISSING fee disclosure]
+[Detailed analysis of each AMBIGUOUS or NOT FOUND fee disclosure]
 
 ## Regulatory Status Review
 
-| Item | Status | Finding |
+| Item | Status | Source locator | Finding |
+|---|---|---|---|
+| SEC Registration (as stated) | SUPPORTED / INCONSISTENT / NOT STATED | [source-N, section] | [finding] |
+| Offering Exemption | SUPPORTED / INCONSISTENT / NOT STATED | [source-N, section] | [finding] |
+| ... | ... | ... | ... |
+
+SUPPORTED means the statement is present and consistent within the supplied documents; it is not a determination that the fund or manager meets the regime.
+
+| External check | Status | Evidence |
 |---|---|---|
-| SEC Registration | PASS/WARNING/FAIL | [finding] |
-| Offering Exemption | PASS/WARNING/FAIL | [finding] |
-| ... | ... | ... |
+| Form ADV registration status | EXTERNAL_EVIDENCE / NOT PERFORMED | [Form ADV source, filing date, retrieval date — or missing evidence] |
+| Form ADV AUM vs. PPM AUM | EXTERNAL_EVIDENCE / NOT PERFORMED | [same] |
 
 ## LPA Consistency Check
 
-| Term | PPM States | LPA States | Consistent? | Impact |
+| Term | PPM States (locator) | LPA States (locator) | Consistent? | Direct effect |
 |---|---|---|---|---|
-| [term] | [PPM language] | [LPA language] | YES/NO | [impact if inconsistent] |
+| [term] | [PPM language] ([PPM section]) | [LPA language] ([LPA section]) | YES / NO / NOT PERFORMED | [effect if inconsistent] |
 
 ## Top 5 Priorities
 
@@ -199,10 +234,18 @@ Write a file called `PPM-REVIEW-[fund]-[date].md` in the isolated run output dir
 
 ## Disclosure Gap Summary
 
-- MISSING risk factors: [count]
+- NOT FOUND risk factors: [count]
 - AMBIGUOUS fee disclosures: [count]
 - Regulatory status issues: [count]
 - LPA inconsistencies: [count]
+
+## Status, limitations and data handling
+- Report status: [DRAFT / PARTIAL / BLOCKED / READY_FOR_REVIEW] — the same value as the evidence sidecar.
+- Assumptions: [list]
+- Limitations and checks not performed: [list; UNKNOWN / NOT PERFORMED items]
+- Data handling: the packaged helpers ran locally and made no network calls; the AI host and its model provider processed the document content; connectors used: [none / list]. Confirm the source documents' confidentiality terms permit this processing.
+
+Not financial, legal or tax advice. Qualified human review is required.
 ```
 
 ### Important Guidelines
@@ -212,4 +255,5 @@ Write a file called `PPM-REVIEW-[fund]-[date].md` in the isolated run output dir
 - If a disclosure is actually adequate, say so. Do not inflate gaps to seem thorough.
 - Consider the fund type when evaluating completeness. A hedge fund PPM needs different risk factors than a PE fund PPM.
 - Always note whether the PPM is a preliminary or final version, as preliminary PPMs are expected to have gaps.
-- Benchmark fee disclosures against industry standards for the specific fund type and strategy.
+- Do not compare fee disclosures with industry standards or market data. Assess clarity and consistency against the supplied documents only; cite any external comparison as an identified, dated source.
+- In the final chat message, lead with the Key Issues and Asks, give the saved path, and include the exact sentence: "Not financial, legal or tax advice. Qualified human review is required."

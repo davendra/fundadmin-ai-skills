@@ -1,7 +1,74 @@
 # Changelog — fundadmin plugin
 
-All notable changes to the published plugin. The source repository
-(`davendra/fundadmin-ai`) keeps the full project changelog.
+All notable changes to the published plugin. The private source repository
+(`davendra/fundadmin-ai`, maintainers only) keeps the full project changelog.
+
+## 1.3.0 — 2026-09-23
+
+- **Host-evaluation evidence: PENDING.** The saved installed-plugin eval cases
+  have not yet been run against this candidate, so host behaviour is unverified
+  until an evidence record is added to `docs/production/verification.md`. If
+  this release is published before then, it is published without host-evaluation
+  evidence, as 1.2.0 was.
+- Obsidian support is retired. The `vault-init` and `vault-sync` skills are
+  removed (60 skills now), and the menu, `ingest`, `search-precedent` and
+  `counsel-handoff` no longer offer vault steps: every review is saved in its
+  local run folder, and precedent search reads the local `reviews/` tree. The
+  source repository keeps the retired code under `archive/`.
+- Report PDFs are readable. Headings, lists, block quotes and bold, italic and
+  inline code are typeset; severity and checkbox symbols print as `HIGH`,
+  `MEDIUM`, `LOW` and `[ ]` instead of `[U+1F534]`-style markers. Source HTML
+  and unmapped glyphs still stay visible.
+- `review-lpa` asks once, without blocking, for the four facts that decide
+  regulatory applicability: adviser status, offering route and fund exclusion,
+  investor mix, and marketing jurisdictions. Answers are passed to every agent
+  as user-supplied facts. Without them, or in an unattended run, the compliance
+  dimension stays unavailable and no aggregate score is issued. With them, a
+  compliance point can be assessed only when the facts and a registered authority
+  are available; points with no authority on file stay UNKNOWN.
+- Every review report (each `*-REVIEW` family) opens with a ranked **Key Issues
+  and Asks** table: each issue with its source locator, direct effect and a
+  proposed stance (push, trade or accept). A stance is a negotiation or
+  remediation position, never an investment, admission, payment or compliance
+  verdict.
+- Readiness (HOLD, ESCALATE, PRELIMINARY READY FOR HUMAN REVIEW) now maps to one
+  report status, so the report body and its evidence sidecar agree.
+- Every saved report, PDF and Excel companion notes how the content was handled
+  and reminds the reader to check the source documents' confidentiality terms
+  before using an AI tool on them. The manual's privacy page covers this too.
+- Release-blocker fix pass after a pre-release review: unsourced "market"
+  comparisons, percentiles, grades and verdict fields (commit/decline, clean or
+  qualified opinions, "compliant") were removed from skills, agents and
+  templates in favour of cited sources or neutral evidence states; figures go
+  through the packaged calculation helper or are marked uncalculated;
+  recommendation slots in board memos are left for the GP; drafting skills
+  separate a review cover from the sendable text; intake routes every wire
+  instruction to `wire-verify`, checks email authentication headers when present
+  and decodes attachments locally; the filename catalogue now lists every family
+  the helper produces; and new guard tests keep these from coming back.
+- KYC routing is stricter. `fund_kyc.py` now checks that screening evidence
+  covers the record's own subject, every required owner and controller, and is
+  not older than the record, so evidence for another investor or a stale search
+  can no longer lead to PRELIMINARY READY. It also checks identity flags and
+  W-8/W-9 validity (a W-8 runs to 31 December of the third year after signing),
+  and reports document completeness. `aml-screen` can no longer report NO MATCH
+  without the helper.
+- Rules brought up to date with 2025–2026 sources, each cited and dated in the
+  skill: the Rule 506(c) minimum-investment verification route and the qualified
+  purchaser (C) exclusion; 2025 K-1 Box 19 codes and K-3 requests; Rev. Proc.
+  2025-32 199A values; amended CRS and CARF; OFAC sham-transfer red flags; ILPA
+  NAV-facility, org-expense and (draft) continuation-vehicle positions as
+  discussion points; ILPA Reporting Template v2 fee lines; returns labelled with
+  and without the subscription line; Form PF, Reg S-P, AIFMD II, SFDR 2.0 and UK
+  SDR dates in the regulatory calendar, with 17 new source-register entries.
+  MFN eligibility now follows each clause's tier test; investor powers of
+  attorney are reviewed against their own profile.
+- `monitor-email` moves into Document Intake (13 categories), and its menu line
+  now says what it does: a read-only mailbox check that stages attachments in an
+  isolated run, with no automatic processing. Public counts are corrected to 60
+  commands, 61 skills including the `fund` menu, and 7 packaged scripts.
+- An unlabelled numeric score in a PDF request is now labelled "LPA document
+  favourability (heuristic, methodology v2)" rather than "LPA Safety Score".
 
 ## 1.2.0 — 2026-09-22
 

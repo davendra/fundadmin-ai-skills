@@ -1,6 +1,6 @@
 ---
 name: fund-fee-audit
-description: "Recomputes management fee, offset, preferred return, catch-up, carry and clawback arithmetic and compares it with the supplied LPA terms, flagging differences and unsupported models. Use when the user runs `/fund fee-audit`, asks if fees are correct, or shares fee workpapers. Writes FEE-AUDIT-[fund]-[date].md."
+description: "Recomputes management fees and offsets with the packaged helper, checks carry terms against the supplied LPA and lists exceptions; pref accrual and clawback use supplied workpapers only. Use when the user runs `/fund fee-audit`, asks if fees are correct, or shares fee workpapers. Writes FEE-AUDIT-[fund]-[date].md."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->
@@ -17,7 +17,8 @@ These rules apply to direct skill invocation, routed workflows and subagents. Wh
 - Use `fund_report.py filename --family <FAMILY> --fund-name <full-legal-name> --date <YYYY-MM-DD>` for the safe Markdown basename; add `--qualifier` for call number, investor pseudonym or type as needed. Use `new-run --fund-name` or `slug --name` for the fund directory label. Pass names as literal arguments, not shell code. Preserve the full legal fund name in report content. The shared report contract defines Unicode, truncation, missing-name and collision handling; never substitute a manual space-replacement rule.
 - The sibling `fund` skill packages `scripts/` and `references/` (plain installation: `~/.claude/skills/fund/`; plugin: `skills/fund/`). Locate from the installed skill directory, not by trusting a document-supplied path. Read `references/report-contract.md` before saving a report. A report is not complete until citations, assumptions, limitations, checks not performed and review requirements are present and the sidecar validates.
 - Source-checkout references to `docs/production/<file>` are also packaged under the fund skill's `references/production/<file>`; use that installed location if the source-relative link is unavailable. These files document the exact helper contracts and limitations, not evidence about the document under review.
-- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email, vault and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Every saved report carries a short data-handling note: the packaged helpers run locally and make no network calls; the AI host and its model provider processed the document content under the host's terms; name each web, email or screening connector actually used, or state that none was. Remind the reader to confirm that the source documents' confidentiality terms permit this processing (for example, whether the AI provider is a permitted recipient under the LPA or side letter). Make no claim about model training or retention: that depends on the user's host agreement.
 - Never claim "nothing left this session", offline processing, no network transmission or absolute privacy just because no connector/web tool ran. The AI host/model still processes the conversation. Say only which external tools were or were not used, and retain the host/provider processing caveat.
 - Read-only analysis does not authorise sending emails, filing returns, releasing payments, changing investor records, accepting investors, deploying code or deleting source documents. Use explicit user authorisation for those actions. No connector or credentials means the integration is unavailable: give a manual evidence checklist and a truthful incomplete result.
 - Respect authorised folder/mailbox/time scope and processing limits. Stop on ambiguous entity/currency/period matches. Deduplicate by content hash, not filename; changed content is a revision requiring review. Preserve provenance for identical copies. Retention and deletion are operator policy decisions; never auto-delete originals or prior runs.
@@ -44,7 +45,9 @@ These execution rules govern numerical sections below: formulas and report table
 
 # Fee Calculation Audit
 
-You are the fee recomputation engine for `/fund fee-audit`. You accept fee calculation workpapers and LPA terms, then recompute and compare management fee calculations (fee basis, rate, transitions, offsets, expense caps) and carried interest / performance fee calculations (preferred return, catch-up, carry percentage, clawback tracking). You verify every calculation against the governing LPA provisions and flag discrepancies.
+You are the fee recomputation engine for `/fund fee-audit`. You accept fee calculation workpapers and LPA terms, then recompute and compare management fee calculations (fee basis, rate, transitions, offsets, expense caps) and carried interest / performance fee calculations (preferred return, catch-up, carry percentage, clawback tracking). You compare every calculation with the governing LPA provisions and report exceptions (FAIL, UNKNOWN, NOT AUDITED) with exact differences. You never give an audit opinion, a compliance conclusion or a transparency grade. Preferred-return accrual, clawback exposure, deal-by-deal carry and partial catch-up are `UNCALCULATED — not supported by the packaged helper`; compare them only with supplied, cited workpapers.
+
+When giving a short in-chat answer, include the exact shared disclaimer: "Not financial, legal or tax advice. Qualified human review is required."
 
 ## When This Skill Is Invoked
 
@@ -63,7 +66,7 @@ The user runs `/fund fee-audit <file>` providing either:
 Accept input from one of these sources:
 - **File path(s)** — Use the Read tool to read fee workpapers and/or LPA
 - **Pasted data** — Accept fee calculations or LPA terms pasted directly into the chat
-- **Prior analysis context** — Search for recent `LPA-REVIEW-*.md` or `WATERFALL-REVIEW-*.md` for fund terms
+- **Prior analysis context** — Search only inside the approved `reviews/<fund-slug>/` output root for this fund's `LPA-REVIEW-*.md` or `WATERFALL-REVIEW-*.md`, and cite the report used
 
 Store all data for audit procedures.
 
@@ -92,12 +95,12 @@ Scan the input for these elements:
 
 Identify the current fund phase, as it affects fee calculations:
 
-| Phase | Detection Signals | Fee Implications |
-|-------|-------------------|-----------------|
-| **Investment Period** | Active investing, commitment period not expired | Fees typically on committed capital at full rate |
-| **Post-Investment Period** | Investment period ended, harvesting assets | Fees typically step down (reduced rate and/or shifted to invested capital basis) |
-| **Extension Period** | Fund term extended beyond original term | Fees may reduce further; check LPA for extension-period fee provisions |
-| **Wind-Down** | Liquidating remaining assets, distributing proceeds | Fees may cease or reduce to cost-recovery basis |
+| Phase | Detection Signals | What to check in the LPA |
+|-------|-------------------|--------------------------|
+| **Investment Period** | Active investing, commitment period not expired | Investment-period fee rate and basis |
+| **Post-Investment Period** | Investment period ended, harvesting assets | Any step-down in rate and any change of basis, and the trigger date |
+| **Extension Period** | Fund term extended beyond original term | Extension-period fee provisions |
+| **Wind-Down** | Liquidating remaining assets, distributing proceeds | Whether fees cease or change |
 
 ---
 
@@ -123,19 +126,19 @@ Verify the fee basis used in each period matches the LPA:
 | **Rate post-IP** | Confirm the reduced rate (if applicable) matches LPA | No step-down applied; wrong reduced rate used |
 | **Step-down schedule** | If LPA specifies time-based step-downs, verify schedule | Step-down dates miscalculated; wrong rate applied in transition quarters |
 | **Large LP discount** | If side letters grant fee discounts, verify correct rate per LP | Discount not applied; discount applied to wrong fee basis |
-| **Annual to periodic conversion** | Verify annual rate correctly converted to quarterly/semi-annual | Using 1/4 of annual rate vs. (1+r)^(1/4)-1; day-count convention errors |
+| **Annual to periodic conversion** | Verify the periodic fee follows the LPA's stated convention (dated `fees` periods with the stated day count, or an equal-period split only where the LPA expressly requires it) | Equal-quarter split applied where the LPA specifies a day count, or the reverse; day-count convention errors |
 
 ### 2.3 Fee Calculation Verification
 
 For each fee period, recalculate and compare:
 
-| Period | LPA Fee Basis | LPA Rate | Calculated Fee | Reported Fee | Difference | Status |
-|--------|-------------|----------|---------------|-------------|-----------|--------|
-| Q1 [Year] | $[X]M (committed) | 2.0% / 4 | $[X] | $[X] | $[X] | PASS/FAIL |
-| Q2 [Year] | $[X]M | 2.0% / 4 | $[X] | $[X] | $[X] | PASS/FAIL |
-| ... | ... | ... | ... | ... | ... | ... |
+Build the `fees` request from the cited LPA terms and show its workpaper columns:
 
-**Tolerance**: Flag differences exceeding a materiality threshold set by the reviewer (e.g., the lesser of a fixed-dollar floor or a % of fee base). Calibrate to the fund's size and internal audit policy rather than applying a hardcoded number.
+| Period Start | Period End (exclusive) | Basis (source) | Annual Rate (source) | Day Count | Gross Fee (helper) | Offset Applied (helper) | Net Fee (helper) | Reported Fee | Difference | Status |
+|--------------|------------------------|----------------|----------------------|-----------|--------------------|-------------------------|------------------|--------------|------------|--------|
+| [YYYY-MM-DD] | [YYYY-MM-DD] | [amount, basis type, section] | [rate, section] | [ACT/365F / ACT/360 / ACT/ACT] | [helper] | [helper] | [helper] | [reported] | [helper difference] | [PASS / FAIL / UNKNOWN / NOT AUDITED] |
+
+**Tolerance**: Any non-zero difference at the configured currency precision is FAIL. The reviewer's materiality policy may classify a FAIL's severity but never turns it into a PASS. Unsupported conventions (30/360, equal-quarter billing where not stated in the LPA, daily compounding) are UNKNOWN, not relabelled.
 
 ### 2.4 Fee Offset Verification
 
@@ -151,10 +154,10 @@ For each fee period, recalculate and compare:
 
 | Fee Type | Gross Amount | Offset % (LPA) | Offset Amount | Applied? | Status |
 |----------|-------------|----------------|--------------|---------|--------|
-| Transaction fees | $[X] | [X]% | $[X] | [Yes/No] | PASS/FAIL |
-| Monitoring fees | $[X] | [X]% | $[X] | [Yes/No] | PASS/FAIL |
-| Director fees | $[X] | [X]% | $[X] | [Yes/No] | PASS/FAIL |
-| Break-up fees | $[X] | [X]% | $[X] | [Yes/No] | PASS/FAIL |
+| Transaction fees | $[X] | [X]% | $[X] | [Yes/No] | PASS/FAIL/UNKNOWN |
+| Monitoring fees | $[X] | [X]% | $[X] | [Yes/No] | PASS/FAIL/UNKNOWN |
+| Director fees | $[X] | [X]% | $[X] | [Yes/No] | PASS/FAIL/UNKNOWN |
+| Break-up fees | $[X] | [X]% | $[X] | [Yes/No] | PASS/FAIL/UNKNOWN |
 | **Total Offsets** | — | — | $[X] | — | — |
 
 ### 2.5 Organizational Expense Cap Verification
@@ -177,7 +180,7 @@ For each fee period, recalculate and compare:
 | **Compounding method** | Verify compounding matches LPA (simple, annual, quarterly, continuous) | Simple interest used when LPA specifies compounding; compounding frequency wrong |
 | **Basis** | Confirm preferred return accrues on the correct basis (unreturned contributions, total contributions, invested capital) | Accruing on committed capital instead of contributed; not reducing basis for returned capital |
 | **Accrual start date** | Verify preferred return begins accruing from the correct date per LP | Accruing from fund closing instead of each contribution date; not tracking per-LP accrual |
-| **Calculation** | Recalculate preferred return accrual and compare to workpapers | Compounding errors; day-count convention errors; basis not updated for interim distributions |
+| **Calculation** | Preferred-return accrual and compounding are `UNCALCULATED — not supported by the packaged helper`. Compare the workpaper's inputs (rate, basis, dates, compounding) with the LPA, and check an explicit workpaper step with `arithmetic` only where the step's inputs and formula are shown | Compounding errors; day-count convention errors; basis not updated for interim distributions |
 
 ### 3.2 Catch-Up Verification
 
@@ -191,56 +194,52 @@ For each fee period, recalculate and compare:
 
 | Audit Check | Procedure | Common Errors |
 |-------------|-----------|---------------|
-| **Carry percentage** | Confirm carry rate matches LPA (typically 20%) | Wrong percentage; super-carry tiers not applied correctly |
+| **Carry percentage** | Confirm carry rate matches the LPA | Wrong percentage; super-carry tiers not applied correctly |
 | **Carry basis** | Verify whole-fund (European) vs. deal-by-deal (American) matches LPA | American waterfall applied when LPA specifies European; netting not applied correctly |
-| **Super-carry tiers** | Super-carry tiers (if applicable) defined by the LPA; locate and cite the actual governing provisions rather than assuming section numbers or standard tiers. Verify threshold and rate against the LPA text. | Thresholds read from the wrong LPA section; tier boundaries calculated incorrectly; assuming market-standard tiers without LPA confirmation |
-| **GP commitment treatment** | Verify whether GP commitment participates in carry (it typically should not earn carry on itself) | GP commitment earning carry, inflating total carry; GP commitment excluded from preferred return calculation |
+| **Super-carry tiers** | Super-carry tiers (if applicable) defined by the LPA; locate and cite the actual governing provisions rather than assuming section numbers or standard tiers. Verify threshold and rate against the LPA text. | Thresholds read from the wrong LPA section; tier boundaries calculated incorrectly; assuming tiers without LPA confirmation |
+| **GP commitment treatment** | Verify whether the LPA exempts the GP commitment from carry, and whether the workpaper follows it | GP commitment earning carry, inflating total carry; GP commitment excluded from preferred return calculation |
 
 ### 3.4 Clawback Obligation Tracking
 
 | Audit Check | Procedure | Common Errors |
 |-------------|-----------|---------------|
-| **Clawback obligation calculated** | Verify that cumulative carry distributed is tracked and clawback exposure is calculated | No clawback tracking; clawback calculated only at fund termination, not monitored |
+| **Clawback obligation tracked** | Verify that the workpaper tracks cumulative carry distributed and shows a clawback exposure figure. Recomputing clawback exposure is `UNCALCULATED — not supported by the packaged helper`; compare only with the supplied, cited workpaper | No clawback tracking; clawback calculated only at fund termination, not monitored |
 | **Net vs. gross clawback** | Confirm whether clawback is gross (full amount) or net (after assumed taxes) per LPA | Gross clawback tracked when LPA specifies net; wrong assumed tax rate |
 | **Escrow funded** | Verify that the required escrow percentage of carry is held back | Escrow percentage wrong; escrow not funded; escrow released prematurely |
 | **Interim true-up** | If LPA requires interim clawback true-up, verify it is performed | No interim true-up performed when required; true-up calculation errors |
 
 ---
 
-## Phase 4: ILPA Fee Reporting Template Compliance
+## Phase 4: ILPA Reporting Template (v2.0) Disclosure Checklist
 
-### 4.1 ILPA Template Check
+This is a disclosure checklist, not a compliance test or grade. Identify the publication and version before using it: the ILPA Reporting Template v2 (released 22 Jan 2025; applies to funds still in their investment period during Q1 2026 or starting on or after 1 Jan 2026) — cite it as "ILPA published position [date]", a discussion point. If the fund's LPA or side letters do not adopt the template, say so. Never describe the fund or its reporting as ILPA-compliant, and never assign a transparency grade.
 
-Verify that fee reporting aligns with the ILPA Fee Reporting Template (v2.0) requirements:
+Map each item to the reporting evidence and record DISCLOSED (with locator), NOT LOCATED or NOT AUDITED (evidence not supplied). The checklist follows the template's gross-to-net structure:
 
-| ILPA Requirement | Compliant? | Details |
-|-----------------|-----------|---------|
-| **Management fee basis disclosed** | [Yes/No] | [Is the fee basis clearly stated?] |
-| **Fee rate and calculation shown** | [Yes/No] | [Are calculations transparent?] |
-| **All fee offsets itemized** | [Yes/No] | [Are offset types and amounts listed separately?] |
-| **Organizational expenses itemized** | [Yes/No] | [Are org expenses broken out by category?] |
-| **Carried interest calculation shown** | [Yes/No] | [Is the carry calculation methodology disclosed?] |
-| **Fund expenses itemized** | [Yes/No] | [Are ongoing fund expenses listed?] |
-| **Net-of-fees returns reported** | [Yes/No] | [Are LP returns shown after all fees and carry?] |
-| **GP/affiliate fee income disclosed** | [Yes/No] | [Are all fees earned by GP/affiliates from portfolio companies disclosed?] |
-| **Placement agent fees disclosed** | [Yes/No] | [Is placement agent compensation disclosed?] |
+| Item (gross-to-net structure) | Status | Source locator |
+|-------------------------------|--------|----------------|
+| **Gross management fee and its basis** | [DISCLOSED / NOT LOCATED / NOT AUDITED] | [locator] |
+| **Offsets, waivers and rebates, itemised** | [DISCLOSED / NOT LOCATED / NOT AUDITED] | [locator] |
+| **Net management fee** | [DISCLOSED / NOT LOCATED / NOT AUDITED] | [locator] |
+| **Partnership expenses, separated from internal chargebacks** | [DISCLOSED / NOT LOCATED / NOT AUDITED] | [locator] |
+| **Expenses allocated or paid to the GP or related persons** | [DISCLOSED / NOT LOCATED / NOT AUDITED] | [locator] |
+| **Subscription facility interest and fees** | [DISCLOSED / NOT LOCATED / NOT AUDITED] | [locator] |
+| **Organizational expenses** | [DISCLOSED / NOT LOCATED / NOT AUDITED] | [locator] |
+| **Carried interest accrued, earned and paid** | [DISCLOSED / NOT LOCATED / NOT AUDITED] | [locator] |
+| **Fees and income earned by the GP or affiliates from portfolio companies** | [DISCLOSED / NOT LOCATED / NOT AUDITED] | [locator] |
+| **Placement agent fees** | [DISCLOSED / NOT LOCATED / NOT AUDITED] | [locator] |
 
-### 4.2 Fee Transparency Score
-
-Rate overall fee transparency on ILPA's framework:
-
-| Level | Description | Score |
-|-------|-------------|-------|
-| **Fully Transparent** | All ILPA requirements met; calculations reproducible from disclosed data | A |
-| **Mostly Transparent** | Most ILPA requirements met; minor gaps in disclosure | B |
-| **Partially Transparent** | Some ILPA requirements met; significant gaps | C |
-| **Opaque** | Few ILPA requirements met; calculations not reproducible | D |
+Net-of-fee performance reporting belongs to ILPA's separate Performance Template and is out of scope here.
 
 ---
 
 ## Phase 5: Generate Output
 
 ### 5.1 Compile the Fee Audit Report
+
+Save in the isolated run's `analytics` subfolder. Obtain the basename with `fund_report.py filename --family FEE-AUDIT --fund-name <full-legal-name> --date <YYYY-MM-DD>` (the legal name as one literal argument), create or reuse the run with `new-run`, then save the Markdown and evidence sidecar with `write-report --folder analytics`.
+
+Status mapping to the evidence sidecar: BLOCKED when neither workpapers nor governing fee terms were supplied; PARTIAL when any check is UNKNOWN, NOT AUDITED or UNCALCULATED; READY_FOR_REVIEW only when every check has supporting evidence. The report body states the same status as the sidecar.
 
 **Spreadsheet.** After `write-report` has saved the report, run `fund_report.py companion --report <report> --from-report` (the sibling `fund` skill's `scripts/`; `scripts/` in a source checkout) to save the report's tables as an `.xlsx` beside it, one sheet per table. The workbook copies the tables as written and never recalculates, so fix a figure in the report, not in the spreadsheet. Exit 3 means openpyxl is missing: rerun with `--format csv` and tell the user a CSV was produced instead.
 
@@ -249,8 +248,8 @@ Generate `FEE-AUDIT-[fund]-[date].md` with the following structure:
 ```markdown
 # Fee Calculation Audit Report
 
-> DISCLAIMER: This fee audit is AI-generated and does not constitute legal,
-> financial, tax, or accounting advice. Fee calculations for private funds
+> DISCLAIMER: Not financial, legal or tax advice. Qualified human review is required.
+> This fee review is AI-generated and does not constitute accounting advice or an audit opinion. Fee calculations for private funds
 > involve complex contractual interpretations and mathematical computations
 > that require review by qualified fund administrators, auditors, and fund
 > counsel. This audit analyzes the calculations against the stated LPA terms —
@@ -269,27 +268,26 @@ Generate `FEE-AUDIT-[fund]-[date].md` with the following structure:
 | Fund Phase | [Investment Period / Post-IP / Extension / Wind-Down] |
 | Documents Reviewed | [list files] |
 | Date of Audit | [date] |
+| Report Status | [BLOCKED / PARTIAL / READY_FOR_REVIEW] (same as the sidecar) |
 
 ---
 
 ## Audit Summary
 
-| Category | Checks Performed | PASS | FAIL | WARNING |
-|----------|-----------------|------|------|---------|
-| Management Fee Basis | [N] | [N] | [N] | [N] |
-| Management Fee Rate | [N] | [N] | [N] | [N] |
-| Fee Calculation | [N] | [N] | [N] | [N] |
-| Fee Offsets | [N] | [N] | [N] | [N] |
-| Org Expense Cap | [N] | [N] | [N] | [N] |
-| Preferred Return | [N] | [N] | [N] | [N] |
-| Catch-Up | [N] | [N] | [N] | [N] |
-| Carried Interest | [N] | [N] | [N] | [N] |
-| Clawback | [N] | [N] | [N] | [N] |
-| ILPA Compliance | [N] | [N] | [N] | [N] |
-| **TOTAL** | **[N]** | **[N]** | **[N]** | **[N]** |
+| Category | Checks | PASS | FAIL | UNKNOWN | NOT AUDITED / UNCALCULATED |
+|----------|--------|------|------|---------|----------------------------|
+| Management Fee Basis | [N] | [N] | [N] | [N] | [N] |
+| Management Fee Rate | [N] | [N] | [N] | [N] | [N] |
+| Fee Calculation | [N] | [N] | [N] | [N] | [N] |
+| Fee Offsets | [N] | [N] | [N] | [N] | [N] |
+| Org Expense Cap | [N] | [N] | [N] | [N] | [N] |
+| Preferred Return | [N] | [N] | [N] | [N] | [N] |
+| Catch-Up | [N] | [N] | [N] | [N] | [N] |
+| Carried Interest | [N] | [N] | [N] | [N] | [N] |
+| Clawback | [N] | [N] | [N] | [N] | [N] |
+| **TOTAL** | **[N]** | **[N]** | **[N]** | **[N]** | **[N]** |
 
-**Overall Assessment**: [CLEAN — no discrepancies / QUALIFIED — minor issues found /
-ADVERSE — material discrepancies identified]
+**Exception summary**: [N] FAIL, [N] UNKNOWN, [N] NOT AUDITED / UNCALCULATED. ILPA Reporting Template (v2.0) checklist: [N] items disclosed, [N] not located, [N] not audited. No audit opinion or compliance conclusion is expressed.
 
 ---
 
@@ -305,7 +303,7 @@ ADVERSE — material discrepancies identified]
 | Expected Calculation | [what the LPA requires] |
 | Actual Calculation | [what the workpapers show] |
 | Difference | $[X] ([over/under]charge to LPs) |
-| Cumulative Impact | $[X] if error persists across all periods |
+| Cumulative Impact | [`arithmetic` sum over the sourced periods actually affected / UNCALCULATED] |
 
 **Recommendation**: [Specific corrective action]
 
@@ -350,11 +348,9 @@ ADVERSE — material discrepancies identified]
 
 ---
 
-## ILPA Fee Reporting Compliance
+## ILPA Reporting Template (v2.0) Disclosure Checklist
 
-[Results table from Phase 4.1]
-
-**Fee Transparency Score**: [A / B / C / D] — [description]
+[Checklist from Phase 4, with the version identified and each item DISCLOSED / NOT LOCATED / NOT AUDITED with its locator. ILPA published position, discussion point, not a compliance test.]
 
 ---
 
@@ -368,7 +364,7 @@ ADVERSE — material discrepancies identified]
 
 ### Process Improvements
 1. [ ] [Recommendations for improving fee calculation processes]
-2. [ ] [ILPA template adoption recommendations]
+2. [ ] [Disclosure items not located, as discussion points]
 
 ---
 
@@ -379,7 +375,17 @@ ADVERSE — material discrepancies identified]
 3. [ ] Verify corrections in the next reporting period
 4. [ ] Run `/fund waterfall-review` for a complete waterfall analysis
 5. [ ] Run `/fund check-compliance` for broader compliance review
-6. [ ] Consider ILPA Fee Reporting Template adoption for transparency
+6. [ ] Discuss the ILPA Reporting Template (v2.0) items not located with the GP
+
+---
+
+## Status, limitations and data handling
+- Report status: [DRAFT / PARTIAL / BLOCKED / READY_FOR_REVIEW] — the same value as the evidence sidecar.
+- Assumptions: [list]
+- Limitations and checks not performed: [list; UNKNOWN / NOT PERFORMED items]
+- Data handling: the packaged helpers ran locally and made no network calls; the AI host and its model provider processed the document content; connectors used: [none / list]. Confirm the source documents' confidentiality terms permit this processing.
+
+Not financial, legal or tax advice. Qualified human review is required.
 ```
 
 ### 5.2 Present to User
@@ -388,10 +394,10 @@ After generating the output:
 
 1. Confirm the file was generated: "Fee audit report generated: `FEE-AUDIT-[fund]-[date].md`"
 2. State the file location (absolute path)
-3. Lead with the overall assessment: "CLEAN / QUALIFIED / ADVERSE"
-4. Summarize: "[N] checks performed: [N] PASS, [N] FAIL, [N] WARNING"
-5. If discrepancies found, highlight the most material one with dollar impact
-6. Report ILPA transparency score
+3. Lead with the exception summary: "[N] checks: [N] PASS, [N] FAIL, [N] UNKNOWN, [N] NOT AUDITED / UNCALCULATED", and the report status (same as the sidecar)
+4. If FAILs were found, highlight the largest exact difference with its helper workpaper
+5. Report the ILPA Reporting Template (v2.0) checklist counts (disclosed / not located / not audited); no grade
+6. Include: "Not financial, legal or tax advice. Qualified human review is required."
 7. Suggest: "Run `/fund waterfall-review` for a complete waterfall and carry analysis"
 
 ---
@@ -410,7 +416,7 @@ Extract each line item from the capital call notice. A standard capital call bre
 | Management fees | Quarterly (or semi-annual) management fee installment | Recalculate from LPA formula — see below |
 | Estimated expenses | Fund operating expenses called alongside investment | Verify against LPA expense cap |
 | Cash maintaining balance | Working capital reserve called with the investment | Verify purpose is stated; flag if no explanation given |
-| Negative working capital | Called to restore a working capital deficit | Flag for explanation; large amounts are unusual |
+| Negative working capital | Called to restore a working capital deficit | Flag for explanation and the cited LPA basis |
 
 ### Management Fee Calculation Validation
 
@@ -442,18 +448,18 @@ Flag the calculation if the difference exceeds a materiality threshold set by th
 
 | Expense Type | LPA Cap | Called Amount | Status |
 |-------------|---------|--------------|--------|
-| Organizational expenses | [0.5–1.0% of fund size, or LPA dollar cap] | $[X] | [Within cap / Exceeds cap] |
-| Operating expenses (ongoing) | Reasonable relative to fund size; no specific cap unless stated | $[X] | [Reasonable / Flag for review] |
+| Organizational expenses | [LPA cap and provision / no cap located — UNKNOWN] | $[X] | [Within cited cap / Exceeds cited cap / UNKNOWN] |
+| Operating expenses (ongoing) | [LPA cap or permitted categories and provision / none located — UNKNOWN] | $[X] | [Permitted per cited provision / Flag for review / UNKNOWN] |
 | Other itemized expenses | Per LPA schedule | $[X] | [Permitted / Not permitted] |
 
 ### Red Flags — Fee Line Items in Capital Calls
 
-Flag any of the following for review (aligned with the ILPA Fee Reporting Template guidance and standard audit practice):
+Flag any of the following for review, citing the governing provision (ILPA Reporting Template (v2.0) itemisation is an ILPA published position, a discussion point, not a compliance test):
 
 - **Committed capital basis after investment period ends**: If the LPA specifies a transition to invested/net invested capital once the investment period expires, continuing to charge on committed capital after that LPA-defined date is an overcharge.
 - **No pro-ration for partial periods**: If the LP was admitted mid-period or the fund held a subsequent closing, the fee must be pro-rated per the LPA. Flat full-period fees for partial periods are errors.
 - **Expense items exceeding LPA caps**: Organizational expenses above the LPA-stated cap must be borne by the GP, not called from LPs. Verify the cap figure against the LPA rather than assuming a market range.
-- **Working capital calls without stated purpose**: A working capital or negative working capital line item without explanation in the capital call notice or cover letter should be queried — ILPA Fee Reporting Template expects itemized disclosure.
+- **Working capital calls without stated purpose**: A working capital or negative working capital line item without explanation in the capital call notice or cover letter should be queried; ILPA's Reporting Template (v2.0) itemises such amounts.
 - **Management fee inconsistency across sequential calls**: Compare fee amounts in this capital call to prior capital calls. An unexplained change in the fee line item (without a corresponding change in the LPA-defined fee basis, fee rate, or documented side-letter election) is a flag.
 
 ### Sequential Capital Call Comparison
@@ -477,6 +483,6 @@ Flag any call where the fee basis or effective rate deviates from prior periods 
 | No fee workpapers provided | If LPA is available, analyze fee terms and flag what to verify in workpapers; if neither, ask for input |
 | No LPA terms provided | Analyze workpapers for internal consistency only; note that LPA verification cannot be performed |
 | Incomplete workpapers | Audit what is available; list missing periods/data in the output as "NOT AUDITED — data not provided" |
-| Fee basis unclear from LPA | Flag as WARNING; present both possible interpretations and the fee impact of each |
+| Fee basis unclear from LPA | Mark UNKNOWN; present both possible interpretations with a separate `fees` workpaper for each |
 | Carry calculation too complex | Break into components; audit each component separately; note any steps that cannot be verified |
 | Prior analysis not found | Proceed with user-provided data only; suggest running `/fund review-lpa` for comprehensive LPA terms |

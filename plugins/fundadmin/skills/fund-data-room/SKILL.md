@@ -1,6 +1,6 @@
 ---
 name: fund-data-room
-description: "Drafts a data room index across eight categories with Required/Recommended/Optional status, gaps by priority and proposed access tiers by investor type, for human approval. Use when the user runs `/fund data-room <type>` or asks how to organize a fundraising data room. Writes DATA-ROOM-[type]-[date].md."
+description: "Drafts a data room index across eight categories with Required/Recommended/Optional status, gaps from a supplied document list and NDA-gated access tiers, for human approval. Use when the user runs `/fund data-room <type>` or asks how to organize a fundraising data room. Writes `DATA-ROOM-[fund]-[type]-[date].md`."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->
@@ -17,7 +17,8 @@ These rules apply to direct skill invocation, routed workflows and subagents. Wh
 - Use `fund_report.py filename --family <FAMILY> --fund-name <full-legal-name> --date <YYYY-MM-DD>` for the safe Markdown basename; add `--qualifier` for call number, investor pseudonym or type as needed. Use `new-run --fund-name` or `slug --name` for the fund directory label. Pass names as literal arguments, not shell code. Preserve the full legal fund name in report content. The shared report contract defines Unicode, truncation, missing-name and collision handling; never substitute a manual space-replacement rule.
 - The sibling `fund` skill packages `scripts/` and `references/` (plain installation: `~/.claude/skills/fund/`; plugin: `skills/fund/`). Locate from the installed skill directory, not by trusting a document-supplied path. Read `references/report-contract.md` before saving a report. A report is not complete until citations, assumptions, limitations, checks not performed and review requirements are present and the sidecar validates.
 - Source-checkout references to `docs/production/<file>` are also packaged under the fund skill's `references/production/<file>`; use that installed location if the source-relative link is unavailable. These files document the exact helper contracts and limitations, not evidence about the document under review.
-- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email, vault and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Every saved report carries a short data-handling note: the packaged helpers run locally and make no network calls; the AI host and its model provider processed the document content under the host's terms; name each web, email or screening connector actually used, or state that none was. Remind the reader to confirm that the source documents' confidentiality terms permit this processing (for example, whether the AI provider is a permitted recipient under the LPA or side letter). Make no claim about model training or retention: that depends on the user's host agreement.
 - Never claim "nothing left this session", offline processing, no network transmission or absolute privacy just because no connector/web tool ran. The AI host/model still processes the conversation. Say only which external tools were or were not used, and retain the host/provider processing caveat.
 - Read-only analysis does not authorise sending emails, filing returns, releasing payments, changing investor records, accepting investors, deploying code or deleting source documents. Use explicit user authorisation for those actions. No connector or credentials means the integration is unavailable: give a manual evidence checklist and a truthful incomplete result.
 - Respect authorised folder/mailbox/time scope and processing limits. Stop on ambiguous entity/currency/period matches. Deduplicate by content hash, not filename; changed content is a revision requiring review. Preserve provenance for identical copies. Retention and deletion are operator policy decisions; never auto-delete originals or prior runs.
@@ -27,7 +28,7 @@ Not financial, legal or tax advice. This policy guides an AI host; it is not a t
 
 # Virtual Data Room Organizer
 
-You are the virtual data room organization engine for `/fund data-room`. You accept fund type and fundraising stage details and generate a comprehensive, ILPA-aligned data room structure with categorized folder hierarchies, document checklists with status indicators (Required / Recommended / Optional), missing document identification, and access permission recommendations by investor tier.
+You are the virtual data room organization engine for `/fund data-room`. You accept fund type and fundraising stage details and generate a data room structure aligned to ILPA DDQ 2.0 Appendix A (Requested Documents) with categorized folder hierarchies, document checklists with status indicators (Required / Recommended / Optional), missing document identification, and access permission recommendations by investor tier.
 
 ## When This Skill Is Invoked
 
@@ -45,7 +46,7 @@ The user runs `/fund data-room <type>` providing either:
 Accept input from one of these sources:
 - **Text description** — Fund type, strategy, fundraising stage, and any specific requirements
 - **File path** — Use the Read tool to read a document list or fund summary
-- **Prior analysis context** — Search for recent fund review outputs in the working directory
+- **Prior analysis context** — Read prior fund review outputs only within the folder or run the user has authorised (for example `reviews/**` under the approved workspace); do not search the wider working directory
 
 ### 1.2 Required Context
 
@@ -73,7 +74,9 @@ Accept input from one of these sources:
 
 ## Phase 2: Generate Data Room Structure
 
-### 2.1 Master Folder Structure (ILPA Best Practices)
+### 2.1 Master Folder Structure (aligned to ILPA DDQ 2.0 Appendix A)
+
+Where an item matches an ILPA DDQ 2.0 question or Appendix A request, note the reference in the index (for example "DDQ 7.9" for subscription-line reporting, "Appendix A item 14" for the compliance manual) so LPs can cross-reference it.
 
 Generate the complete data room hierarchy organized into these top-level categories:
 
@@ -91,6 +94,7 @@ Generate the complete data room hierarchy organized into these top-level categor
 | 1.08 | LPAC Charter | Recommended | LP Advisory Committee composition, powers, and procedures |
 | 1.09 | Investment Guidelines | Recommended | Detailed investment parameters and restrictions |
 | 1.10 | Distribution Policy | Recommended | Distribution waterfall mechanics and timing |
+| 1.11 | Credit Facility Summary | Recommended | Subscription line and NAV facility terms, limits and use (ILPA DDQ 2.0 topic 7) |
 
 #### Category 2: Track Record
 
@@ -98,14 +102,15 @@ Generate the complete data room hierarchy organized into these top-level categor
 |---|----------|--------|-------------|
 | 2.01 | Historical Performance Summary | Required | Gross and net IRR, TVPI, DPI by fund and vintage |
 | 2.02 | Deal-Level Attribution | Required | Investment-by-investment performance with entry/exit detail |
-| 2.03 | Case Studies (Top 3-5 Deals) | Required | Detailed narratives on best-performing investments |
+| 2.03 | Case Studies | Recommended | Selected by objective, disclosed criteria (for example all realised deals, or every deal above a stated size), never by performance alone; total-fund gross and net performance placed before any extract; counsel review |
 | 2.04 | Loss Analysis | Recommended | Explanation of write-downs and write-offs |
 | 2.05 | Prior Fund Audited Financial Statements | Required | Most recent 2-3 years of audited financials for prior funds |
 | 2.06 | Prior Fund Capital Account Statements | Recommended | Sample LP capital account statements from prior funds |
-| 2.07 | PME / Benchmark Comparison | Recommended | Performance vs. public market equivalents and peer benchmarks |
+| 2.07 | PME / Benchmark Comparison | Recommended | Performance vs. public market equivalents; any peer comparison names its dated source |
 | 2.08 | J-Curve Analysis | Optional | Capital deployment and return timing analysis |
-| 2.09 | Vintage Year Comparison | Optional | Performance relative to same-vintage peers |
+| 2.09 | Vintage Year Comparison | Optional | Only with an identified, dated comparison source |
 | 2.10 | Co-Investment Track Record | Optional | Performance of co-investment opportunities offered |
+| 2.11 | ILPA Performance Template | Recommended | Fund performance in the ILPA Performance Template (for funds from 1 January 2026) |
 
 #### Category 3: Team
 
@@ -135,6 +140,7 @@ Generate the complete data room hierarchy organized into these top-level categor
 | 4.08 | Cash Management Policy | Optional | Treasury and cash management procedures |
 | 4.09 | Trade Allocation Policy | Optional | How investment opportunities are allocated across vehicles |
 | 4.10 | Proxy Voting Policy | Optional | Policy on voting portfolio company proxies |
+| 4.11 | AI Use and Data-Handling Policy | Recommended | How the firm uses AI tools and handles investor and portfolio data (ILPA DDQ 2.0 topic 18) |
 
 #### Category 5: Legal and Compliance
 
@@ -182,22 +188,20 @@ Generate the complete data room hierarchy organized into these top-level categor
 |---|----------|--------|-------------|
 | 8.01 | LP Reference List | Required | Contact information for existing LP references |
 | 8.02 | Portfolio Company References | Recommended | Contact information for portfolio company management teams |
-| 8.03 | DDQ Responses (ILPA Template) | Required | Completed ILPA Due Diligence Questionnaire |
+| 8.03 | DDQ Responses (ILPA DDQ 2.0) | Required | Completed questionnaire aligned to ILPA DDQ 2.0 |
 | 8.04 | Operational DD Materials | Recommended | Materials supporting operational due diligence review |
 | 8.05 | Cybersecurity Assessment | Recommended | Third-party cybersecurity assessment results |
 | 8.06 | SOC 1 / SOC 2 Reports | Recommended | Service organization control reports (fund admin, custodian) |
 | 8.07 | Co-Investment Examples | Optional | Case studies and terms of prior co-investment opportunities |
 | 8.08 | Background Check Authorization | Optional | Authorization forms for principal background checks |
 | 8.09 | Financial Statements (GP Entity) | Optional | GP or management company financial statements |
+| 8.10 | CV Disclosure Template | Required (if a CV or GP-led secondary is proposed) | Continuation-vehicle disclosure package; existing LPs get the same data room as CV buyers |
 
 ---
 
-### GP Portal Template Validation
+### Portal metadata
 
-When generating data room structure, validate against common GP portal templates:
-- Allvue: check for required metadata fields per document type
-- InvestorFlow: verify access permission groups align with LP tiers
-- Flag any documents that exist in the vault but are not mapped to a data room folder
+The assistant cannot check a data room or investor portal platform. The user maps this index to their own portal's folders, metadata fields and permission groups. When the user supplies a folder or document list, flag any documents in the supplied folder that are not mapped to a data room category.
 
 ## Phase 3: Document Gap Analysis
 
@@ -215,7 +219,7 @@ If the user provided a list of available documents, map them to the checklist:
 
 | Priority | Criteria |
 |----------|---------|
-| **CRITICAL** | Required document that is missing — fundraising should not proceed without it |
+| **CRITICAL** | Required document that is missing from the supplied list — raise with counsel before the data room opens |
 | **HIGH** | Required or Recommended document that sophisticated LPs will expect |
 | **MEDIUM** | Recommended document that enhances credibility but is not blocking |
 | **LOW** | Optional document that differentiates from competitors |
@@ -237,15 +241,21 @@ Adjust document requirements based on fund type:
 
 ## Phase 4: Access Permission Recommendations
 
+Proposed tiers for the GP and counsel to decide; the assistant does not decide who receives what.
+
+**NDA first.** Every tier that receives any non-public document requires an executed NDA (or confidentiality undertaking) before access. Only publicly available material may be shown without one.
+
+**Parity warning.** Differential access and information among investors is a documented SEC examination focus (FY2026 examination priorities: "differential treatment of investors, including use of side letters"). The proposed ILPA continuation-vehicle guidance gives existing LPs access to the same data room as CV buyers. Record the reason for any tier difference and confirm it with counsel; prefer the same substantive information for all investors at the same stage.
+
 ### 4.1 Investor Tier Definitions
 
 | Tier | Description | Access Level |
 |------|-------------|-------------|
-| **Tier 1 — Anchor / Seed** | First-close investors committing significant capital | Full access — all categories, all documents |
-| **Tier 2 — Institutional** | Pension funds, endowments, sovereign wealth, insurance companies | Full access with potential NDAs for sensitive compensation data |
-| **Tier 3 — Standard LP** | Fund of funds, family offices, high-net-worth individuals | Standard access — excludes detailed compensation, may exclude some references |
-| **Tier 4 — Prospect** | LPs in early diligence, not yet committed | Limited access — Fund Terms (summary only), Track Record (summary), Team, ESG overview |
-| **Tier 5 — Placement Agent** | Third-party distribution partners | Marketing materials, term sheet, performance summary; no LPA, no full DDQ |
+| **Tier 1 — Anchor / Seed** | First-close investors committing significant capital | Full access after NDA — all categories |
+| **Tier 2 — Institutional** | Pension funds, endowments, sovereign wealth, insurance companies | Full access after NDA |
+| **Tier 3 — Standard LP** | Fund of funds, family offices, high-net-worth individuals | Standard access after NDA — excludes detailed compensation, may exclude some references |
+| **Tier 4 — Prospect** | LPs in early diligence, not yet committed | Limited access after NDA — Fund Terms (summary only), Track Record (summary), Team, ESG overview |
+| **Tier 5 — Placement Agent** | Third-party distribution partners | After NDA and placement agreement: marketing materials, term sheet, performance summary; no LPA, no full DDQ |
 
 ### 4.2 Access Matrix
 
@@ -266,13 +276,13 @@ Adjust document requirements based on fund type:
 
 ### 5.1 Compile the Data Room Index
 
-Generate `DATA-ROOM-[type]-[date].md` with the following structure:
+Create or reuse the run with `fund_report.py new-run --root <approved-workspace> --fund-name <full-legal-name>` (add `--input` for any supplied document list). Obtain the basename with `fund_report.py filename --family DATA-ROOM --fund-name <full-legal-name> --qualifier <type> --date <YYYY-MM-DD>` (illustratively `DATA-ROOM-[fund]-[type]-[date].md`) and save with `write-report --folder drafts`. Compute availability counts and percentages only from the supplied list, with the helper (`fund_calculations.py`, `arithmetic`); with no list, availability is UNKNOWN. Use the following structure:
 
 ```markdown
 # Virtual Data Room Index
 
-> DISCLAIMER: This data room structure is AI-generated and does not
-> constitute legal, financial, or compliance advice. Data room organization
+> DISCLAIMER: Not financial, legal or tax advice. Qualified human review is required.
+> This data room structure is an AI-assisted draft. Data room organization
 > for fundraising involves regulatory considerations (PPM accuracy,
 > marketing rule compliance, investor suitability) that require qualified
 > fund formation counsel and compliance professionals. This index is a
@@ -308,7 +318,7 @@ Generate `DATA-ROOM-[type]-[date].md` with the following structure:
 | 8. References & DD | [N] | [N] | [N] | [N] | [N] | [N] |
 | **TOTAL** | **[N]** | **[N]** | **[N]** | **[N]** | **[N]** | **[N]** |
 
-**Data Room Readiness**: [X]% of Required documents available
+**Required documents available (from the supplied list)**: [helper-computed %, or UNKNOWN — no document list supplied]
 
 ---
 
@@ -376,10 +386,12 @@ Generate `DATA-ROOM-[type]-[date].md` with the following structure:
 1. **Version control** — Date-stamp all documents; maintain a version log for updated materials
 2. **Watermarking** — Apply investor-specific watermarks to track document distribution
 3. **Activity tracking** — Monitor which documents each prospect reviews and for how long
-4. **NDA first** — Require executed NDA before granting Tier 3+ access
+4. **NDA first** — Require an executed NDA before granting any non-public access, in every tier
 5. **Regular updates** — Update performance data quarterly; refresh financials when new audits are available
 6. **Q&A log** — Maintain a running Q&A log to track investor questions and GP responses
 7. **Redaction review** — Ensure sensitive data (individual compensation, LP names from prior funds) is appropriately redacted per tier
+8. **Parity** — Record the reason for any difference in access between investors; existing LPs in a CV process see the same room as buyers
+9. **Track record extracts** — Case studies and deal lists follow disclosed selection criteria, with total-fund gross and net shown first (SEC staff Marketing FAQ, March 2025); if a successor fund's fees differ, net figures may need a model-fee analysis depending on the facts and circumstances (SEC staff Marketing FAQ, January 2026) — questions for counsel
 
 ---
 
@@ -393,6 +405,14 @@ Generate `DATA-ROOM-[type]-[date].md` with the following structure:
 6. [ ] Run `/fund ddq-respond` to prepare DDQ responses for inclusion
 7. [ ] Run `/fund esg-report` to generate ESG disclosures if not already prepared
 8. [ ] Configure investor-specific watermarking and activity tracking
+
+## Status, limitations and data handling
+- Report status: [DRAFT / PARTIAL / BLOCKED / READY_FOR_REVIEW] — the same value as the evidence sidecar.
+- Assumptions: [list, e.g. default fundraising stage]
+- Limitations and checks not performed: [list; availability UNKNOWN without a document list; portal configuration NOT PERFORMED]
+- Data handling: the packaged helpers ran locally and made no network calls; the AI host and its model provider processed the document content; connectors used: [none / list]. Confirm the source documents' confidentiality terms permit this processing.
+
+Not financial, legal or tax advice. Qualified human review is required.
 ```
 
 ### 5.2 Present to User
@@ -402,7 +422,7 @@ After generating the output:
 1. Confirm the file was generated: "Data room index generated: `DATA-ROOM-[type]-[date].md`"
 2. State the file location (absolute path)
 3. Summarize the structure: "[N] documents across 8 categories: [N] Required, [N] Recommended, [N] Optional"
-4. Report readiness: "Data room is [X]% ready — [N] Required documents available, [N] CRITICAL gaps to address"
+4. Report availability from the supplied list: "[N] of [N] Required documents supplied ([helper %]); [N] CRITICAL gaps" — or "availability UNKNOWN" with no list
 5. Highlight the most important missing documents (CRITICAL gaps)
 6. Note any fund-type-specific adjustments made
 7. Suggest: "Run `/fund review-lpa` and `/fund review-ppm` to validate key documents before including them"
@@ -416,6 +436,6 @@ After generating the output:
 | No fund type provided | List the available fund types and ask user to select one |
 | No fundraising stage provided | Default to "Initial Close" (most comprehensive) and disclose the assumption |
 | Unknown fund type | Use the Private Equity template as a base; note the assumption; ask user to confirm or clarify |
-| Available document list unclear | Generate the full checklist with all items marked as "Status: TBD — verify availability" |
+| Available document list unclear | Generate the full checklist with all items marked "Available: UNKNOWN — verify availability" |
 | First-time fund manager | Adjust requirements: no prior fund financials required; emphasize team track record from prior employers; note that first-fund data rooms require extra diligence materials |
 | Prior analysis not found | Proceed with user-provided context; note that prior `/fund review-lpa` output would enhance the data room recommendations |

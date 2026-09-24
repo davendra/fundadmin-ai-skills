@@ -2,7 +2,7 @@
 type: regex
 name: skill-fired
 target: last_message
-pattern: "AI Fund Administration Assistant[\\s\\S]{0,80}62 Commands"
+pattern: "AI Fund Administration Assistant[\\s\\S]{0,80}60 Commands"
 flags: i
 weight: 1
 ---

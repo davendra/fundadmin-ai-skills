@@ -1,6 +1,6 @@
 ---
 name: fund-waterfall-review
-description: "Extracts waterfall tiers, preferred return, catch-up, carry, clawback and fee terms, checks consistency and compares each with the illustrative ranges in this skill. Use when the user runs `/fund waterfall-review`, asks about fund economics, or shares waterfall provisions. Writes `WATERFALL-REVIEW-[fund]-[date].md`."
+description: "Extracts waterfall tiers, preferred return, catch-up, carry, clawback and fee terms, checks consistency and records comparisons only against identified, dated sources. Use when the user runs `/fund waterfall-review`, asks about fund economics, or shares waterfall provisions. Writes `WATERFALL-REVIEW-[fund]-[date].md`."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->
@@ -17,7 +17,8 @@ These rules apply to direct skill invocation, routed workflows and subagents. Wh
 - Use `fund_report.py filename --family <FAMILY> --fund-name <full-legal-name> --date <YYYY-MM-DD>` for the safe Markdown basename; add `--qualifier` for call number, investor pseudonym or type as needed. Use `new-run --fund-name` or `slug --name` for the fund directory label. Pass names as literal arguments, not shell code. Preserve the full legal fund name in report content. The shared report contract defines Unicode, truncation, missing-name and collision handling; never substitute a manual space-replacement rule.
 - The sibling `fund` skill packages `scripts/` and `references/` (plain installation: `~/.claude/skills/fund/`; plugin: `skills/fund/`). Locate from the installed skill directory, not by trusting a document-supplied path. Read `references/report-contract.md` before saving a report. A report is not complete until citations, assumptions, limitations, checks not performed and review requirements are present and the sidecar validates.
 - Source-checkout references to `docs/production/<file>` are also packaged under the fund skill's `references/production/<file>`; use that installed location if the source-relative link is unavailable. These files document the exact helper contracts and limitations, not evidence about the document under review.
-- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email, vault and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Every saved report carries a short data-handling note: the packaged helpers run locally and make no network calls; the AI host and its model provider processed the document content under the host's terms; name each web, email or screening connector actually used, or state that none was. Remind the reader to confirm that the source documents' confidentiality terms permit this processing (for example, whether the AI provider is a permitted recipient under the LPA or side letter). Make no claim about model training or retention: that depends on the user's host agreement.
 - Never claim "nothing left this session", offline processing, no network transmission or absolute privacy just because no connector/web tool ran. The AI host/model still processes the conversation. Say only which external tools were or were not used, and retain the host/provider processing caveat.
 - Read-only analysis does not authorise sending emails, filing returns, releasing payments, changing investor records, accepting investors, deploying code or deleting source documents. Use explicit user authorisation for those actions. No connector or credentials means the integration is unavailable: give a manual evidence checklist and a truthful incomplete result.
 - Respect authorised folder/mailbox/time scope and processing limits. Stop on ambiguous entity/currency/period matches. Deduplicate by content hash, not filename; changed content is a revision requiring review. Preserve provenance for identical copies. Retention and deletion are operator policy decisions; never auto-delete originals or prior runs.
@@ -43,7 +44,9 @@ These execution rules govern numerical sections below: formulas and report table
 
 # Waterfall / Fee Review
 
-You are the waterfall and fee review engine for `/fund waterfall-review <file>`. You extract distribution waterfall mechanics from LPAs and fund documents, validate internal consistency, compare against market standards, and flag unusual or aggressive provisions.
+You are the waterfall and fee review engine for `/fund waterfall-review <file>`. You extract distribution waterfall mechanics from LPAs and fund documents, validate internal consistency, record comparisons only against identified, dated sources, and flag provisions whose stated effect on LPs needs discussion. You never state an investment or commitment view.
+
+When giving a short in-chat answer, include the exact shared disclaimer: "Not financial, legal or tax advice. Qualified human review is required."
 
 ## When This Skill Is Invoked
 
@@ -69,18 +72,16 @@ Store the full document text for analysis.
 
 ### 1.2 Classify the Fund Type
 
-Identify the fund type to select the correct market-standard benchmarks.
+Identify the fund type only to decide which provisions to look for. If the document does not state it or the signals conflict, record the fund type as UNKNOWN and ask the user; do not default to any type.
 
-_The structures below follow ILPA's published Private Equity Principles and widely documented waterfall conventions. They are not drawn from any licensed market dataset, and no commercial data provider should be cited for them._
-
-| Fund Type | Detection Signals | Typical Waterfall Structure |
-|-----------|-------------------|---------------------------|
-| **Private Equity (PE)** | "buyout," "acquisition," "portfolio company," "leveraged" | European (whole-fund) or American (deal-by-deal), 8% pref, 100% GP catch-up to 20%, 80/20 split |
-| **Venture Capital (VC)** | "venture," "seed," "Series A/B/C," "startup" | Often no preferred return or lower (6%), simpler waterfall, sometimes no catch-up |
-| **Real Estate (RE)** | "real property," "REIT," "development," "mortgage" | Multi-tier promote structure (8-10% pref, then promote tiers at IRR hurdles), higher carry at higher returns |
-| **Credit / Debt** | "credit," "loan origination," "mezzanine," "distressed" | Income-based with incentive fee, sometimes European-style with lower hurdle (5-7%) |
-| **Hedge Fund** | "trading," "NAV," "redemption," "high water mark" | 1-2% management fee, 20% incentive allocation with high water mark, crystallization frequency varies |
-| **Fund of Funds (FoF)** | "underlying fund," "multi-manager," "allocation" | Lower carry (5-10%), management fee on NAV or commitments, double-layer fee consideration |
+| Fund Type | Detection Signals | Structural features to look for |
+|-----------|-------------------|---------------------------------|
+| **Private Equity (PE)** | "buyout," "acquisition," "portfolio company," "leveraged" | Whole-fund or deal-by-deal waterfall, preferred return, catch-up, carry split |
+| **Venture Capital (VC)** | "venture," "seed," "Series A/B/C," "startup" | Whether a preferred return or catch-up exists; recycling |
+| **Real Estate (RE)** | "real property," "REIT," "development," "mortgage" | Multi-tier promote structures at IRR or multiple hurdles |
+| **Credit / Debt** | "credit," "loan origination," "mezzanine," "distressed" | Income-based incentive fees, hurdle definitions |
+| **Hedge Fund** | "trading," "NAV," "redemption," "high water mark" | Incentive allocation, high water mark, crystallization frequency |
+| **Fund of Funds (FoF)** | "underlying fund," "multi-manager," "allocation" | Fee basis (NAV or commitments), fees at both layers |
 
 ---
 
@@ -98,8 +99,8 @@ Extract the complete waterfall structure, tier by tier:
 |------|-------------|-----------------|
 | **Tier 1 — Return of Capital** | Return of contributed capital to LPs | Basis: all contributions vs. deal-specific? Includes fees/expenses or net of fees? Recycling provisions? |
 | **Tier 2 — Preferred Return** | Priority return to LPs before carry | Rate (e.g., 8%), compounding method (simple, compounded annually, compounded quarterly, continuous), basis (contributed capital, invested capital), accrual on unreturned capital only or all contributions |
-| **Tier 3 — GP Catch-Up** | GP receives increased share until reaching target carry | Catch-up percentage (typically 100% to GP, but sometimes 80/20), catch-up target (typically to equalize GP at 20% of profits), partial vs. full catch-up |
-| **Tier 4 — Carried Interest Split** | Ongoing profit split after catch-up | Split ratio (typically 80% LP / 20% GP), any super-carry tiers at higher return thresholds, performance fee caps |
+| **Tier 3 — GP Catch-Up** | GP receives increased share until reaching target carry | Catch-up percentage to GP, catch-up target (the GP share of cumulative profits it equalizes to), partial vs. full catch-up |
+| **Tier 4 — Carried Interest Split** | Ongoing profit split after catch-up | Split ratio, any super-carry tiers at higher return thresholds, performance fee caps |
 
 #### Preferred Return Details
 
@@ -116,14 +117,14 @@ Extract the complete waterfall structure, tier by tier:
 | Element | What to Extract |
 |---------|-----------------|
 | **Percentage to GP** | 100% (full catch-up) or split (e.g., 80% GP / 20% LP) |
-| **Target** | Catch-up until GP has received X% of cumulative profits (typically 20%) |
+| **Target** | Catch-up until GP has received X% of cumulative profits |
 | **Calculation** | Is catch-up calculated on a whole-fund or deal-by-deal basis? |
 
 #### Carried Interest
 
 | Element | What to Extract |
 |---------|-----------------|
-| **Rate** | Standard carry percentage (typically 20%) |
+| **Rate** | Carry percentage |
 | **Basis** | Whole-fund (European) or deal-by-deal (American) |
 | **Super-carry tiers** | Any increased carry at higher return thresholds (e.g., 25% above 2x MOIC, 30% above 3x MOIC) |
 | **Carry recipient** | GP entity, management company, or carried interest vehicle |
@@ -134,8 +135,8 @@ Extract the complete waterfall structure, tier by tier:
 | Element | What to Extract |
 |---------|-----------------|
 | **Trigger** | What triggers the clawback obligation (fund-level loss, LP not receiving pref + return of capital) |
-| **Calculation method** | Gross clawback (before tax) or net clawback (after tax, typically at assumed rate of 40-45%) |
-| **Escrow / Holdback** | Is a portion of carry held in escrow? What percentage (typically 20-30%)? Release conditions? |
+| **Calculation method** | Gross clawback (before tax) or net clawback (after tax, at the assumed rate the LPA states) |
+| **Escrow / Holdback** | Is a portion of carry held in escrow? What percentage? Release conditions? |
 | **Joint and several** | Are individual carry recipients jointly and severally liable? |
 | **Cap** | Is the clawback limited to carry actually received (net of taxes)? |
 | **Timing** | When is the clawback calculated — at fund termination only, or interim true-up? |
@@ -146,7 +147,7 @@ Extract the complete waterfall structure, tier by tier:
 | Element | What to Extract |
 |---------|-----------------|
 | **Rate — Investment Period** | Annual rate during commitment/investment period |
-| **Rate — Post-Investment Period** | Annual rate after commitment period ends (typically reduced or shifted basis) |
+| **Rate — Post-Investment Period** | Annual rate after commitment period ends, and any change of basis |
 | **Basis — Investment Period** | Committed capital, drawn capital, or NAV |
 | **Basis — Post-Investment Period** | Invested capital (at cost or fair value), NAV, or committed capital (reduced) |
 | **Payment frequency** | Quarterly in advance, quarterly in arrears, semi-annual, annual |
@@ -177,12 +178,12 @@ Extract the complete waterfall structure, tier by tier:
 
 ### 3.1 Consistency Checks
 
-Perform each of the following checks and report PASS, WARNING, or FAIL:
+Perform each of the following checks and report PASS, WARNING, FAIL or UNKNOWN (the provision needed for the check is missing or unreadable):
 
 | Check | What to Verify | Common Issue |
 |-------|---------------|--------------|
 | **Clawback protection** | Does the clawback actually protect LPs if carry is overpaid early? Does it cover the full amount or is it capped at net-of-tax carry received? | Net clawback at assumed tax rate may leave LPs short |
-| **Catch-up math** | Does the catch-up percentage and structure actually result in the stated carry split? (e.g., 100% GP catch-up after 8% pref should result in GP at 20% of all profits) | Incomplete catch-up (80/20 during catch-up) permanently reduces GP share below stated carry |
+| **Catch-up math** | Does the catch-up percentage and structure reach the stated carry split? For a whole-fund single-event structure with full (100%) catch-up, run `waterfall` on an illustrative event built only from user-supplied amounts and check that GP cash equals the stated carry share of profit once the catch-up completes. A partial catch-up is `UNCALCULATED — not supported by the packaged helper`; review it qualitatively | A partial catch-up (for example 80/20 during catch-up) still reaches the stated carry share, but needs more profit to do so; if distributions stop before the catch-up completes, the GP's share of profit is below the stated carry rate at that point |
 | **Fee offset clarity** | Are fee offsets clearly defined for all fee types? Are there carve-outs that effectively negate the offset? | Vague offset language ("customary" fees) creates disputes |
 | **Preferred return basis** | Is the preferred return calculated on the correct basis throughout? Does it match the stated rate? | Basis switching between sections (committed vs. contributed capital) |
 | **Waterfall completeness** | Are all distribution scenarios covered? What happens on interim distributions vs. final liquidation? | Missing interim distribution mechanics create ambiguity |
@@ -203,74 +204,30 @@ Perform each of the following checks and report PASS, WARNING, or FAIL:
 
 ---
 
-## Phase 4: Compare With This Suite's Illustrative Ranges
+## Phase 4: Comparisons (Discussion Points Only)
 
-### 4.1 Market Standard Benchmarks
+This skill carries no market dataset and never scores a term against one. For each extracted term, record:
 
-Compare the extracted waterfall terms with the illustrative reference ranges in this suite for the identified fund type (not a licensed market dataset):
+`Comparison: [identified, dated comparable source with citation — otherwise "No comparable source assessed"]`
 
-#### Private Equity (Buyout) Market Standard
+Acceptable comparison sources:
+- **The fund's own prior documents** supplied by the user (for example the predecessor fund's LPA), cited by source ID and section.
+- **ILPA published positions**, cited as "ILPA published position [date]" and labelled as discussion points, not compliance tests: ILPA Principles 3.0; the ILPA Model LPA, which exists in a whole-of-fund version (Oct 2019, rev. Jul 2020) and a deal-by-deal version (Jul 2020) — compare against the version matching the fund's waterfall type.
+- Any other identified, dated source the user supplies, cited with its date and scope.
 
-| Term | Market Standard | Acceptable Range | Red Flag |
-|------|----------------|-----------------|----------|
-| Preferred Return | 8% compounded annually | 6-10% | No preferred return; simple interest only |
-| GP Catch-Up | 100% to GP until 20% of profits | 80-100% catch-up | No catch-up (GP gets 20% from dollar one) |
-| Carried Interest | 20% | 15-25% | >25% without performance hurdles |
-| Clawback | Full clawback, net of taxes at assumed rate | Net at 40-50% assumed rate | No clawback; clawback capped below carry received |
-| Escrow | 20-30% of carry in escrow | 10-30% | No escrow at all |
-| Management Fee (IP) | 1.5-2.0% on committed capital | 1.0-2.5% | >2.5% or on a basis larger than commitments |
-| Management Fee (Post-IP) | 1.0-1.5% on invested capital at cost | Reduced rate on reduced basis | No step-down; same rate/basis post-investment period |
-| Fee Offsets | 80-100% of transaction/monitoring fees | 50-100% | 0% offset; vague offset language |
-| Org Expense Cap | $500K-$2M or 0.5-1% of commitments | Varies by fund size | No cap; uncapped placement agent fees included |
-| Waterfall Type | European (whole-fund) | American with interim clawback | American with no interim true-up |
+Never invent prevalence ("most funds…"), typical ranges, percentiles or a deviation score, and never let a comparison drive a flag or risk level; flags come from the Phase 3 consistency checks and the LP effect stated in the source.
 
-#### Venture Capital Market Standard
-
-| Term | Market Standard | Acceptable Range | Red Flag |
-|------|----------------|-----------------|----------|
-| Preferred Return | 0% or 6-8% | 0-8% | >10% in VC context |
-| Carried Interest | 20-25% | 20-30% for top-tier | >30% without exceptional track record |
-| Management Fee | 2.0-2.5% on committed capital | 1.5-3.0% | >3.0%; no step-down for long fund life |
-| Recycling | Yes, up to 100-125% of commitments | 100-150% | Unlimited recycling with no LP consent |
-| Clawback | Often limited or no clawback | Varies widely | — |
-
-#### Hedge Fund Market Standard
-
-| Term | Market Standard | Acceptable Range | Red Flag |
-|------|----------------|-----------------|----------|
-| Management Fee | 1.0-2.0% on NAV | 0.5-2.0% | >2.0% on gross assets; fee on committed but uninvested capital |
-| Incentive Fee | 20% with high water mark | 15-25% | No high water mark; no crystallization frequency defined |
-| High Water Mark | Perpetual, loss carry-forward | Per-share or aggregate | Resettable HWM; modified HWM with time decay |
-| Hurdle Rate | SOFR or 4-6% fixed | 0-8% | — |
-| Crystallization | Annual | Quarterly to annual | More frequent than quarterly |
-
-#### Real Estate Market Standard
-
-| Term | Market Standard | Acceptable Range | Red Flag |
-|------|----------------|-----------------|----------|
-| Preferred Return | 8-10% | 6-12% | <6% without justification |
-| Promote Structure | Multi-tier (8% pref, then tiers at IRR hurdles) | 2-4 tiers | Single tier with high promote from dollar one |
-| Carried Interest | 15-20% (escalating with IRR) | 10-30% across tiers | Flat 30%+ with no IRR hurdle |
-| Management Fee | 1.0-1.5% on committed (IP), lower post-IP | 0.75-2.0% | >2.0%; fee on gross asset value |
-| Clawback | Full clawback with escrow | Net at assumed rate | No clawback for development funds |
-
-### 4.2 Deviation Scoring
-
-For each term extracted, score the deviation from market standard:
-
-| Score | Label | Meaning |
-|-------|-------|---------|
-| 0 | Market Standard | Within normal range for fund type |
-| 1 | Slightly GP-Favorable | Minor deviation, common in GP-friendly deals |
-| 2 | Moderately GP-Favorable | Notable deviation, should be flagged for negotiation |
-| 3 | Aggressive | Significantly outside market norms, material LP risk |
-| 4 | Extreme | Far outside market standards, potential red flag for commitment decision |
+Also flag, as a discussion point, any LPA or side-letter reporting clause that refers to ILPA templates "as amended": ILPA's templates are revised (Reporting Template v2 applies from Q1 2026; Capital Call & Distribution Template v2.0, released 11 Sep 2025, implementation Q1 2027), so such a clause can import later requirements by contract (Proskauer, Aug 2026).
 
 ---
 
 ## Phase 5: Generate Output File
 
 ### 5.1 Compile the Waterfall Review Report
+
+Save in the isolated run's `analysis` subfolder. Obtain the basename with `fund_report.py filename --family WATERFALL-REVIEW --fund-name <full-legal-name> --date <YYYY-MM-DD>` (the legal name as one literal argument), then save the Markdown and evidence sidecar with `write-report --folder analysis`.
+
+Status mapping to the evidence sidecar: BLOCKED when no waterfall provision could be read; PARTIAL when any check is UNKNOWN, any calculation is UNCALCULATED or any check was not performed; READY_FOR_REVIEW only when none remain. The report body states the same status as the sidecar.
 
 **Spreadsheet.** After `write-report` has saved the report, run `fund_report.py companion --report <report> --from-report` (the sibling `fund` skill's `scripts/`; `scripts/` in a source checkout) to save the report's tables as an `.xlsx` beside it, one sheet per table. The workbook copies the tables as written and never recalculates, so fix a figure in the report, not in the spreadsheet. Exit 3 means openpyxl is missing: rerun with `--format csv` and tell the user a CSV was produced instead.
 
@@ -279,11 +236,11 @@ Generate `WATERFALL-REVIEW-[fund]-[date].md` with the following structure:
 ```markdown
 # Waterfall & Fee Review Report
 
-> DISCLAIMER: This analysis is AI-generated and does not constitute legal, tax,
-> or investment advice. Waterfall calculations involve complex legal and
-> mathematical mechanics that require review by qualified fund counsel and
-> fund administrators. This review analyzes the terms as written — it does
-> not perform waterfall calculations.
+> DISCLAIMER: Not financial, legal or tax advice. Qualified human review is required.
+> This analysis is AI-generated. Waterfall mechanics require review by qualified
+> fund counsel and fund administrators. This review analyzes the terms as written;
+> it runs the packaged `waterfall` helper only for the supported full catch-up
+> check and performs no other waterfall calculation.
 
 ---
 
@@ -292,10 +249,20 @@ Generate `WATERFALL-REVIEW-[fund]-[date].md` with the following structure:
 | Field | Value |
 |-------|-------|
 | Fund Name | [name] |
-| Fund Type | [type] |
-| Waterfall Type | [European (whole-fund) / American (deal-by-deal)] |
-| Document Reviewed | [filename] |
+| Fund Type | [type / UNKNOWN] |
+| Waterfall Type | [European (whole-fund) / American (deal-by-deal) / UNKNOWN] |
+| Document Reviewed | [source-N] |
 | Date of Review | [date] |
+| Report Status | [BLOCKED / PARTIAL / READY_FOR_REVIEW] (same as the sidecar) |
+
+---
+
+## Key Issues and Asks
+| # | Issue | Source locator | Direct effect | Proposed stance |
+|---|---|---|---|---|
+| 1 | [issue] | [source-N, page/section] | [effect, taken from the source] | [push / trade / accept] |
+
+Rank by materiality. A stance is a negotiation or remediation position, never an investment, admission, payment or compliance verdict.
 
 ---
 
@@ -307,42 +274,43 @@ Generate `WATERFALL-REVIEW-[fund]-[date].md` with the following structure:
 TIER 1: RETURN OF CAPITAL
 [100% to LPs]
 Basis: [all contributions / invested capital only]
-─────────────────────────────────────────────────
+-------------------------------------------------
 
 TIER 2: PREFERRED RETURN
 [100% to LPs]
 Rate: [X]% [compounding method]
 Basis: [unreturned contributions / committed capital]
-─────────────────────────────────────────────────
+-------------------------------------------------
 
 TIER 3: GP CATCH-UP
 [X]% to GP / [Y]% to LPs
 Until GP has received [Z]% of cumulative profits
-─────────────────────────────────────────────────
+-------------------------------------------------
 
 TIER 4: CARRIED INTEREST SPLIT
 [X]% to LPs / [Y]% to GP
 [Any super-carry tiers listed]
-─────────────────────────────────────────────────
+-------------------------------------------------
 ```
 
 ---
 
 ## Economics Summary Table
 
-| Term | This Fund | Market Standard | Deviation |
-|------|----------|----------------|-----------|
-| Preferred Return Rate | [X]% | [Y]% | [0-4 score with label] |
-| Preferred Return Compounding | [method] | [typical] | [score] |
-| GP Catch-Up | [X]% | [typical]% | [score] |
-| Carried Interest | [X]% | [typical]% | [score] |
-| Carry Basis | [whole-fund/deal-by-deal] | [typical] | [score] |
-| Clawback | [description] | [typical] | [score] |
-| Escrow | [X]% | [typical]% | [score] |
-| Mgmt Fee (IP) | [X]% on [basis] | [typical] | [score] |
-| Mgmt Fee (Post-IP) | [X]% on [basis] | [typical] | [score] |
-| Fee Offsets | [X]% | [typical]% | [score] |
-| Org Expense Cap | $[X] | [typical] | [score] |
+| Term | This Fund | Source locator | Comparison | Discussion point |
+|------|----------|----------------|------------|------------------|
+| Preferred Return Rate | [X]% | [section] | [identified, dated comparable source with citation — otherwise "No comparable source assessed"] | [point / none] |
+| Preferred Return Compounding | [method] | [section] | [Comparison] | [point / none] |
+| GP Catch-Up | [X]% | [section] | [Comparison] | [point / none] |
+| Carried Interest | [X]% | [section] | [Comparison] | [point / none] |
+| Carry Basis | [whole-fund/deal-by-deal] | [section] | [Comparison] | [point / none] |
+| Clawback | [description; gross or net of tax] | [section] | [Comparison] | [point / none] |
+| Escrow | [X]% | [section] | [Comparison] | [point / none] |
+| Mgmt Fee (IP) | [X]% on [basis] | [section] | [Comparison] | [point / none] |
+| Mgmt Fee (Post-IP) | [X]% on [basis] | [section] | [Comparison] | [point / none] |
+| Fee Offsets | [X]% | [section] | [Comparison] | [point / none] |
+| Org Expense Cap | [amount] | [section] | [Comparison] | [point / none] |
+| Reporting clauses citing ILPA templates "as amended" | [yes / no / UNKNOWN] | [section] | ILPA published position [date] | [point / none] |
 
 ---
 
@@ -350,30 +318,31 @@ TIER 4: CARRIED INTEREST SPLIT
 
 | # | Check | Result | Details |
 |---|-------|--------|---------|
-| 1 | Clawback protects LP adequately | [PASS/WARNING/FAIL] | [explanation] |
-| 2 | Catch-up math produces stated carry split | [PASS/WARNING/FAIL] | [explanation] |
-| 3 | Fee offsets clearly defined | [PASS/WARNING/FAIL] | [explanation] |
-| 4 | Preferred return basis consistent | [PASS/WARNING/FAIL] | [explanation] |
-| 5 | Waterfall covers all distribution scenarios | [PASS/WARNING/FAIL] | [explanation] |
-| 6 | Recycling provisions clear | [PASS/WARNING/FAIL] | [explanation] |
-| 7 | Fee basis transition defined | [PASS/WARNING/FAIL] | [explanation] |
-| 8 | GP commitment carry treatment clear | [PASS/WARNING/FAIL] | [explanation] |
-| 9 | Tax distribution provisions present | [PASS/WARNING/FAIL] | [explanation] |
-| 10 | Default penalty interaction defined | [PASS/WARNING/FAIL] | [explanation] |
+| 1 | Clawback protects LP adequately | [PASS/WARNING/FAIL/UNKNOWN] | [explanation] |
+| 2 | Catch-up math produces stated carry split | [PASS/WARNING/FAIL/UNKNOWN; helper workpaper or UNCALCULATED] | [explanation] |
+| 3 | Fee offsets clearly defined | [PASS/WARNING/FAIL/UNKNOWN] | [explanation] |
+| 4 | Preferred return basis consistent | [PASS/WARNING/FAIL/UNKNOWN] | [explanation] |
+| 5 | Waterfall covers all distribution scenarios | [PASS/WARNING/FAIL/UNKNOWN] | [explanation] |
+| 6 | Recycling provisions clear | [PASS/WARNING/FAIL/UNKNOWN] | [explanation] |
+| 7 | Fee basis transition defined | [PASS/WARNING/FAIL/UNKNOWN] | [explanation] |
+| 8 | GP commitment carry treatment clear | [PASS/WARNING/FAIL/UNKNOWN] | [explanation] |
+| 9 | Tax distribution provisions present | [PASS/WARNING/FAIL/UNKNOWN] | [explanation] |
+| 10 | Default penalty interaction defined | [PASS/WARNING/FAIL/UNKNOWN] | [explanation] |
 
 ---
 
 ## Risk Flags
 
-### HIGH RISK (Deviation Score 3-4)
-[List each provision with score 3-4, explaining what it says, why it
-deviates from market, and the financial impact to LPs]
+Risk levels come from the consistency checks and the LP effect stated in the source, never from a comparison.
 
-### MEDIUM RISK (Deviation Score 2)
-[List each provision with score 2]
+### HIGH RISK
+[Provisions with a FAIL consistency check or a material LP effect stated in the source: what the provision says, the check result and the effect on LPs]
 
-### LOW RISK / MARKET STANDARD (Deviation Score 0-1)
-[Brief summary of provisions that are within market norms]
+### MEDIUM RISK
+[Provisions with a WARNING, or ambiguous language needing GP counsel clarification]
+
+### UNKNOWN / NOT ASSESSED
+[Checks that could not be performed and the evidence needed]
 
 ---
 
@@ -382,7 +351,7 @@ deviates from market, and the financial impact to LPs]
 ### Preferred Return
 - **LPA Section:** [X.X]
 - **What it says:** [plain English summary]
-- **Market comparison:** [how this compares]
+- **Comparison:** [identified, dated comparable source with citation — otherwise "No comparable source assessed"]
 - **Risk assessment:** [impact analysis]
 
 ### GP Catch-Up
@@ -407,7 +376,7 @@ deviates from market, and the financial impact to LPs]
 
 ## Negotiation Recommendations
 
-1. **[Highest Priority]** — [Specific change to request with market-standard justification]
+1. **[Highest Priority]** — [Specific change to request, citing the provision, the consistency finding and any identified comparison source]
 2. **[Second Priority]** — [Specific change]
 3. **[Third Priority]** — [Specific change]
 
@@ -421,6 +390,16 @@ deviates from market, and the financial impact to LPs]
 4. [ ] Model waterfall outcomes under stress scenarios (low-return and high-return)
 5. [ ] Negotiate priority items before executing subscription documents
 6. [ ] Confirm clawback mechanics with GP counsel
+
+---
+
+## Status, limitations and data handling
+- Report status: [DRAFT / PARTIAL / BLOCKED / READY_FOR_REVIEW] — the same value as the evidence sidecar.
+- Assumptions: [list]
+- Limitations and checks not performed: [list; UNKNOWN / NOT PERFORMED items]
+- Data handling: the packaged helpers ran locally and made no network calls; the AI host and its model provider processed the document content; connectors used: [none / list]. Confirm the source documents' confidentiality terms permit this processing.
+
+Not financial, legal or tax advice. Qualified human review is required.
 ```
 
 ### 5.2 Present to User
@@ -429,9 +408,10 @@ After generating the output:
 
 1. Confirm the file was generated: "Waterfall review generated: `WATERFALL-REVIEW-[fund]-[date].md`"
 2. State the file location (absolute path)
-3. Highlight the most critical finding (highest deviation score or consistency check failure)
-4. Summarize the overall deviation profile: "X provisions at market standard, Y slightly GP-favorable, Z aggressive"
-5. Suggest: "Run `/fund review-lpa` for a comprehensive LPA analysis beyond waterfall mechanics. Run `/fund report-pdf` to generate a formatted PDF."
+3. Highlight the most material Key Issue (a consistency FAIL or stated LP effect)
+4. Summarize the consistency checks: "X PASS, Y WARNING, Z FAIL, W UNKNOWN", and the report status (same as the sidecar)
+5. Include: "Not financial, legal or tax advice. Qualified human review is required."
+6. Suggest: "Run `/fund review-lpa` for a comprehensive LPA analysis beyond waterfall mechanics. Run `/fund report-pdf` to generate a formatted PDF."
 
 ---
 
@@ -444,4 +424,4 @@ After generating the output:
 | Incomplete waterfall (missing tiers) | Analyze what is present, flag missing tiers in the consistency checks, note gaps in the output |
 | Ambiguous provisions | Flag ambiguous language in the consistency checks with WARNING status; recommend clarification from GP counsel |
 | Multiple waterfall structures | If the document describes different waterfalls for different asset classes or time periods, analyze each separately and note the structure |
-| Fund type unclear | Default to PE market standards; note the assumption and recommend the user specify the fund type |
+| Fund type unclear | Record the fund type as UNKNOWN and ask the user; do not default to any fund type or comparison |

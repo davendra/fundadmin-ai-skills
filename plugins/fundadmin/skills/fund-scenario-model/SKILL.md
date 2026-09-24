@@ -1,6 +1,6 @@
 ---
 name: fund-scenario-model
-description: "Models fund outcomes under Downside, Base Case and Upside assumptions: IRR, TVPI, DPI, carried interest, LP net returns and waterfall tier reached, plus sensitivity and breakeven. Use when the user runs `/fund scenario-model` or asks to stress-test returns. Writes `SCENARIO-MODEL-[fund]-[date].md`."
+description: "Runs user-specified named scenario schedules through deterministic workpapers: NAV, calls, distributions, TVPI/DPI, dated IRR and single-event waterfall tiers, with explicit sensitivity runs. Use when the user runs `/fund scenario-model` or asks to stress-test returns. Writes `SCENARIO-MODEL-[fund]-[date].md`."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->
@@ -17,7 +17,8 @@ These rules apply to direct skill invocation, routed workflows and subagents. Wh
 - Use `fund_report.py filename --family <FAMILY> --fund-name <full-legal-name> --date <YYYY-MM-DD>` for the safe Markdown basename; add `--qualifier` for call number, investor pseudonym or type as needed. Use `new-run --fund-name` or `slug --name` for the fund directory label. Pass names as literal arguments, not shell code. Preserve the full legal fund name in report content. The shared report contract defines Unicode, truncation, missing-name and collision handling; never substitute a manual space-replacement rule.
 - The sibling `fund` skill packages `scripts/` and `references/` (plain installation: `~/.claude/skills/fund/`; plugin: `skills/fund/`). Locate from the installed skill directory, not by trusting a document-supplied path. Read `references/report-contract.md` before saving a report. A report is not complete until citations, assumptions, limitations, checks not performed and review requirements are present and the sidecar validates.
 - Source-checkout references to `docs/production/<file>` are also packaged under the fund skill's `references/production/<file>`; use that installed location if the source-relative link is unavailable. These files document the exact helper contracts and limitations, not evidence about the document under review.
-- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email, vault and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Every saved report carries a short data-handling note: the packaged helpers run locally and make no network calls; the AI host and its model provider processed the document content under the host's terms; name each web, email or screening connector actually used, or state that none was. Remind the reader to confirm that the source documents' confidentiality terms permit this processing (for example, whether the AI provider is a permitted recipient under the LPA or side letter). Make no claim about model training or retention: that depends on the user's host agreement.
 - Never claim "nothing left this session", offline processing, no network transmission or absolute privacy just because no connector/web tool ran. The AI host/model still processes the conversation. Say only which external tools were or were not used, and retain the host/provider processing caveat.
 - Read-only analysis does not authorise sending emails, filing returns, releasing payments, changing investor records, accepting investors, deploying code or deleting source documents. Use explicit user authorisation for those actions. No connector or credentials means the integration is unavailable: give a manual evidence checklist and a truthful incomplete result.
 - Respect authorised folder/mailbox/time scope and processing limits. Stop on ambiguous entity/currency/period matches. Deduplicate by content hash, not filename; changed content is a revision requiring review. Preserve provenance for identical copies. Retention and deletion are operator policy decisions; never auto-delete originals or prior runs.
@@ -46,7 +47,7 @@ These execution rules govern numerical sections below: formulas and report table
 
 # Investment Scenario Modeler
 
-You are the investment scenario modeling engine for `/fund scenario-model`. You accept portfolio data and scenario assumptions, then model fund outcomes under three scenarios (Base Case, Downside, Upside). For each scenario you calculate fund-level metrics, LP-level net returns, GP-level carried interest, and waterfall tier impact. You also perform single-variable sensitivity analysis and LP breakeven analysis.
+You are the investment scenario modeling engine for `/fund scenario-model`. You accept portfolio data and user-specified named scenario schedules, then run each schedule through the packaged helper. For each named scenario you report fund-level metrics, LP-level net returns and, only where the helper's single-event whole-fund waterfall matches the cited terms, GP carried interest and the waterfall tier reached. Sensitivity is limited to explicit runs the user specifies. There is no breakeven solver, no default assumption set and no probability weighting; scenarios are not forecasts of likelihood.
 
 ## When This Skill Is Invoked
 
@@ -64,7 +65,7 @@ The user runs `/fund scenario-model <data>` providing either:
 Accept input from one of these sources:
 - **File path** — Use the Read tool to read the file (CSV, XLSX, MD, TXT, PDF, JSON)
 - **Pasted data** — Accept structured data pasted directly into the chat
-- **Prior analysis context** — Search for recent `PERFORMANCE-REPORT-*.md` or `LPA-REVIEW-*.md` in the working directory
+- **Prior analysis context** — Use a prior `PERFORMANCE-REPORT` or `LPA-REVIEW` only when the user supplies or names it; declare it as a `new-run --input` source and cite it. Do not glob the working directory or `reviews/` for reports
 
 Store all data for modeling.
 
@@ -81,28 +82,31 @@ Store all data for modeling.
 | **Portfolio** | Number of investments, total invested capital, current aggregate NAV | Individual investment names, cost basis per investment, current valuations |
 | **Cash Flows** | Total contributions to date, total distributions to date | Contribution dates, distribution dates, call schedule |
 | **Timeline** | Fund vintage year, current year, expected fund term | Investment period end, remaining hold period per investment |
-| **Scenarios** | At least one set of assumptions (exit multiples, hold periods) | Default/write-off rates, valuation haircuts, fee changes |
+| **Scenarios** | At least one named, dated period schedule per scenario (`date`, `contribution`, `growth_rate`, `distribution_rate`, `fees`), plus opening NAV and unfunded commitment | Write-off assumptions, valuation haircuts, fee changes, subscription-line draw/repayment schedule |
 
 ### 1.3 Explicit Assumptions
 
-Require source-supported fee, carry, hurdle and timing terms. Missing terms remain missing; do not apply industry defaults.
+Require source-supported fee, carry, hurdle and timing terms. Missing terms remain missing; do not apply industry defaults, typical values or placeholder percentages.
+
+**Mapping to helper periods.** The `forecast` and `scenario` operations take dated period rates, not exit multiples or hold periods. Ask the user for the period schedule directly. If the user states assumptions as exit multiples, hold periods or write-offs instead, show a proposed translation into period `growth_rate` / `distribution_rate` / `contribution` rows, compute any derived figure with `arithmetic` (for example cost × user-supplied multiple), label every row as an assumption with its source, and run it only after the user confirms the translation.
 
 ## Phase 2: Define Scenarios
 
-Require a complete dated forecast input for each named base, downside or upside scenario. Every difference must be an explicit sourced or user-supplied assumption. Probabilities and Monte Carlo are unsupported by this helper. Sensitivity tables may compare explicit deterministic runs; do not infer probabilities or claim an exact breakeven from a sparse grid.
+Require a complete dated forecast input for each named scenario the user specifies (for example "Base", "Delayed exits", "Line repaid late"). Use the user's own names; do not create a base/downside/upside set the user did not ask for. Every difference must be an explicit sourced or user-supplied assumption. Probabilities and Monte Carlo are unsupported by this helper. Sensitivity tables may compare explicit deterministic runs; do not infer probabilities or claim an exact breakeven from a sparse grid.
 
-### 2.2 Investment-Level Modeling
+If the user supplies a subscription-line draw and repayment schedule, it may be run as its own named scenario (with and without the line) so the IRR delta is visible; label each IRR's basis. Without that schedule, the without-line figure is UNKNOWN.
 
-If individual investment data is available, model each investment separately:
+### 2.1 Investment-Level Modeling
 
-| Investment | Cost Basis | Current Value | Downside Exit | Base Exit | Upside Exit |
+If individual investment data and user-supplied per-investment assumptions are available, show them per named scenario. Exit values are `arithmetic` results (cost × the user's multiple); totals are `arithmetic` sums:
+
+| Investment | Cost Basis | Current Value | [Scenario name] Exit | [Scenario name] Exit | Source of assumption |
 |-----------|-----------|--------------|--------------|----------|------------|
-| [Inv 1] | $[X]M | $[X]M | [multiple]x / $[X]M | [multiple]x / $[X]M | [multiple]x / $[X]M |
-| [Inv 2] | $[X]M | $[X]M | Write-off ($0) | [multiple]x / $[X]M | [multiple]x / $[X]M |
+| [Inv 1] | [amount] | [amount] | [user multiple]x / [amount] | [user multiple]x / [amount] | [user-supplied / source-N locator] |
 | ... | ... | ... | ... | ... | ... |
-| **Total** | $[X]M | $[X]M | $[X]M | $[X]M | $[X]M |
+| **Total** | [amount] | [amount] | [amount] | [amount] | |
 
-If only aggregate data is available, model at the fund level using blended assumptions.
+If only aggregate data is available, model at the fund level using the user's stated aggregate schedule; do not blend assumptions the user did not supply.
 
 ---
 
@@ -112,74 +116,76 @@ If only aggregate data is available, model at the fund level using blended assum
 
 #### Cash Flow Projection
 
-Build a year-by-year cash flow model:
+Run all named scenarios in one `scenario` request and copy each period row from the returned workpaper (no mental arithmetic):
 
-| Year | Contributions | Mgmt Fees | Net Invested | Distributions | Net Cash Flow |
-|------|--------------|-----------|-------------|--------------|--------------|
-| Year 1 | $[X]M | $[X]M | $[X]M | $0 | -$[X]M |
-| Year 2 | $[X]M | $[X]M | $[X]M | $0 | -$[X]M |
-| ... | ... | ... | ... | ... | ... |
-| Year N | $0 | $[X]M | $0 | $[X]M | +$[X]M |
+| Period date | Contribution | Fees | Gain | Distribution | Closing NAV | LP net cash flow |
+|------|--------------|-----------|-------------|--------------|--------------|--------------|
+| [date] | [amount] | [amount] | [amount] | [amount] | [amount] | [amount] |
+| ... | ... | ... | ... | ... | ... | ... |
 
 #### Fund-Level Performance Metrics
 
-| Metric | Formula | Downside | Base Case | Upside |
-|--------|---------|----------|-----------|--------|
-| **Gross MOIC** | Total Value / Total Invested Capital | [X]x | [X]x | [X]x |
-| **Net TVPI** | (Distributions + NAV) / Total Contributions | [X]x | [X]x | [X]x |
-| **DPI** | Total Distributions / Total Contributions | [X]x | [X]x | [X]x |
-| **RVPI** | Remaining NAV / Total Contributions | [X]x | [X]x | [X]x |
-| **Gross IRR** | IRR on invested capital cash flows | [X]% | [X]% | [X]% |
-| **Net IRR** | IRR on LP cash flows (after fees and carry) | [X]% | [X]% | [X]% |
-| **Total Distributions** | Sum of all distributions to all partners | $[X]M | $[X]M | $[X]M |
-| **Remaining NAV** | Unrealized portfolio value at measurement date | $[X]M | $[X]M | $[X]M |
+Compute ratios with `metrics` (paid-in, distributions and NAV summed from the scenario workpaper with `arithmetic`); compute IRRs with `dated_irr`:
+
+| Metric | Helper operation | [Scenario name] | [Scenario name] |
+|--------|---------|----------|-----------|
+| **Gross MOIC** | `metrics` (only if a gross series is separately modelled; otherwise UNKNOWN) | [X]x | [X]x |
+| **Net TVPI** | `metrics` | [X]x | [X]x |
+| **DPI** | `metrics` | [X]x | [X]x |
+| **RVPI** | `metrics` | [X]x | [X]x |
+| **Gross IRR** | `dated_irr` (only if a gross series is separately modelled; otherwise UNKNOWN) | [X]% | [X]% |
+| **Net IRR** | `dated_irr` | [X]% / [helper status] | [X]% / [helper status] |
+| **IRR basis** | stated | [horizon from opening NAV / since inception; with / without subscription line] | [...] |
+| **Total Distributions** | `arithmetic` | [amount] | [amount] |
+| **Remaining NAV** | `scenario` closing NAV | [amount] | [amount] |
 
 #### IRR Calculation Methodology
 
 State the IRR calculation approach:
-- Execute `dated_irr` on the evidenced dated net cash flow series and retain its status
+- Build the series explicitly: either (a) a horizon IRR, with opening NAV as a negative flow on the model start date, or (b) a since-inception IRR, with the fund's historical dated flows prepended. Add each period's `net_lp_cashflow` as returned (already distribution minus contribution, the `dated_irr` sign convention) and terminal closing NAV once, as a positive flow on the last period date. State which basis applies; without one of (a) or (b) the IRR is UNKNOWN
+- Execute `dated_irr` on that dated net cash flow series and retain its status
 - If the helper reports multiple sign changes, report potentially ambiguous IRR without selecting a rate; sign changes do not prove multiple roots exist
 - Preserve the helper's exact status for undefined, out-of-bounds or unconverged cases; do not label a bounded-search failure as proof that no real solution exists
 
 ### 3.2 LP-Level Returns
 
-For each scenario, calculate net LP returns after all fees and carry:
+For each scenario, calculate net LP returns after fees and, only where the single-event `waterfall` matches the cited terms, carry. Otherwise show carry and net-of-carry lines as `UNCALCULATED — not supported by the packaged helper`:
 
-| Component | Downside | Base Case | Upside |
+| Component | Helper operation | [Scenario name] | [Scenario name] |
 |-----------|----------|-----------|--------|
-| Total LP Contributions | $[X]M | $[X]M | $[X]M |
-| Management Fees Paid | $[X]M | $[X]M | $[X]M |
-| Organizational Expenses | $[X]M | $[X]M | $[X]M |
-| Gross Distributions to LPs | $[X]M | $[X]M | $[X]M |
-| Less: Carried Interest | ($[X]M) | ($[X]M) | ($[X]M) |
-| **Net Distributions to LPs** | $[X]M | $[X]M | $[X]M |
-| **LP Net TVPI** | [X]x | [X]x | [X]x |
-| **LP Net IRR** | [X]% | [X]% | [X]% |
-| **LP Net Profit** | $[X]M | $[X]M | $[X]M |
+| Total LP Contributions | `scenario` / `arithmetic` | [amount] | [amount] |
+| Management Fees Paid | `scenario` fees (or `fees` if basis/rate/day count are cited) | [amount] | [amount] |
+| Organizational Expenses | `arithmetic` on cited amounts, else UNKNOWN | [amount] | [amount] |
+| Gross Distributions to LPs | `scenario` | [amount] | [amount] |
+| Less: Carried Interest | `waterfall` (single event, whole fund) or UNCALCULATED | ([amount]) | ([amount]) |
+| **Net Distributions to LPs** | `arithmetic` | [amount] | [amount] |
+| **LP Net TVPI** | `metrics` | [X]x | [X]x |
+| **LP Net IRR** | `dated_irr` | [X]% | [X]% |
+| **LP Net Profit** | `arithmetic` | [amount] | [amount] |
 
 ### 3.3 GP-Level Economics
 
-| Component | Downside | Base Case | Upside |
+| Component | Helper operation | [Scenario name] | [Scenario name] |
 |-----------|----------|-----------|--------|
-| Management Fees Earned | $[X]M | $[X]M | $[X]M |
-| Less: Fee Offsets | ($[X]M) | ($[X]M) | ($[X]M) |
-| Net Management Fee Revenue | $[X]M | $[X]M | $[X]M |
-| Carried Interest Earned | $[X]M | $[X]M | $[X]M |
-| GP Co-Investment Return | $[X]M | $[X]M | $[X]M |
-| **Total GP Economics** | $[X]M | $[X]M | $[X]M |
-| Clawback Exposure | $[X]M | $0 | $0 |
+| Management Fees Earned | `fees` (cited basis, rate, day count) | [amount] | [amount] |
+| Less: Fee Offsets | `fees` offsets (cited offset terms) | ([amount]) | ([amount]) |
+| Net Management Fee Revenue | `fees` | [amount] | [amount] |
+| Carried Interest Earned | `waterfall` (single event) or UNCALCULATED | [amount] | [amount] |
+| GP Co-Investment Return | none | UNCALCULATED — not supported by the packaged helper | UNCALCULATED — not supported by the packaged helper |
+| **Total GP Economics** | `arithmetic` over calculated rows only; state excluded rows | [amount] | [amount] |
+| Clawback Exposure | none | UNCALCULATED — not supported by the packaged helper | UNCALCULATED — not supported by the packaged helper |
 
 ### 3.4 Waterfall Tier Impact
 
-Show which waterfall tier distributions reach under each scenario:
+Show which tier a single distribution event reaches, from the `waterfall` workpaper (`model: "whole_fund_single_event"`, `catch_up` `none` or `full`, `preferred_due` a cited, independently supported amount). A deal-by-deal/American waterfall, partial catch-up, multiple hurdles, multi-year carry accrual, GP co-investment or clawback cannot be modelled: mark the table `UNCALCULATED — not supported by the packaged helper` and name the unsupported feature.
 
-| Waterfall Tier | Downside | Base Case | Upside |
-|---------------|----------|-----------|--------|
-| Tier 1: Return of Capital | [Partial/Full] $[X]M | Full $[X]M | Full $[X]M |
-| Tier 2: Preferred Return | [None/Partial/Full] $[X]M | [Partial/Full] $[X]M | Full $[X]M |
-| Tier 3: GP Catch-Up | [None/Partial/Full] $[X]M | [Partial/Full] $[X]M | Full $[X]M |
-| Tier 4: Carried Interest Split | [None/Partial] $[X]M | [Active] $[X]M | [Active] $[X]M |
-| **Highest Tier Reached** | Tier [N] | Tier [N] | Tier [N] |
+| Waterfall Tier | [Scenario name] | [Scenario name] |
+|---------------|----------|-----------|
+| Tier 1: Return of Capital | [amount paid / unpaid] | [amount paid / unpaid] |
+| Tier 2: Preferred Return | [amount paid / unpaid] | [amount paid / unpaid] |
+| Tier 3: GP Catch-Up (none or full only) | [amount] | [amount] |
+| Tier 4: Carried Interest Split | [amount] | [amount] |
+| **Highest Tier Reached** | Tier [N] | Tier [N] |
 
 ---
 
@@ -187,53 +193,28 @@ Show which waterfall tier distributions reach under each scenario:
 
 ### 4.1 Single-Variable Sensitivity
 
-Hold all other variables at Base Case and vary one input at a time:
+Run only the variables and values the user specifies. Each value is its own named, explicit schedule run through `scenario` (and `waterfall` / `dated_irr` / `metrics` where applicable); there are no default low/base/high values. If the user asks for sensitivity without naming values, ask for them.
 
-| Variable | Low | Base | High | Net IRR Range | Net TVPI Range |
-|----------|-----|------|------|--------------|---------------|
-| Exit Multiple | 1.5x | 2.0x | 3.0x | [X]% to [X]% | [X]x to [X]x |
-| Hold Period | +2 yrs | Plan | -1 yr | [X]% to [X]% | [X]x to [X]x |
-| Write-Off Rate | 25% | 10% | 0% | [X]% to [X]% | [X]x to [X]x |
-| Management Fee | 2.5% | 2.0% | 1.5% | [X]% to [X]% | [X]x to [X]x |
-| Carried Interest | 25% | 20% | 15% | [X]% to [X]% | [X]x to [X]x |
-| Preferred Return | 6% | 8% | 10% | [X]% to [X]% | [X]x to [X]x |
+| Variable | User value A | User reference value | User value B | Source | Net IRR range | Net TVPI range |
+|----------|-----|------|------|------|--------------|---------------|
+| [variable named by user] | [value] | [value] | [value] | [user-supplied / source-N locator] | [X]% to [X]% | [X]x to [X]x |
 
 ### 4.2 Identify Most Sensitive Variables
 
-Rank variables by their impact on Net IRR (highest delta to lowest):
+Order only the variables actually run by their Net IRR swing, computed with `arithmetic` from the `dated_irr` results. The ordering describes these runs only; it says nothing about which outcome is likely:
 
-| Rank | Variable | IRR Swing (Low to High) | Impact |
-|------|----------|------------------------|--------|
-| 1 | [variable] | [X]% swing | Most sensitive — small changes here have outsized impact |
-| 2 | [variable] | [X]% swing | High sensitivity |
-| 3 | [variable] | [X]% swing | Moderate sensitivity |
-| ... | ... | ... | ... |
+| Rank | Variable | IRR swing across the user's values |
+|------|----------|------------------------|
+| 1 | [variable] | [X] percentage points |
+| ... | ... | ... |
 
 ---
 
-## Phase 5: Breakeven Analysis
+## Phase 5: Breakeven (not calculated)
 
-### 5.1 LP Breakeven Calculations
+Breakeven solving (required exit multiple, hold period or write-off rate for a return target; the performance at which carry starts) is `UNCALCULATED — not supported by the packaged helper`, which has no solver. Do not estimate a breakeven by interpolation or mental arithmetic, and do not introduce return targets (for example a quartile IRR) the user did not supply.
 
-Calculate the conditions needed for the LP to achieve specific return targets:
-
-| Target | Required Exit Multiple | Required Hold Period | Required Write-Off Rate |
-|--------|----------------------|---------------------|----------------------|
-| Return of Capital (1.0x TVPI) | [X]x | [X] years | Max [X]% |
-| Preferred Return (8% IRR) | [X]x | [X] years | Max [X]% |
-| Target Return (e.g., 12% IRR) | [X]x | [X] years | Max [X]% |
-| Top Quartile (e.g., 18% IRR) | [X]x | [X] years | Max [X]% |
-
-### 5.2 GP Carry Breakeven
-
-Calculate what fund performance is needed for the GP to earn carried interest:
-
-| Metric | Breakeven Value |
-|--------|----------------|
-| Minimum Gross TVPI for carry | [X]x |
-| Minimum Gross IRR for carry | [X]% |
-| Fund must return at least | $[X]M before carry accrues |
-| At current trajectory, carry begins accruing in | Year [N] |
+If the user wants to see where an outcome changes, they may specify an explicit grid of values. Run each grid point as its own named scenario and report each point's result. State that the true threshold lies somewhere between two runs and is not calculated.
 
 ---
 
@@ -241,18 +222,14 @@ Calculate what fund performance is needed for the GP to earn carried interest:
 
 ### 6.1 Compile the Scenario Model Report
 
-Generate `SCENARIO-MODEL-[fund]-[date].md` with the following structure:
+Save with the shared helper sequence: `fund_report.py new-run --fund-name <full-legal-name> --input <source>` (repeat `--input` for each declared source, including any prior report), then `filename --family SCENARIO-MODEL --fund-name <full-legal-name> --date <YYYY-MM-DD>`, then `write-report --folder analytics` with the returned filename. Keep every `scenario`, `waterfall`, `metrics` and `dated_irr` request and workpaper as CALCULATION findings in the sidecar. The report follows this structure:
 
 ```markdown
 # Investment Scenario Model
 
-> DISCLAIMER: This scenario model is AI-generated and does not constitute
-> financial, investment, legal, or tax advice. The projections, calculations,
-> and returns modeled herein are based on assumptions that may not reflect
-> actual outcomes. Past performance does not guarantee future results. All
-> models involve significant uncertainty. Consult qualified investment
-> professionals and fund administrators for actual fund performance
-> calculations and investment decisions.
+> DISCLAIMER: This scenario model is AI-generated. The projections are
+> deterministic runs of user-specified schedules, not predictions or
+> probabilities. Not financial, legal or tax advice. Qualified human review is required.
 
 ---
 
@@ -260,43 +237,38 @@ Generate `SCENARIO-MODEL-[fund]-[date].md` with the following structure:
 
 | Parameter | Value | Source |
 |-----------|-------|--------|
-| Fund Size | $[X]M | [User input / Default] |
-| Management Fee | [X]% | [User input / Default] |
-| Carried Interest | [X]% | [User input / Default] |
-| Preferred Return | [X]% | [User input / Default] |
+| Fund Size | [amount or UNKNOWN] | [source-N locator / user-supplied] |
+| Management Fee | [X]% or UNKNOWN | [source-N locator / user-supplied] |
+| Carried Interest | [X]% or UNKNOWN | [source-N locator / user-supplied] |
+| Preferred Return | [X]% or UNKNOWN | [source-N locator / user-supplied] |
 | [continue for all parameters] | | |
 
-**Assumptions marked "Default" are industry-standard estimates and should
-be replaced with actual fund terms for accurate modeling.**
+Every parameter comes from a cited document locator or is user-supplied. A missing term stays UNKNOWN and every result that depends on it is uncalculated.
 
 ---
 
 ## Multi-Scenario Comparison
 
-| Metric | Downside | Base Case | Upside |
-|--------|----------|-----------|--------|
-| Gross TVPI | [X]x | [X]x | [X]x |
-| Net TVPI | [X]x | [X]x | [X]x |
-| DPI | [X]x | [X]x | [X]x |
-| Gross IRR | [X]% | [X]% | [X]% |
-| Net IRR | [X]% | [X]% | [X]% |
-| Total Distributions | $[X]M | $[X]M | $[X]M |
-| Carried Interest | $[X]M | $[X]M | $[X]M |
-| LP Net Profit | $[X]M | $[X]M | $[X]M |
-| Highest Waterfall Tier | Tier [N] | Tier [N] | Tier [N] |
+| Metric | [Scenario name] | [Scenario name] |
+|--------|----------|-----------|
+| Gross TVPI | [X]x or UNKNOWN | [X]x or UNKNOWN |
+| Net TVPI | [X]x | [X]x |
+| DPI | [X]x | [X]x |
+| Gross IRR | [X]% or UNKNOWN | [X]% or UNKNOWN |
+| Net IRR (basis: [horizon / since inception; with / without line]) | [X]% | [X]% |
+| Total Distributions | [amount] | [amount] |
+| Carried Interest | [amount or UNCALCULATED] | [amount or UNCALCULATED] |
+| LP Net Profit | [amount] | [amount] |
+| Highest Waterfall Tier | Tier [N] or UNCALCULATED | Tier [N] or UNCALCULATED |
 
 ---
 
 ## Scenario Details
 
-### Downside Scenario
-[Assumptions, cash flow table, detailed calculations]
+### [Scenario name as supplied by the user]
+[Assumptions with sources, period schedule, workpaper references]
 
-### Base Case Scenario
-[Assumptions, cash flow table, detailed calculations]
-
-### Upside Scenario
-[Assumptions, cash flow table, detailed calculations]
+[Repeat for each named scenario]
 
 ---
 
@@ -314,19 +286,16 @@ be replaced with actual fund terms for accurate modeling.**
 ## Sensitivity Analysis
 [Single-variable sensitivity tables from Phase 4]
 
-## Breakeven Analysis
-[LP breakeven and GP carry breakeven from Phase 5]
+## Breakeven
+UNCALCULATED — not supported by the packaged helper. [List any explicit grid runs the user requested and each run's result.]
 
 ---
 
 ## Key Findings
 
-1. **[Most important insight]** — e.g., "The fund must achieve a [X]x gross
-   multiple for LPs to earn the 8% preferred return"
-2. **[Second insight]** — e.g., "Exit timing is the most sensitive variable;
-   a 1-year delay reduces Net IRR by [X] percentage points"
-3. **[Third insight]** — e.g., "GP earns carried interest only in the Base
-   and Upside scenarios; Downside triggers clawback of $[X]M"
+1. **[Finding]** — stated as a result of the runs, with the workpaper reference, e.g. "In the user's '[scenario]' schedule, Net IRR is [X]% ([helper status])"
+2. **[Finding]** — e.g., "Across the values the user specified, [variable] moves Net IRR by [X] percentage points"
+3. **[Unsupported items]** — e.g., "Clawback and GP co-investment return are uncalculated; the waterfall is a single event"
 
 ---
 
@@ -335,18 +304,25 @@ be replaced with actual fund terms for accurate modeling.**
 1. [ ] Validate assumptions against actual portfolio data
 2. [ ] Run `/fund waterfall-review` to verify waterfall mechanics
 3. [ ] Run `/fund performance-calc` for actual (not projected) performance
-4. [ ] Model additional scenarios with fund-specific stress cases
-5. [ ] Share with investment committee for decision support
+4. [ ] Specify any additional named schedules to run
+
+## Status, limitations and data handling
+- Report status: [DRAFT / PARTIAL / BLOCKED / READY_FOR_REVIEW] — the same value as the evidence sidecar.
+- Assumptions: [list every schedule value and term with its source]
+- Limitations and checks not performed: [breakeven not calculated; unsupported waterfall features; any UNKNOWN gross series, without-line basis or missing term]
+- Data handling: the packaged helpers ran locally and made no network calls; the AI host and its model provider processed the document content; connectors used: [none / list]. Confirm the source documents' confidentiality terms permit this processing.
+
+Not financial, legal or tax advice. Qualified human review is required.
 ```
 
 ### 6.2 Present to User
 
 After generating the output:
 
-1. Confirm the file was generated: "Scenario model generated: `SCENARIO-MODEL-[fund]-[date].md`"
+1. Confirm the file was generated, using the filename `write-report` returned
 2. State the file location (absolute path)
-3. Lead with the key comparison: "Net IRR ranges from [X]% (Downside) to [X]% (Upside) with [X]% Base Case"
-4. Highlight the most sensitive variable and the breakeven finding
+3. Lead with the comparison across the user's named scenarios, e.g. "Net IRR is [X]% in '[scenario]' and [X]% in '[scenario]'", each with its basis
+4. Name the variable with the largest swing among the runs performed, and state that breakeven was not calculated
 5. List every modelling assumption, its source and unsupported calculation.
 6. Suggest: "Run `/fund waterfall-review` to validate the waterfall mechanics used in this model"
 
@@ -358,7 +334,7 @@ After generating the output:
 |-------|-----------|
 | No data provided | Ask user to provide portfolio data or fund terms; list minimum required inputs from Section 1.2 |
 | Insufficient data for IRR calculation | Calculate TVPI and DPI only; note that IRR requires dated cash flows |
-| Negative IRR in all scenarios | Report the results; this indicates the fund is unlikely to return capital under any scenario modeled |
+| Negative IRR in all scenarios | Report the results as outputs of the supplied schedules only; scenarios are not probabilities, so draw no conclusion about whether capital will be returned |
 | Conflicting assumptions | Flag the conflict (e.g., 3-year hold period but 10 years of management fees); ask user to clarify |
 | No fund terms provided | Request missing fee/carry terms; leave dependent results uncalculated |
 | Prior analysis not found | Proceed with user-provided data only; suggest running `/fund review-lpa` first for fund terms |

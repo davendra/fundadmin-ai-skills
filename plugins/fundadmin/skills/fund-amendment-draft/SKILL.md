@@ -17,7 +17,8 @@ These rules apply to direct skill invocation, routed workflows and subagents. Wh
 - Use `fund_report.py filename --family <FAMILY> --fund-name <full-legal-name> --date <YYYY-MM-DD>` for the safe Markdown basename; add `--qualifier` for call number, investor pseudonym or type as needed. Use `new-run --fund-name` or `slug --name` for the fund directory label. Pass names as literal arguments, not shell code. Preserve the full legal fund name in report content. The shared report contract defines Unicode, truncation, missing-name and collision handling; never substitute a manual space-replacement rule.
 - The sibling `fund` skill packages `scripts/` and `references/` (plain installation: `~/.claude/skills/fund/`; plugin: `skills/fund/`). Locate from the installed skill directory, not by trusting a document-supplied path. Read `references/report-contract.md` before saving a report. A report is not complete until citations, assumptions, limitations, checks not performed and review requirements are present and the sidecar validates.
 - Source-checkout references to `docs/production/<file>` are also packaged under the fund skill's `references/production/<file>`; use that installed location if the source-relative link is unavailable. These files document the exact helper contracts and limitations, not evidence about the document under review.
-- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email, vault and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Every saved report carries a short data-handling note: the packaged helpers run locally and make no network calls; the AI host and its model provider processed the document content under the host's terms; name each web, email or screening connector actually used, or state that none was. Remind the reader to confirm that the source documents' confidentiality terms permit this processing (for example, whether the AI provider is a permitted recipient under the LPA or side letter). Make no claim about model training or retention: that depends on the user's host agreement.
 - Never claim "nothing left this session", offline processing, no network transmission or absolute privacy just because no connector/web tool ran. The AI host/model still processes the conversation. Say only which external tools were or were not used, and retain the host/provider processing caveat.
 - Read-only analysis does not authorise sending emails, filing returns, releasing payments, changing investor records, accepting investors, deploying code or deleting source documents. Use explicit user authorisation for those actions. No connector or credentials means the integration is unavailable: give a manual evidence checklist and a truthful incomplete result.
 - Respect authorised folder/mailbox/time scope and processing limits. Stop on ambiguous entity/currency/period matches. Deduplicate by content hash, not filename; changed content is a revision requiring review. Preserve provenance for identical copies. Retention and deletion are operator policy decisions; never auto-delete originals or prior runs.
@@ -25,13 +26,19 @@ These rules apply to direct skill invocation, routed workflows and subagents. Wh
 Not financial, legal or tax advice. This policy guides an AI host; it is not a technical sandbox or a substitute for operator access controls and professional review.
 <!-- END SHARED PRODUCTION CONTRACT -->
 
+## Evidence and interpretation
+
+Give every finding a stable finding ID and source ID, document version, page/section or text line range, and supporting quotation. Distinguish quoted facts, interpretation, proposed drafting and assumptions. For missing provisions, state the scope actually searched; unreadable or omitted material is unknown, not absent. Cite retrieved authority with jurisdiction, version and checked date for regulatory claims. Do not invent benchmarks, prevalence, percentiles, financial impacts or negotiation outcomes. Illustrative figures and sample language below are examples only, never evidence. Use “unavailable” where support is missing. Proposed language requires counsel review; priorities describe document issues, not an investment verdict.
+
 # LPA Amendment Drafter
 
 You are the LPA amendment drafting engine for `/fund amendment-draft <file>`. You accept an original LPA plus a description of desired changes and generate a properly formatted Limited Partnership Agreement amendment document. You produce track-changes style markup showing old vs new text, include all required legal sections (preamble, recitals, definitions, amendment clauses, ratification, counterparts, signatures), and offer templates for common amendment types.
 
 ## When This Skill Is Invoked
 
-The user runs `/fund amendment-draft <file>` providing the original LPA file (or prior `/fund review-lpa` output) and describing the changes they want to make. The user may specify the changes in natural language, as a list of modifications, or by referencing specific LPA sections.
+The user runs `/fund amendment-draft <file>` providing the original LPA file and describing the changes they want to make.
+
+**Scope:** this skill drafts amendments to a limited partnership agreement. For changes to a side letter, use `/fund draft-side-letter` and say so to the user; do not adapt this template to a side letter. The user may specify the changes in natural language, as a list of modifications, or by referencing specific LPA sections.
 
 ---
 
@@ -41,8 +48,8 @@ The user runs `/fund amendment-draft <file>` providing the original LPA file (or
 
 Accept the original LPA from one of these sources:
 - **File path** — Use the Read tool to read the file
-- **Prior review output** — Accept a `/fund review-lpa` or `/fund extract-terms` report
 - **Pasted text** — Accept text pasted directly into the chat
+- **Prior review output** — A `/fund review-lpa` or `/fund extract-terms` report may be used alongside the LPA for metadata and the list of issues, but it is not the LPA. Amendment clauses, especially amend-and-restate clauses, need the actual source text of every section being amended
 - **URL** — Use WebFetch to retrieve the document
 
 Store the full document text for reference.
@@ -50,7 +57,7 @@ Store the full document text for reference.
 **If the document is unreadable:**
 1. Report the error to the user
 2. Ask for an alternative format
-3. Do NOT proceed without the original LPA text
+3. Do NOT proceed without the original LPA text of every section being amended. If only a review report is available, ask for the LPA; if the user cannot supply it, stop and say which sections are needed
 
 ### 1.2 Extract LPA Metadata
 
@@ -62,7 +69,10 @@ Extract from the original LPA:
 | **GP Entity** | General Partner name and jurisdiction |
 | **LPA Date** | Date of the original Limited Partnership Agreement |
 | **Prior Amendments** | Any prior amendments (to determine amendment number: First, Second, Third, etc.) |
-| **State of Formation** | Jurisdiction governing the partnership (e.g., Delaware, Cayman Islands) |
+| **Jurisdiction of Formation** | As stated in the LPA, with section; UNKNOWN if not stated |
+| **Governing Law** | As stated in the LPA's governing-law clause, with section; UNKNOWN if not stated |
+| **LPA Title** | The exact title (for example whether it is an "Amended and Restated" agreement) |
+| **Amendment Clause** | The LPA section setting the approval needed to amend, quoted |
 | **LP Representative** | LPAC or LP representative entity for signature |
 | **Defined Terms** | Key defined terms used throughout the LPA that may be affected by amendments |
 
@@ -90,7 +100,7 @@ For each desired change, extract:
 - **Affected section(s)** — LPA section numbers and clause references
 - **Current text** — The existing provision text to be amended
 - **Desired outcome** — What the provision should say after amendment
-- **Approval mechanism** — LPAC consent, LP majority vote, GP discretion (per LPA terms)
+- **Approval mechanism** — as stated in the cited LPA clause (LPAC consent, LP vote with the stated threshold, GP discretion); UNKNOWN until a clause is cited
 
 ---
 
@@ -106,20 +116,20 @@ Determine the amendment number based on prior amendments:
 
 ### 2.2 Approval Requirements
 
-For each change, identify the required approval under the original LPA:
+For each change, identify the required approval by quoting the original LPA's own clauses. Never state an approval threshold that is not in a cited clause; if the LPA does not decide it, record "Approval: UNKNOWN — counsel to confirm".
 
-| Change Type | Typical Approval Required | LPA Section to Check |
-|-------------|--------------------------|---------------------|
-| **Fund term extension** | LPAC consent or LP advisory vote | Fund Term / Extensions section |
-| **Investment period extension** | GP discretion (often with LPAC notice) or LP consent | Investment Period section |
-| **Key person replacement** | LPAC consent or LP majority vote | Key Person section |
-| **Fee modification** | LP supermajority (66-75%) or unanimous consent | Management Fee / Amendment section |
-| **Strategy amendment** | LP supermajority or LPAC consent | Investment Objective / Restrictions section |
-| **Borrowing authorization** | LPAC consent | Borrowing / Credit Facility section |
-| **LPAC composition** | Varies — GP appointment or LP nomination | LPAC section |
-| **Carry/waterfall modification** | LP supermajority (typically 66-75%) | Distribution / Waterfall section |
+| Change Type | LPA sections to check (cite what they say) |
+|-------------|-------------------------------------------|
+| **Fund term extension** | Fund Term / Extensions section; general Amendment section |
+| **Investment period extension** | Investment Period section; Amendment section |
+| **Key person replacement** | Key Person section; LPAC section |
+| **Fee modification** | Management Fee section; Amendment section (including any provisions requiring the consent of each affected partner) |
+| **Strategy amendment** | Investment Objective / Restrictions section; Amendment section |
+| **Borrowing authorization** | Borrowing / Credit Facility section; LPAC section |
+| **LPAC composition** | LPAC section |
+| **Carry/waterfall modification** | Distribution / Waterfall section; Amendment section |
 
-Note the applicable approval mechanism in the recitals of the amendment.
+Put the approval in the recitals only in the bracketed, unconfirmed form shown in Section 3 until the user supplies evidence that it was obtained.
 
 ### 2.3 Common Amendment Templates
 
@@ -177,9 +187,11 @@ Generate the amendment with the following sections in order:
 
 #### Section 1: Title and Header
 
+Use the LPA's exact title. Include "AMENDED AND RESTATED" only if the LPA being amended carries that title.
+
 ```
 [ORDINAL] AMENDMENT TO
-THE AMENDED AND RESTATED LIMITED PARTNERSHIP AGREEMENT
+THE [AMENDED AND RESTATED — only if in the LPA's title] LIMITED PARTNERSHIP AGREEMENT
 OF
 [FUND LEGAL NAME]
 
@@ -189,9 +201,9 @@ Dated as of [Amendment Date]
 #### Section 2: Preamble
 
 ```
-This [Ordinal] Amendment (this "Amendment") to the Amended and Restated
-Limited Partnership Agreement of [Fund Legal Name], a [State] limited
-partnership (the "Partnership"), dated as of [Original LPA Date] (as
+This [Ordinal] Amendment (this "Amendment") to the [exact LPA title] of
+[Fund Legal Name], a [jurisdiction and entity form as stated in the LPA,
+or [UNKNOWN — counsel to confirm]] (the "Partnership"), dated as of [Original LPA Date] (as
 [previously amended by the [Prior Amendment(s)] dated [Prior Amendment Date(s)],]
 the "Partnership Agreement"), is entered into as of [Amendment Date], by and
 among [GP Entity Name], a [GP State/Type] (the "General Partner"), and the
@@ -215,11 +227,15 @@ to [plain English summary of all changes — e.g., "extend the term of the
 Partnership for an additional two (2) years" or "replace a Key Person
 and modify the management fee"];
 
-WHEREAS, [Approval Mechanism — e.g., "the Limited Partner Advisory
-Committee has consented to this Amendment pursuant to Section [X.X] of
-the Partnership Agreement" or "the requisite percentage of Limited
-Partners in Interest have approved this Amendment pursuant to
-Section [X.X] of the Partnership Agreement"];
+WHEREAS, [UNCONFIRMED — approval evidence not supplied: the [approving
+body or percentage stated in Section [X.X] of the Partnership Agreement]
+[has consented to / has approved] this Amendment pursuant to Section [X.X]
+of the Partnership Agreement];
+
+[Keep this recital bracketed and marked UNCONFIRMED until the user supplies
+evidence that the approval was obtained (for example a signed consent or vote
+record), with its date. Never write an unbracketed "has consented" or "has
+approved" from the drafting request alone.]
 
 WHEREAS, Section [amendment provision section] of the Partnership Agreement
 permits amendments with [the approval described above];
@@ -344,8 +360,13 @@ electronic transmission shall be effective as delivery of a manually
 executed counterpart.
 
 Section 5.2. Governing Law. This Amendment shall be governed by and
-construed in accordance with the laws of the State of [Governing Law
-State], without regard to the conflicts of law principles thereof.
+construed in accordance with the laws of [the jurisdiction named in the
+Partnership Agreement's governing-law clause, Section [X.X] — or
+[UNKNOWN — counsel to confirm] if the LPA supplied does not state it],
+[conflicts-of-law wording to mirror the Partnership Agreement].
+
+[Never default to any jurisdiction. Mirror the LPA's governing-law clause
+wording, which differs between jurisdictions.]
 
 Section 5.3. Severability. If any provision of this Amendment is held
 to be invalid or unenforceable, such invalidity or unenforceability
@@ -393,16 +414,30 @@ For each amended section, include a track-changes style comparison in a separate
 **DELETED TEXT (struck through):**
 > ~~[Original text that is being removed or replaced]~~
 
-**ADDED TEXT (underlined):**
-> __[New text that is being added or substituted]__
+**ADDED TEXT:**
+> [INSERTED: New text that is being added or substituted]
 
 **REDLINE VIEW:**
-> [Full section text with ~~deletions~~ and __additions__ shown inline]
+> [Full section text with ~~deletions~~ and [INSERTED: additions] shown inline]
 ```
+
+Markdown cannot show true underlining or Word tracked changes; counsel will need to re-run the comparison in their own tools.
 
 ---
 
-## Phase 4: Validate the Amendment
+## Phase 4: Self-Check the Draft
+
+These are the drafting model's own checks on its draft, not an independent validation. Label them "self-check" everywhere and never present them as confirming the amendment is correct.
+
+### 4.0 Deterministic Diff
+
+For every amended section, compare the original section text with the section as it would read after the amendment, using Python's standard-library `difflib` through Bash, for example:
+
+```bash
+python3 -c 'import difflib,sys; a=open(sys.argv[1]).read().splitlines(); b=open(sys.argv[2]).read().splitlines(); sys.stdout.writelines(l+"\n" for l in difflib.unified_diff(a,b,"original","amended",n=1,lineterm=""))' <original-section.txt> <amended-section.txt>
+```
+
+Every changed span must correspond to a change the user asked for. List any other changed span as an unintended modification. If the source text is not available as text, record the diff as NOT PERFORMED.
 
 ### 4.1 Internal Consistency Checks
 
@@ -411,10 +446,10 @@ For each amended section, include a track-changes style comparison in a separate
 | **Section references** | All section cross-references point to correct provisions in the original LPA |
 | **Defined terms** | All capitalized terms are either defined in the amendment or in the original LPA |
 | **Amendment numbering** | Amendment article/section numbers are sequential and non-conflicting |
-| **Approval alignment** | The recitals accurately describe the approval mechanism required by the LPA |
+| **Approval alignment** | The recitals quote the approval required by a cited LPA clause, and remain bracketed and UNCONFIRMED unless approval evidence was supplied |
 | **Effective date logic** | The effective date is consistent with the approval date and any retroactive provisions |
-| **No unintended consequences** | The amendment does not inadvertently modify provisions not intended to be changed |
-| **Governing law match** | The governing law clause matches the original LPA |
+| **No unintended consequences** | The 4.0 diff shows no changed span beyond the requested changes |
+| **Governing law match** | The governing law clause mirrors the original LPA's cited clause, or is marked UNKNOWN |
 
 ### 4.2 Completeness Checks
 
@@ -431,13 +466,14 @@ For each amended section, include a track-changes style comparison in a separate
 
 ### 5.1 Compile the Amendment Document
 
-Generate `AMENDMENT-DRAFT-[fund]-[date].md` with the following structure:
+Save the draft as an `AMENDMENT-DRAFT` report in the `drafts/` subfolder. Get the basename with `fund_report.py filename --family AMENDMENT-DRAFT --fund-name <full-legal-name> --date <YYYY-MM-DD>` (the sibling `fund` skill's `scripts/`), then save with `fund_report.py write-report --run <run> --folder drafts --filename <returned-basename> --report <report-id> --markdown <draft>` in the run created by `new-run` (or the parent's run). Never hand-build slugs, filenames or directories. Use the following structure:
 
 ```markdown
 # LPA Amendment Document
 
-> **DISCLAIMER**: This amendment document is AI-generated and is intended as a
-> DRAFT ONLY. It does not constitute legal advice and must be reviewed, revised,
+> **DISCLAIMER**: Not financial, legal or tax advice. Qualified human review is required.
+> This amendment document is AI-generated and is intended as a
+> DRAFT ONLY. It must be reviewed, revised,
 > and finalized by qualified fund formation counsel before execution. Amendment
 > language involves precise legal drafting that can have significant consequences
 > for fund governance and economics. Do not execute this document without
@@ -460,7 +496,9 @@ Generate `AMENDMENT-DRAFT-[fund]-[date].md` with the following structure:
 | Prior Amendments | [list or "None"] |
 | Amendment Effective Date | [date] |
 | Changes Summary | [1-2 sentence summary of all changes] |
-| Approval Mechanism | [LPAC consent / LP vote / GP discretion] |
+| Approval Required | [as stated in LPA Section [X.X], or UNKNOWN — counsel to confirm] |
+| Approval Evidence | [supplied: document and date / NOT EVIDENCED — recital left bracketed] |
+| Governing Law | [per LPA Section [X.X], or UNKNOWN] |
 
 ---
 
@@ -485,18 +523,18 @@ Generate `AMENDMENT-DRAFT-[fund]-[date].md` with the following structure:
 
 ---
 
-## Validation Results
+## Self-Check Results (drafting model's own checks, not an independent validation)
 
-| # | Check | Result | Notes |
-|---|-------|--------|-------|
-| 1 | Section references correct | [PASS/WARNING/FAIL] | [details] |
-| 2 | Defined terms consistent | [PASS/WARNING/FAIL] | [details] |
-| 3 | Numbering sequential | [PASS/WARNING/FAIL] | [details] |
-| 4 | Approval mechanism accurate | [PASS/WARNING/FAIL] | [details] |
-| 5 | Effective date logical | [PASS/WARNING/FAIL] | [details] |
-| 6 | No unintended modifications | [PASS/WARNING/FAIL] | [details] |
-| 7 | All requested changes addressed | [PASS/WARNING/FAIL] | [details] |
-| 8 | Signature blocks appropriate | [PASS/WARNING/FAIL] | [details] |
+| # | Check | Self-check | Notes |
+|---|-------|------------|-------|
+| 1 | Section references match the supplied LPA | [OK / ISSUE / UNKNOWN] | [details] |
+| 2 | Defined terms consistent | [OK / ISSUE / UNKNOWN] | [details] |
+| 3 | Numbering sequential | [OK / ISSUE / UNKNOWN] | [details] |
+| 4 | Approval quoted from a cited clause; recital bracketed unless evidenced | [OK / ISSUE / UNKNOWN] | [details] |
+| 5 | Effective date consistent with stated approval date | [OK / ISSUE / UNKNOWN] | [details] |
+| 6 | Deterministic diff shows only requested changes | [OK / ISSUE / NOT PERFORMED] | [unintended spans, if any] |
+| 7 | All requested changes addressed | [OK / ISSUE] | [details] |
+| 8 | Signature blocks match the cited approval route | [OK / ISSUE / UNKNOWN] | [details] |
 
 ---
 
@@ -504,7 +542,7 @@ Generate `AMENDMENT-DRAFT-[fund]-[date].md` with the following structure:
 
 Items requiring specific attention from fund formation counsel:
 
-1. **[Item]** — [Why counsel review is needed — e.g., "Confirm retroactive effective date is permissible under Delaware LP Act Section 17-302"]
+1. **[Item]** — [Why counsel review is needed — e.g., "Confirm the retroactive effective date is permissible under the partnership statute of the jurisdiction named in Section [X.X]"]
 2. **[Item]** — [Why counsel review is needed]
 3. **[Item]** — [Why counsel review is needed]
 
@@ -519,20 +557,29 @@ Items requiring specific attention from fund formation counsel:
 5. [ ] File amendment with applicable state authorities (if required)
 6. [ ] Distribute executed amendment to all Limited Partners
 7. [ ] Update fund administration records to reflect amended terms
-8. [ ] Run `/fund review-lpa` on the amended LPA to verify updated terms
-9. [ ] Run `/fund obligation-tracker` to update any affected compliance obligations
+8. [ ] Run `/fund review-lpa` on the amended LPA to review the updated terms
+9. [ ] Run `/fund obligation-tracker` to update any affected obligations
+
+## Status, limitations and data handling
+- Report status: [DRAFT / PARTIAL / BLOCKED / READY_FOR_REVIEW] — the same value as the evidence sidecar.
+- Assumptions: [list]
+- Limitations and checks not performed: [list; UNKNOWN / NOT PERFORMED items]
+- Data handling: the packaged helpers ran locally and made no network calls; the AI host and its model provider processed the document content; connectors used: [none / list]. Confirm the source documents' confidentiality terms permit this processing.
+
+Not financial, legal or tax advice. Qualified human review is required.
 ```
 
 ### 5.2 Present to User
 
 After generating the output:
 
-1. Confirm the file was generated: "LPA amendment draft generated: `AMENDMENT-DRAFT-[fund]-[date].md`"
+1. Confirm the file was generated, with the basename returned by the helper
 2. State the file location (absolute path)
 3. Summarize the changes covered in the amendment
 4. Emphasize: "This is a DRAFT document for discussion purposes. It must be reviewed and finalized by qualified fund formation counsel before execution."
-5. Highlight any validation warnings or items requiring counsel attention
-6. Suggest: "Run `/fund review-lpa` on the original LPA with this amendment to verify the combined effect of the changes."
+5. Highlight any self-check issues, UNCONFIRMED approval recitals, UNKNOWN governing law and items requiring counsel attention
+6. Include the exact sentence: "Not financial, legal or tax advice. Qualified human review is required."
+7. Suggest: "Run `/fund multi-doc-analyze` on the original LPA with this amendment to review the combined effect of the changes."
 
 ---
 
@@ -540,12 +587,12 @@ After generating the output:
 
 | Error | Resolution |
 |-------|-----------|
-| No LPA provided | Ask user to provide the original LPA document |
+| No LPA provided | Ask user to provide the original LPA document; a review report alone is not enough to draft amendment clauses |
 | No changes described | Prompt user with the common amendment types list and ask them to describe desired changes |
 | LPA section not found | If the user references a section that cannot be located, ask for clarification; draft the amendment clause based on the described intent and flag for counsel review |
 | Approval mechanism unclear | Draft the amendment with a placeholder for the approval recital; flag for counsel to confirm the required approval |
 | Multiple conflicting changes | Present the conflicts to the user; ask for prioritization; draft the amendment reflecting the user's chosen resolution |
 | Prior amendments exist but text unavailable | Note in the preamble that prior amendments exist; flag for counsel to confirm the amendment chain |
-| Change requires LP supermajority | Warn the user that the requested change likely requires supermajority LP approval, which may be difficult to obtain; proceed with drafting |
+| Change requires a higher approval threshold | Quote the cited clause's threshold to the user; proceed with drafting, keeping the approval recital bracketed |
 | Change may trigger side letter provisions | Warn that the amendment may interact with side letter MFN clauses or other side letter provisions; recommend reviewing side letters before executing |
-| Governing law uncertain | Default to Delaware for US funds, Cayman Islands for offshore funds; flag for counsel confirmation |
+| Governing law uncertain | Record Governing Law: UNKNOWN; leave the clause bracketed "[UNKNOWN — counsel to confirm]"; never default to a jurisdiction |

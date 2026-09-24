@@ -16,7 +16,7 @@ PLUGIN = ROOT / "plugins" / "fundadmin"
 SKILLS = PLUGIN / "skills"
 AGENTS = PLUGIN / "agents"
 FRONTMATTER = re.compile(r"\A---\n(.*?)\n---\n", re.S)
-EXPECTED_SKILLS = 62
+EXPECTED_SKILLS = 60
 EXPECTED_AGENTS = 5
 DISCLAIMER_RE = re.compile(r"\bnot\b[\s\S]{0,160}\badvice\b", re.I)
 STALE_FAMILIES = [
@@ -214,7 +214,7 @@ class BodyContractTests(unittest.TestCase):
         texts = self.texts()
         combined = "\n".join(texts.values())
         # The orchestrator describes Obsidian [[fund-name]] wikilinks, so the
-        # placeholder rule applies to the 62 sub-skills only (as in the source repo).
+        # placeholder rule applies to the 60 sub-skills only (as in the source repo).
         sub_skills = "\n".join(v for k, v in texts.items() if k != "fund")
         for token in STALE_FAMILIES:
             with self.subTest(token=token):
@@ -342,7 +342,7 @@ class SkillAutoTriggerContractTests(unittest.TestCase):
         self.assertIn("Skill tool", desc)
         self.assertRegex(desc, r"(?i)BEFORE answering")
         self.assertRegex(desc, r"(?i)incorrect")
-        self.assertIn("62", desc)
+        self.assertIn("60", desc)
         for token in ("review-lpa", "review-capital-call", "draft-capital-call", "report-pdf"):
             self.assertIn(token, desc, f"menu grader token missing from description: {token}")
         self.assertIn("wire-verify", desc)
@@ -356,7 +356,7 @@ class SkillAutoTriggerContractTests(unittest.TestCase):
         self.assertGreaterEqual(menu_idx, 0)
         available = body[menu_idx:]
         skill_req_idx = available.lower().find("skill tool")
-        menu_block_idx = available.find("AI Fund Administration Assistant — 62 Commands")
+        menu_block_idx = available.find("AI Fund Administration Assistant — 60 Commands")
         self.assertGreaterEqual(skill_req_idx, 0, "Available Commands must require Skill tool")
         self.assertLess(
             skill_req_idx,
@@ -366,7 +366,7 @@ class SkillAutoTriggerContractTests(unittest.TestCase):
         self.assertRegex(available, r"(?i)MUST have invoked the Skill tool")
         self.assertRegex(available, r"(?i)Do not reconstruct the menu from memory")
         self.assertRegex(available, r"(?i)incorrect")
-        self.assertRegex(body, r"\b62\b")
+        self.assertRegex(body, r"\b60\b")
         self.assertRegex(
             body,
             r"review-lpa[\s\S]*review-capital-call[\s\S]*draft-capital-call[\s\S]*report-pdf",

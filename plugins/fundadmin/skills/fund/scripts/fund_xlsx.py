@@ -34,7 +34,9 @@ MAX_ROWS = 100_000
 MAX_TEXT = 32_767  # Excel's per-cell limit
 RESERVED_SHEET = 'Notes'
 DISCLAIMER = ('AI-generated draft for human review. Not financial, legal, tax or investment advice. '
-              'Figures come from the companion Markdown report, which remains the record.')
+              'Figures come from the companion Markdown report, which remains the record. '
+              'Source documents were processed by the AI host and its model provider; confirm their '
+              'confidentiality terms permit that processing.')
 FORMULA_PREFIXES = ('=', '+', '-', '@', '\t', '\r')
 
 

@@ -1,10 +1,22 @@
 # KYC / AML Completeness Checklist
 
 <!--
-Know Your Customer / Anti-Money Laundering Document Verification Checklist
-For use with investor onboarding in PE, VC, RE, Credit, Hedge, and Fund of Funds structures.
-Reference: FinCEN CDD Rule (31 CFR 1010.230), FATCA, CRS, EU AMLD 5/6
+Know Your Customer / Anti-Money Laundering document checklist, used by /fund kyc-review.
+For investor onboarding in PE, VC, RE, Credit, Hedge, and Fund of Funds structures.
+States, completeness, tax-form validity and the disposition come from
+scripts/fund_kyc.py evaluate (see docs/production/kyc.md); do not compute them by hand.
+Requirement bases come from the firm's validated rules grid and applicable law
+(e.g. FinCEN CDD Rule, 31 CFR 1010.230; FATCA; CRS; EU AML rules), never from this template.
+Personal data: pseudonymous references only (LP-001, bo-1, ctl-1); ID, tax and account
+numbers masked to the last four; no residential addresses, personal emails, full dates
+of birth or signatures.
 -->
+
+---
+
+**Disposition:** [ESCALATE FOR EDD / REQUEST DOCUMENTS / HOLD / PRELIMINARY READY FOR HUMAN REVIEW] (from `fund_kyc.py evaluate`; routes work to a person, never an admission, rejection or clearance)
+
+**Readiness:** [HOLD / ESCALATE / PRELIMINARY READY FOR HUMAN REVIEW] | **Document completeness:** [received/required (pct%) from the helper, or NOT CALCULABLE]
 
 ---
 
@@ -12,208 +24,176 @@ Reference: FinCEN CDD Rule (31 CFR 1010.230), FATCA, CRS, EU AMLD 5/6
 
 | Field | Value |
 |-------|-------|
-| **Investor Legal Name** | [Full legal name as it appears on formation documents] |
-| **Entity Type** | [Individual / Corporation / LLC / LP / Trust / Foundation / Sovereign Wealth Fund / Pension Fund / Fund of Funds / Insurance Company / Other: ___] |
-| **Jurisdiction of Formation** | [State / Country where entity was formed or individual is domiciled] |
-| **Principal Place of Business** | [Address] |
-| **Date of Formation / DOB** | [YYYY-MM-DD] |
-| **Tax Identification Number** | [EIN / SSN / Foreign TIN: ___] |
-| **GIIN (FATCA)** | [Global Intermediary Identification Number, if applicable] |
-| **LEI (Legal Entity Identifier)** | [LEI, if applicable] |
-| **CRS Classification** | [Active NFE / Passive NFE / Financial Institution / Other: ___] |
-| **FATCA Classification** | [US Person / Participating FFI / Non-Participating FFI / Exempt Beneficial Owner / NFFE / Other: ___] |
-| **Regulated Entity** | [Yes / No — If yes: Regulator name, registration number] |
+| **Investor Reference** | [Pseudonymous ID, e.g. LP-001 / investor-07; never the legal name] |
+| **Applicant Type** | [individual / corporate / partnership / trust / fund / pension / foundation_endowment / sovereign / nominee_intermediary / other, as in the KYC record schema] |
+| **Jurisdiction of Formation / Nationality** | [ISO country code, or UNKNOWN] |
+| **Legal Name Present in a Primary Document** | [YES / NO — source locator] |
+| **Registration or ID Number Present** | [YES / NO — masked, last four only: ****1234 — source locator] |
+| **Date of Formation** | [YYYY-MM-DD, entities only; no dates of birth] |
+| **Tax Identification Number** | [Masked, last four only: ****1234] |
+| **GIIN (FATCA)** | [If applicable] |
+| **LEI (Legal Entity Identifier)** | [If applicable] |
+| **CRS Classification** | [From /fund fatca-crs-classify, or UNKNOWN] |
+| **FATCA Classification** | [From /fund fatca-crs-classify, or UNKNOWN] |
+| **Regulated Entity** | [Yes / No / UNKNOWN — if yes: regulator and source locator] |
 
 ---
 
 ## Beneficial Ownership Information
 
-<!-- Required under FinCEN CDD Rule for all legal entity customers. Identify all individuals who own 25%+ or exercise significant control. -->
+<!-- Threshold and control test come from the applicable rule and the firm's grid (ubo_threshold_pct). FinCEN CDD, where it applies, also requires one control person even when threshold owners exist. Where a chain stops at an entity, record the entity; do not invent the people behind it. -->
 
-### Beneficial Owners (25%+ Equity Interest)
+### Beneficial Owners (at or above the applicable threshold, or percentage unknown)
 
-| # | Full Legal Name | Date of Birth | Nationality | Residential Address | Ownership % | ID Document |
-|---|----------------|---------------|-------------|--------------------|-----------:|-------------|
-| 1 | [Name] | [DOB] | [Nationality] | [Address] | [X]% | [Type & Number] |
-| 2 | [Name] | [DOB] | [Nationality] | [Address] | [X]% | [Type & Number] |
-| 3 | [Name] | [DOB] | [Nationality] | [Address] | [X]% | [Type & Number] |
-| 4 | [Name] | [DOB] | [Nationality] | [Address] | [X]% | [Type & Number] |
+| # | Owner Ref | Natural Person | Jurisdiction | Ownership % (look-through) | Chain Depth | ID Document Type | ID Number (last four) | Screening | Source |
+|---|-----------|----------------|--------------|---------------------------:|------------:|------------------|-----------------------|-----------|--------|
+| 1 | [bo-1] | [Y/N] | [code] | [X]% or UNKNOWN | [n] | [type] | [****1234] | [NO MATCH REPORTED / POTENTIAL MATCH / INCOMPLETE / NOT PERFORMED] | [source-N p.x] |
+| 2 | [bo-2] | [Y/N] | [code] | [X]% or UNKNOWN | [n] | [type] | [****1234] | [state] | [source-N p.x] |
 
-### Control Person (Individual with Significant Managerial Control)
+### Controllers (directors, trustees, general partners, authorised signatories)
 
-| Field | Value |
-|-------|-------|
-| **Name** | [Full legal name of individual exercising control — e.g., CEO, Managing Member, Trustee] |
-| **Title** | [Title / Role] |
-| **Date of Birth** | [DOB] |
-| **Nationality** | [Nationality] |
-| **Residential Address** | [Address] |
-| **ID Document** | [Type & Number] |
+| # | Controller Ref | Role | Jurisdiction | ID Document Type | ID Number (last four) | Screening | Source |
+|---|----------------|------|--------------|------------------|-----------------------|-----------|--------|
+| 1 | [ctl-1] | [role] | [code] | [type] | [****1234] | [state] | [source-N p.x] |
 
 ---
 
 ## Document Checklist
 
-<!-- Mark each document as Required (based on entity type), Received, and Verified. -->
+<!-- State uses the helper's vocabulary: MISSING / INCOMPLETE / EXPIRED / EXPIRING / RECEIVED, or N/A WITH BASIS when the grid does not require the item. Verification is separate and defaults to NOT PERFORMED; VERIFIED WITH EVIDENCE only with supplied evidence of who verified what and when. A readable copy is not verification. -->
 
 ### Identity and Formation Documents
 
-| # | Document Type | Required | Received | Verified | Expiry Date | Notes |
-|---|--------------|----------|----------|----------|-------------|-------|
-| 1 | **Government-Issued Photo ID** (for individuals / beneficial owners) | [Y/N] | [ ] | [ ] | [date] | [Passport / Driver's License / National ID — must be current and unexpired] |
-| 2 | **Proof of Residential Address** (for individuals / beneficial owners) | [Y/N] | [ ] | [ ] | N/A | [Utility bill, bank statement, or government correspondence dated within 3 months] |
-| 3 | **Certificate of Incorporation / Formation** | [Y/N] | [ ] | [ ] | N/A | [Certified copy of formation document from jurisdiction of organization] |
-| 4 | **Certificate of Good Standing** | [Y/N] | [ ] | [ ] | N/A | [Dated within 6 months. Required for US entities.] |
-| 5 | **Operating Agreement / Partnership Agreement / Trust Agreement / Bylaws** | [Y/N] | [ ] | [ ] | N/A | [Governing document showing authority, ownership structure, and control] |
-| 6 | **Beneficial Ownership Declaration** | [Y/N] | [ ] | [ ] | N/A | [Certified declaration identifying all 25%+ owners and control person] |
-| 7 | **Authorized Signatory List / Board Resolution** | [Y/N] | [ ] | [ ] | N/A | [Document authorizing specific individuals to sign on behalf of the entity] |
-| 8 | **Power of Attorney** (if signing via agent) | [Y/N] | [ ] | [ ] | [date] | [Notarized POA, if someone other than an authorized signatory is executing documents] |
-| 9 | **Organizational Chart** | [Y/N] | [ ] | [ ] | N/A | [Structure chart showing ownership chain to ultimate beneficial owners] |
+| # | Document Type | Requirement Basis | State | Verification | Expiry Date | Source | Notes |
+|---|--------------|-------------------|-------|--------------|-------------|--------|-------|
+| 1 | **Government-Issued Photo ID** (individuals / owners / controllers) | [law / contract / policy (grid name, date) / UNKNOWN] | [state] | [NOT PERFORMED] | [date] | [locator] | [An expired ID for an already verified investor is handled by the grid's document_expired rule] |
+| 2 | **Proof of Address** (individuals) | [basis] | [state] | [NOT PERFORMED] | N/A | [locator] | [Age limit per the firm's policy] |
+| 3 | **Certificate of Incorporation / Formation** | [basis] | [state] | [NOT PERFORMED] | N/A | [locator] | |
+| 4 | **Certificate of Good Standing** | [basis] | [state] | [NOT PERFORMED] | N/A | [locator] | [Age limit per the firm's policy] |
+| 5 | **Operating / Partnership / Trust Agreement / Bylaws** | [basis] | [state] | [NOT PERFORMED] | N/A | [locator] | |
+| 6 | **Beneficial Ownership Declaration** | [basis] | [state] | [NOT PERFORMED] | N/A | [locator] | [From the investor; US-formed entities no longer file BOI reports with FinCEN (final rule effective 14 Aug 2026)] |
+| 7 | **Authorised Signatory List / Board Resolution** | [basis] | [state] | [NOT PERFORMED] | N/A | [locator] | |
+| 8 | **Power of Attorney** (if signing via agent) | [basis] | [state] | [NOT PERFORMED] | [date] | [locator] | |
+| 9 | **Ownership Chart** | [basis] | [state] | [NOT PERFORMED] | N/A | [locator] | |
 
 ### Tax Documents
 
-| # | Document Type | Required | Received | Verified | Expiry Date | Notes |
-|---|--------------|----------|----------|----------|-------------|-------|
-| 10 | **IRS Form W-9** (US persons) | [Y/N] | [ ] | [ ] | N/A | [Certification of US taxpayer status and TIN] |
-| 11 | **IRS Form W-8BEN** (non-US individuals) | [Y/N] | [ ] | [ ] | [3 years from signing] | [Certificate of foreign status — claim treaty benefits if applicable] |
-| 12 | **IRS Form W-8BEN-E** (non-US entities) | [Y/N] | [ ] | [ ] | [3 years from signing] | [Certificate of foreign status — FATCA classification, treaty benefits] |
-| 13 | **IRS Form W-8IMY** (intermediaries / flow-through entities) | [Y/N] | [ ] | [ ] | [3 years from signing] | [For partnerships, trusts, or intermediaries passing through to underlying beneficial owners] |
-| 14 | **CRS Self-Certification** (non-US entities) | [Y/N] | [ ] | [ ] | N/A | [Common Reporting Standard entity self-certification for tax residency] |
-| 15 | **CRS Individual Self-Certification** (non-US individuals) | [Y/N] | [ ] | [ ] | N/A | [Individual tax residency self-certification] |
+| # | Document Type | Requirement Basis | State | Verification | Valid Until | Source | Notes |
+|---|--------------|-------------------|-------|--------------|-------------|--------|-------|
+| 10 | **IRS Form W-9** (US persons) | [basis] | [state] | [NOT PERFORMED] | N/A | [locator] | [No routine expiry; changes in circumstances apply] |
+| 11 | **IRS Form W-8BEN** (non-US individuals) | [basis] | [state] | [NOT PERFORMED] | [helper valid_until] | [locator] | [General rule: 31 December of the third succeeding calendar year after signature, subject to exceptions] |
+| 12 | **IRS Form W-8BEN-E** (non-US entities) | [basis] | [state] | [NOT PERFORMED] | [helper valid_until] | [locator] | [Same general rule as W-8BEN] |
+| 13 | **IRS Form W-8IMY** (intermediaries / flow-through entities) | [basis] | [state] | [NOT PERFORMED] | N/A | [locator] | [No routine expiry in the helper; withholding statements and changes in circumstances need review] |
+| 14 | **CRS Self-Certification** | [basis] | [state] | [NOT PERFORMED] | N/A | [locator] | [Individual or entity form, per /fund fatca-crs-classify] |
 
 ### Investor Qualification Documents
 
-| # | Document Type | Required | Received | Verified | Expiry Date | Notes |
-|---|--------------|----------|----------|----------|-------------|-------|
-| 16 | **Accredited Investor Verification** | [Y/N] | [ ] | [ ] | [5 years] | [Letter from CPA, attorney, broker-dealer, or investment adviser; or self-certification with supporting documentation per SEC Rule 506(c)] |
-| 17 | **Qualified Purchaser Certification** | [Y/N] | [ ] | [ ] | N/A | [Certification that investor meets $5M (individual) or $25M (entity) investment threshold under Section 2(a)(51) of the Investment Company Act] |
-| 18 | **Qualified Client Certification** | [Y/N] | [ ] | [ ] | N/A | [Certification that investor meets $1.1M net worth or $2.2M AUM threshold under SEC Rule 205-3] |
-| 19 | **ERISA Status Certification** | [Y/N] | [ ] | [ ] | N/A | [Declaration of whether investor is a "benefit plan investor" subject to ERISA] |
+| # | Document Type | Requirement Basis | State | Verification | Expiry Date | Source | Notes |
+|---|--------------|-------------------|-------|--------------|-------------|--------|-------|
+| 15 | **Accredited Investor Evidence** | [basis] | [state] | [NOT PERFORMED] | [per fund procedure] | [locator] | [Rule 506(c): documentary verification, or the minimum-investment route (SEC staff no-action letter, 12 Mar 2025) with its written representations; see /fund suitability-check] |
+| 16 | **Qualified Purchaser Representation** | [basis] | [state] | [NOT PERFORMED] | N/A | [locator] | [Section 2(a)(51)(A)(i)-(iv) route named; for an excepted investment company, the (C) beneficial-owner consents] |
+| 17 | **Qualified Client Representation** | [basis] | [state] | [NOT PERFORMED] | N/A | [locator] | [Rule 205-3: at least $1.4M under management or net worth over $2.7M (SEC Order IA-6961, effective 29 Jun 2026); check transition rules] |
+| 18 | **ERISA Status Representation** | [basis] | [state] | [NOT PERFORMED] | N/A | [locator] | [Benefit-plan-investor status; exactly 25% does not satisfy the less-than-25% exception] |
 
 ### AML / Compliance Documents
 
-| # | Document Type | Required | Received | Verified | Expiry Date | Notes |
-|---|--------------|----------|----------|----------|-------------|-------|
-| 20 | **Source of Funds Declaration** | [Y/N] | [ ] | [ ] | N/A | [Written declaration describing the origin of the capital being committed — employment income, investment returns, inheritance, business profits, etc.] |
-| 21 | **Source of Wealth Declaration** | [Y/N] | [ ] | [ ] | N/A | [For enhanced due diligence — broader declaration of how the investor's overall wealth was generated] |
-| 22 | **Anti-Money Laundering Representations** | [Y/N] | [ ] | [ ] | N/A | [Signed representations that funds are not derived from criminal activity, investor is not subject to sanctions, etc. — typically included in Subscription Agreement] |
-| 23 | **Bank Reference Letter** | [Y/N] | [ ] | [ ] | N/A | [Letter from investor's bank confirming the account relationship — for enhanced due diligence] |
+| # | Document Type | Requirement Basis | State | Verification | Expiry Date | Source | Notes |
+|---|--------------|-------------------|-------|--------------|-------------|--------|-------|
+| 19 | **Source of Funds Evidence** | [basis] | [state] | [NOT PERFORMED] | N/A | [locator] | [documented / asserted / not_stated, as in the record] |
+| 20 | **Source of Wealth Evidence** | [basis] | [state] | [NOT PERFORMED] | N/A | [locator] | [documented / asserted / not_stated] |
+| 21 | **AML Representations** | [basis] | [state] | [NOT PERFORMED] | N/A | [locator] | [A signed representation is not screening or verification] |
+| 22 | **Bank Reference Letter** | [basis] | [state] | [NOT PERFORMED] | N/A | [locator] | [Only where the firm's policy requires it] |
 
 ---
 
 ## Sanctions and Screening Results
 
-<!-- Results of mandatory screening against sanctions lists and PEP databases. -->
+<!-- One row per subject and check: the record's subject_ref, each required owner and each controller. Results use the helper vocabulary only: NO MATCH REPORTED / POTENTIAL MATCH / INCOMPLETE / NOT PERFORMED. NO MATCH REPORTED describes the supplied search's scope and date; it is not clearance. Without fund_screening.py output, nothing can be NO MATCH REPORTED. -->
 
-| # | Screening Check | Result | Date Screened | Screened By | Notes |
-|---|----------------|--------|--------------|-------------|-------|
-| 1 | **OFAC / SDN List** (US Treasury) | [CLEAR / MATCH / POTENTIAL MATCH] | [date] | [screener name/system] | [Details of any matches or false positives] |
-| 2 | **UN Security Council Sanctions** | [CLEAR / MATCH / POTENTIAL MATCH] | [date] | [screener name/system] | [Details] |
-| 3 | **EU Consolidated Sanctions List** | [CLEAR / MATCH / POTENTIAL MATCH] | [date] | [screener name/system] | [Details] |
-| 4 | **UK HM Treasury Sanctions** | [CLEAR / MATCH / POTENTIAL MATCH] | [date] | [screener name/system] | [Details] |
-| 5 | **FATF High-Risk Jurisdictions** | [NOT ON LIST / ON LIST — jurisdiction: ___] | [date] | [screener name/system] | [If on list, enhanced due diligence required] |
-| 6 | **PEP Check** (Politically Exposed Person) | [NOT PEP / PEP — details: ___] | [date] | [screener name/system] | [If PEP, enhanced due diligence and senior management approval required] |
-| 7 | **Adverse Media Screening** | [CLEAR / FINDINGS — details: ___] | [date] | [screener name/system] | [Summary of any negative news or adverse media findings] |
+| # | Subject Ref | Check | Source / List | Result | Evidence As Of | Evidence Ref | Notes |
+|---|-------------|-------|---------------|--------|----------------|--------------|-------|
+| 1 | [investor-07] | Sanctions | [e.g. OFAC SDN and non-SDN lists; UN; EU; UK Sanctions List] | [NO MATCH REPORTED / POTENTIAL MATCH / INCOMPLETE / NOT PERFORMED] | [date] | [ref] | [OFAC 50% rule differs from UK/EU ownership and control tests] |
+| 2 | [investor-07] | PEP | [provider / list version] | [result] | [date] | [ref] | [Foreign and domestic PEP measures differ; no automatic former-PEP expiry] |
+| 3 | [investor-07] | Adverse media | [provider / scope] | [result] | [date] | [ref] | [Missing research is NOT PERFORMED, never "none found"] |
+| 4 | [bo-1 / ctl-1 ...] | [check] | [source] | [result] | [date] | [ref] | |
+
+**Subjects or checks not covered by the evidence (helper `screening.uncovered`):** [list, or none]
+
+**FATF status of connected jurisdictions:** [Jurisdiction on the current FATF call-for-action or increased-monitoring statement: YES / NO / UNKNOWN, with statement date]. EDD follows applicable law and the firm's policy; increased monitoring alone is not an automatic EDD trigger.
 
 ### Screening Notes
 
-[Document any matches, potential matches, false positives, and the resolution process. For any POTENTIAL MATCH, document the investigation steps taken and the conclusion reached.]
+[For each POTENTIAL MATCH, the facts supplied and the open adjudication question. Any human adjudication is recorded separately with who, when and the evidence relied on.]
 
 ---
 
-## Risk Classification
+## Risk Rating
 
-<!-- Assign an overall risk classification based on the investor's profile, jurisdiction, entity type, and screening results. -->
+<!-- The rating is the helper's risk_rating from the firm's grid (low / medium / high, or UNASSESSED without a grid). Any reviewer view is labelled commentary and never replaces it. -->
 
-| Risk Factor | Assessment | Score (1-5) |
-|-------------|-----------|:-----------:|
-| **Jurisdiction Risk** | [Low / Medium / High — based on country of formation and FATF status] | [X] |
-| **Entity Complexity** | [Low / Medium / High — based on ownership structure layers] | [X] |
-| **PEP Exposure** | [None / Direct / Indirect (associate/family)] | [X] |
-| **Source of Funds Clarity** | [Clear / Adequate / Insufficient] | [X] |
-| **Sanctions Proximity** | [None / Indirect / Direct] | [X] |
-| **Adverse Media** | [None / Minor / Significant] | [X] |
+| Risk Factor (grid id) | Outcome | Points | Evidence |
+|-----------------------|---------|-------:|----------|
+| [RF-...] | [PRESENT / ABSENT / NOT EVALUATED] | [n] | [locator] |
 
-### Overall Risk Classification
+**Risk rating (helper):** [low / medium / high / UNASSESSED] | **Rules grid:** [name, owner, effective date, or "example grid: not firm policy"]
 
-| Classification | Criteria | Due Diligence Level |
-|---------------|----------|-------------------|
-| **Simplified** | Regulated financial institution in low-risk jurisdiction with no adverse findings | Reduced documentation requirements |
-| **Standard** | Non-PEP investor in low/medium-risk jurisdiction with clear source of funds | Standard documentation per checklist above |
-| **Enhanced** | PEP, high-risk jurisdiction, complex ownership structure, adverse media, or unclear source of funds | All standard documents PLUS enhanced due diligence items (source of wealth, bank reference, senior management approval) |
-
-**This Investor's Classification:** [SIMPLIFIED / STANDARD / ENHANCED]
-
-**Rationale:** [Brief explanation of the classification — e.g., "Standard risk classification based on US-domiciled corporate entity with clear ownership structure, no PEP exposure, and clear OFAC/sanctions screening results."]
+**EDD measures required by the firm's policy:** [list with policy basis, or UNKNOWN]
 
 ---
 
-## Completeness Score
+## Completeness
 
-<!-- Calculate the completeness score based on required documents received and verified. -->
+<!-- Quote the helper's completeness {received, required, pct}; pct is rounded down, so 100 means every required document is on file. It measures document collection only, never readiness or compliance. Screening is not part of it. -->
 
-| Category | Required Items | Received | Verified | Completeness |
-|----------|---------------|----------|----------|:------------:|
-| Identity & Formation | [X] | [X] | [X] | [X]% |
-| Tax Documents | [X] | [X] | [X] | [X]% |
-| Investor Qualification | [X] | [X] | [X] | [X]% |
-| AML / Compliance | [X] | [X] | [X] | [X]% |
-| Sanctions Screening | [X] | [X] | [X] | [X]% |
-| **OVERALL** | **[X]** | **[X]** | **[X]** | **[X]%** |
+| Measure | Value |
+|---------|-------|
+| Required documents (grid, this applicant type and rating) | [required] |
+| Received (RECEIVED or EXPIRING) | [received] |
+| Document completeness | [pct% or NOT CALCULABLE] |
 
 ### Outstanding Items
 
-| # | Document / Item | Required By | Status | Follow-Up Action |
-|---|----------------|-------------|--------|-----------------|
-| 1 | [e.g., "W-8BEN-E — FATCA classification missing"] | [date] | [Requested / Pending / Overdue] | [e.g., "Second request sent [date]. Contact IR if not received by [date]."] |
-| 2 | [e.g., "Beneficial ownership declaration — missing owner #3 ID"] | [date] | [Requested / Pending / Overdue] | [action] |
-| 3 | [e.g., "Source of funds declaration — insufficient detail"] | [date] | [Requested / Pending / Overdue] | [action] |
+| # | Document / Item | Helper Reason | Owner | Target Date | Status |
+|---|----------------|---------------|-------|-------------|--------|
+| 1 | [e.g. "W-8BEN-E — EXPIRED, valid until 2025-12-31"] | [reason text] | [owner] | [date] | [Requested / Pending / Overdue] |
+| 2 | [e.g. "ubo_declaration — INCOMPLETE"] | [reason text] | [owner] | [date] | [status] |
 
 ---
 
-## Reviewer Sign-Off
+## Human Decisions (recorded separately)
 
-| Role | Name | Date | Signature |
-|------|------|------|-----------|
-| **Prepared By** (Analyst) | [Name] | [date] | ____________________ |
-| **Reviewed By** (Compliance Officer) | [Name] | [date] | ____________________ |
-| **Approved By** (Senior Management) | [Name] | [date] | ____________________ |
+| Decision | Reviewer Ref | Date | Evidence / Decision Reference |
+|----------|--------------|------|-------------------------------|
+| [e.g. adjudication of a potential match; EDD sign-off required by policy] | [role or pseudonymous ref] | [date] | [ref] |
 
-<!-- Whether Enhanced-risk investors need senior management sign-off is set by the firm's AML policy; record the policy basis. -->
-
-### Review Notes
-
-[Any additional notes from the reviewer, including conditions on approval, timing for periodic review refresh, or escalation items.]
+<!-- The assistant never records a decision on its own; this table only holds decisions a person supplied. Whether higher-risk investors need senior management sign-off is set by the firm's AML policy; record the policy basis. -->
 
 ### Periodic Review Schedule
 
 | Review Type | Frequency | Next Review Date |
 |-------------|-----------|-----------------|
-| **Sanctions Re-Screening** | [Quarterly / Semi-Annual / Annual] | [date] |
-| **KYC Refresh** | [Cycle for this risk rating from the firm's rules grid (`refresh_months`); UNKNOWN if no grid] | [date] |
-| **Tax Document Renewal** | [Per the form's validity rule: W-8 generally through 31 December of the third succeeding year, subject to exceptions; W-9 has no routine expiry] | [date] |
+| **Sanctions Re-Screening** | [Per the firm's policy] | [date] |
+| **KYC Refresh** | [Grid `refresh_months` for this rating; UNKNOWN without a grid] | [helper refresh_due; OVERDUE if refresh_overdue] |
+| **Tax Document Renewal** | [Helper valid_until for W-8 forms; W-9 and W-8IMY have no routine expiry] | [date] |
+| **Screening Record Retention** | [At least 10 years where OFAC rules apply (FR 2025-04864, 21 Mar 2025); otherwise per policy] | [date] |
 
 ---
+
+## Status, limitations and data handling
+- Report status: [DRAFT / PARTIAL / BLOCKED / READY_FOR_REVIEW] — the same value as the evidence sidecar. Readiness: HOLD / ESCALATE / PRELIMINARY READY FOR HUMAN REVIEW, mapped to the sidecar status with the table in `references/report-contract.md` (REQUEST DOCUMENTS and HOLD -> BLOCKED).
+- Assumptions: [list]
+- Limitations and checks not performed: [list; UNKNOWN / NOT PERFORMED items; reader mode]
+- Data handling: the packaged helpers ran locally and made no network calls; the AI host and its model provider processed the document content; connectors used: [none / list]. Confirm the source documents' confidentiality terms permit this processing.
+
+Not financial, legal or tax advice. Qualified human review is required.
 
 <!--
 TEMPLATE USAGE NOTES:
 
-1. Replace all [bracketed placeholders] with actual values.
-2. Required documents vary by entity type:
-   - Individuals: Government ID, proof of address, W-9/W-8BEN, accredited investor verification
-   - US Corporations/LLCs: Formation docs, good standing, operating agreement, beneficial ownership, W-9
-   - Non-US Entities: Formation docs, beneficial ownership, W-8BEN-E, CRS self-cert
-   - Trusts: Trust agreement, trustee ID, beneficial ownership of trust
-   - Pension Funds: ERISA status, authorized signatory, regulatory registration
-   - Sovereign Wealth Funds: Enabling legislation, authorized signatory, FATCA exempt status
-3. Mark Required as "Y" or "N" based on the investor's entity type and jurisdiction.
-4. Completeness Score should only count "Required = Y" items in the calculation.
-5. Screening must be performed at the entity level AND for all beneficial owners and control persons.
-6. PEP screening should cover domestic and foreign PEPs, as well as family members and close associates.
-7. Enhanced due diligence measures, approvals and review frequency come from the firm's approved AML/KYC policy and applicable law, as captured in its rules grid (`fund/references/kyc-rules-grid.example.yaml` shows the structure). Typical measures a policy may require include a source of wealth declaration, a bank reference and senior management sign-off; record which the policy requires and its basis.
-8. Document all screening results, including false positives and their resolution.
-9. FATCA and CRS classifications should be verified against the W-8 form and CRS self-certification.
-10. This checklist should be retained as part of the permanent KYC file for the investor.
-11. Periodic reviews must be scheduled and tracked — use the review schedule table above.
-12. This template should be reviewed by the fund's compliance officer and AML counsel before first use.
+1. Replace all [bracketed placeholders] with values from the KYC record and the helper's evaluation.
+2. Required documents come from the firm's validated rules grid (fund_kyc.py validate-grid) for the applicant type and risk rating. Without a firm grid every requirement basis is UNKNOWN; the shipped example grid is structure only and never a basis.
+3. Screening must cover the record subject, every natural-person owner the grid's threshold catches (or whose percentage is unknown) and every controller, for sanctions, PEP and adverse media, dated on or after the review date.
+4. EDD measures, approvals and review frequency come from the firm's approved AML/KYC policy and applicable law, as captured in its rules grid. There is no automatic EDD for FATF increased monitoring; UK firms apply MLR regulation 33 to a "FATF call for action country" (SI 2026/621).
+5. Never write CLEAR, cleared, approved or rejected; use the helper's states and dispositions.
+6. Retention of this checklist and its evidence follows the firm's policy and applicable law.
 -->

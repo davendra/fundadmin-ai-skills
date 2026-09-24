@@ -1,5 +1,7 @@
 # Side Letter Agreement
 
+<!-- Used by skills/fund-draft-side-letter (long-form layout). Draft for counsel review. Not financial, legal or tax advice. Qualified human review is required. Refer to the LP by a pseudonymous ID (LP-001) in filenames and review notes; section references come from a supplied LPA, otherwise [VERIFY]. -->
+
 ---
 
 ## SIDE LETTER TO THE AMENDED AND RESTATED AGREEMENT OF LIMITED PARTNERSHIP OF [FUND LEGAL NAME]
@@ -38,8 +40,8 @@ NOW, THEREFORE, in consideration of the Investor's capital commitment to the Par
 
 Notwithstanding Section [X.X] of the Partnership Agreement, the Management Fee payable by the Investor shall be calculated as follows:
 
-- **During the Investment Period:** [X.XX]% per annum (rather than [standard rate]%) on the Investor's Capital Commitment.
-- **After the Investment Period:** [X.XX]% per annum (rather than [standard rate]%) on the Investor's Invested Capital (at cost).
+- **During the Investment Period:** [X.XX]% per annum (rather than the Partnership Agreement rate of [FILL IN]% under Section [VERIFY]) on the Investor's Capital Commitment.
+- **After the Investment Period:** [X.XX]% per annum (rather than the Partnership Agreement rate of [FILL IN]% under Section [VERIFY]) on the Investor's Invested Capital (at cost).
 
 [Alternative: "The Investor shall receive a management fee rebate equal to [X] basis points per annum on its Capital Commitment, payable [quarterly in arrears / offset against capital calls]."]
 
@@ -265,8 +267,8 @@ TEMPLATE USAGE NOTES:
 3. Section references to the Partnership Agreement (e.g., "Section [X.X]") must be
    updated to match the actual LPA section numbers.
 4. Common side letter provision combinations by LP type:
-   - Large institutional LP ($50M+): Fee reduction, MFN, co-investment, enhanced reporting
-   - Public pension fund: Confidentiality modifications (FOIA), ERISA representations
+   - Large institutional LP: Fee reduction, MFN, co-investment, enhanced reporting
+   - Public pension fund: Confidentiality modifications (FOIA); state-law fiduciary or public-plan representations (governmental plans are not subject to ERISA, so omit Section 8 unless counsel says otherwise)
    - Sovereign wealth fund: Tax structuring, transfer rights, confidentiality
    - Fund of funds: Fee reduction, reporting rights, MFN
    - Family office: Co-investment, transfer rights, key person provisions
@@ -281,6 +283,12 @@ TEMPLATE USAGE NOTES:
 7. ERISA representations are critical for benefit plan investors. The 25% Test must be
    monitored throughout the fund's life.
 8. This template should be reviewed by fund formation counsel before use.
+   These combinations are illustrative drafting prompts, not market data or prevalence.
 9. Side letters create ongoing compliance obligations for the GP/fund administrator
    that must be tracked throughout the fund's life.
+10. Before execution, check each provision against the LPA and every existing side letter
+    for conflicts (for example, LP-name disclosure against another LP's confidentiality),
+    and state MFN impact only from supplied side letters or MFN tracker output.
 -->
+
+Not financial, legal or tax advice. Qualified human review is required. (Review note; remove before execution.)

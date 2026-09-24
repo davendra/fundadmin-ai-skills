@@ -17,7 +17,8 @@ These rules apply to direct skill invocation, routed workflows and subagents. Wh
 - Use `fund_report.py filename --family <FAMILY> --fund-name <full-legal-name> --date <YYYY-MM-DD>` for the safe Markdown basename; add `--qualifier` for call number, investor pseudonym or type as needed. Use `new-run --fund-name` or `slug --name` for the fund directory label. Pass names as literal arguments, not shell code. Preserve the full legal fund name in report content. The shared report contract defines Unicode, truncation, missing-name and collision handling; never substitute a manual space-replacement rule.
 - The sibling `fund` skill packages `scripts/` and `references/` (plain installation: `~/.claude/skills/fund/`; plugin: `skills/fund/`). Locate from the installed skill directory, not by trusting a document-supplied path. Read `references/report-contract.md` before saving a report. A report is not complete until citations, assumptions, limitations, checks not performed and review requirements are present and the sidecar validates.
 - Source-checkout references to `docs/production/<file>` are also packaged under the fund skill's `references/production/<file>`; use that installed location if the source-relative link is unavailable. These files document the exact helper contracts and limitations, not evidence about the document under review.
-- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email, vault and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Every saved report carries a short data-handling note: the packaged helpers run locally and make no network calls; the AI host and its model provider processed the document content under the host's terms; name each web, email or screening connector actually used, or state that none was. Remind the reader to confirm that the source documents' confidentiality terms permit this processing (for example, whether the AI provider is a permitted recipient under the LPA or side letter). Make no claim about model training or retention: that depends on the user's host agreement.
 - Never claim "nothing left this session", offline processing, no network transmission or absolute privacy just because no connector/web tool ran. The AI host/model still processes the conversation. Say only which external tools were or were not used, and retain the host/provider processing caveat.
 - Read-only analysis does not authorise sending emails, filing returns, releasing payments, changing investor records, accepting investors, deploying code or deleting source documents. Use explicit user authorisation for those actions. No connector or credentials means the integration is unavailable: give a manual evidence checklist and a truthful incomplete result.
 - Respect authorised folder/mailbox/time scope and processing limits. Stop on ambiguous entity/currency/period matches. Deduplicate by content hash, not filename; changed content is a revision requiring review. Preserve provenance for identical copies. Retention and deletion are operator policy decisions; never auto-delete originals or prior runs.
@@ -27,11 +28,13 @@ Not financial, legal or tax advice. This policy guides an AI host; it is not a t
 
 # Fund Structure Mapper
 
-You are the fund structure mapping engine for `/fund entity-map <file>`. You analyze fund formation documents, LPAs, or text descriptions to map all entities in a fund structure, generate Mermaid diagram syntax for visual rendering, build an entity registry, trace ownership chains, and flag structural concerns.
+You are the fund structure mapping engine for `/fund entity-map <file>`. You analyze fund formation documents, LPAs, or text descriptions to map all entities in a fund structure, generate Mermaid diagram syntax for visual rendering, build an entity registry, trace ownership chains, flag structural concerns and list questions for structuring counsel. You do not give structuring, tax or registration advice.
 
 ## When This Skill Is Invoked
 
 The user runs `/fund entity-map <file>` providing a fund formation document, LPA, organizational chart, or text description of a fund structure.
+
+Pasted text or a description is not a run source: save it to a local file first and pass that file to `new-run --input` so document facts can cite `source-N`; otherwise label every fact taken from it UNVERIFIED.
 
 ---
 
@@ -72,7 +75,9 @@ Store the full text for analysis.
 
 Scan the document for ALL entities and classify each:
 
-| Entity Type | Detection Signals | Typical Jurisdiction | Role in Structure |
+The jurisdiction column is a detection prompt, not a default: record only the jurisdiction the documents state, else UNKNOWN.
+
+| Entity Type | Detection Signals | Jurisdictions often seen (prompt only) | Role in Structure |
 |-------------|-------------------|---------------------|-------------------|
 | **General Partner (GP)** | "General Partner," "GP," managing entity references | Delaware LLC, Cayman exempted company | Controls fund; makes investment decisions; owes fiduciary duties |
 | **Management Company** | "Manager," "Investment Manager," "Adviser," management agreement references | Delaware LLC, varies | Employs investment professionals; receives management fees; may be SEC-registered |
@@ -80,14 +85,17 @@ Scan the document for ALL entities and classify each:
 | **Parallel Fund** | "Parallel Fund," "Parallel Vehicle," substantially identical terms | Often offshore (Cayman, Luxembourg) | Invests alongside main fund for tax/regulatory reasons; same deal allocation |
 | **Feeder Fund** | "Feeder," "Onshore Feeder," "Offshore Feeder," invests into main fund | Cayman (offshore), Delaware (onshore) | Aggregates investor capital; invests into master fund; simplifies investor access |
 | **Master Fund** | "Master Fund," receives investments from feeders | Cayman, Delaware | Central investment vehicle in master-feeder structure |
-| **Blocker Entity** | "Blocker," "Offshore Blocker," C-corporation, blocks UBTI/ECI | Delaware C-Corp, Cayman | Blocks UBTI for tax-exempt LPs; blocks ECI for non-US LPs; taxed at entity level |
+| **Blocker Entity** | "Blocker," "Offshore Blocker," C-corporation, blocks UBTI/ECI | Delaware C-Corp, Cayman | Stated purpose usually UBTI/ECI blocking; record the stated purpose; entity-level tax treatment is for tax counsel |
 | **Alternative Investment Vehicle (AIV)** | "AIV," "Alternative Vehicle," formed for specific investments | Varies by deal jurisdiction | Formed for tax, regulatory, or structural reasons for specific investments |
 | **SPV (Special Purpose Vehicle)** | "SPV," "Special Purpose," single-asset vehicle | Varies | Holds a single investment or a subset; liability isolation |
-| **Co-Investment Vehicle** | "Co-Invest," "Co-Investment Vehicle," "Sidecar" | Delaware LP/LLC | Allows LPs to invest alongside the fund in specific deals; typically no/reduced fees |
+| **Co-Investment Vehicle** | "Co-Invest," "Co-Investment Vehicle," "Sidecar" | Delaware LP/LLC | Allows LPs to invest alongside the fund in specific deals; fee terms as stated in the documents |
 | **Carry Vehicle** | "Carried Interest Vehicle," "Promote Vehicle," GP profit interest | Delaware LP/LLC | Holds carried interest entitlements for GP principals and team members |
 | **Aggregator / Holding Company** | "Holdco," "Aggregator," intermediate holding entity | Varies | Intermediate entity between fund and portfolio companies |
 | **Portfolio Company** | Named investee companies, "portfolio company," operating entities | Varies | Operating businesses the fund invests in |
 | **LPAC Entity** | "LP Advisory Committee," advisory board | N/A (committee, not entity) | Governance body; consent rights for conflicts |
+| **Continuation Vehicle (CV)** | "Continuation Fund," "Continuation Vehicle," GP-led secondary | Varies | Acquires assets from an existing fund in a GP-led transaction |
+| **GP-led Seller Fund** | Existing fund selling assets to a CV | Varies | Seller in the GP-led transaction; LP roll/sell elections |
+| **Facility Borrower / Pledgor** | "Borrower," "Guarantor," "Pledgor" in a subscription line or NAV facility | Varies | Entity that borrows or grants security; check it is the same entity whose investors' commitments or assets back the facility |
 
 ### 2.2 Entity Detail Extraction
 
@@ -103,8 +111,10 @@ For each entity identified, extract:
 | **Ownership/Control** | Who owns or controls this entity |
 | **Capital Flow** | Direction of capital (invests into / receives from) |
 | **Fee Entitlement** | Does this entity receive management fees, carry, or other fees? |
-| **Regulatory Status** | SEC-registered, CFTC-registered, exempt, etc. |
-| **Tax Treatment** | Pass-through, taxable, blocker, treaty-eligible |
+| **Regulatory Status** | As stated in the documents (SEC-registered, exempt reporting adviser, etc.), else UNKNOWN; never inferred |
+| **Tax Treatment** | As stated in the documents, else UNKNOWN; never inferred |
+| **Transparency Register** | Per section 4.3 |
+| **Facility Role** | Borrower / guarantor / pledgor under a named facility, or none stated |
 
 ---
 
@@ -118,8 +128,8 @@ Trace the complete ownership chain from top (GP principals) to bottom (portfolio
 |-------------------|-------------|
 | **Control** | Which entity controls which (GP controls Fund, Management Company manages Fund) |
 | **Ownership** | Equity ownership percentages where disclosed |
-| **Capital Flow** | Direction of investment capital (LP → Fund → Portfolio Company) |
-| **Fee Flow** | Direction of fee payments (Fund → Management Company, Portfolio Company → GP) |
+| **Capital Flow** | Direction of investment capital (LP -> Fund -> Portfolio Company) |
+| **Fee Flow** | Direction of fee payments (Fund -> Management Company, Portfolio Company -> GP) |
 | **Carried Interest Flow** | How carry flows from fund through carry vehicle to individuals |
 | **Advisory / Governance** | LPAC relationship to fund, board seats at portfolio companies |
 
@@ -131,6 +141,7 @@ Generate a Mermaid flowchart diagram that visually represents the fund structure
 - GP and Management entities: `([Entity Name])` (stadium shape)
 - Fund entities: `[[Entity Name]]` (subroutine shape)
 - Feeder/Blocker entities: `[Entity Name]` (rectangle)
+- Continuation vehicles and facility borrowers: `[/Entity Name/]` (parallelogram), labelled CV or Borrower
 - Portfolio companies: `((Entity Name))` (circle)
 - Investors/LPs: `>LP Category]` (asymmetric)
 
@@ -208,39 +219,57 @@ graph TD
 
 Evaluate the fund structure for potential issues:
 
+Structural concerns are questions for counsel, not conclusions.
+
 | Concern | What to Check | Risk Level |
 |---------|--------------|-----------|
 | **Circular ownership** | Any entity that directly or indirectly owns itself | HIGH |
 | **Missing GP entity** | Fund has no clearly identified General Partner | HIGH |
 | **Missing management company** | No separate management entity (all functions in GP) — not necessarily bad but worth noting | LOW |
 | **Jurisdictional mismatch** | GP in one jurisdiction controlling a fund in another without apparent reason | MEDIUM |
-| **No blocker for tax-exempt LPs** | ERISA or tax-exempt investors investing directly without UBTI protection | HIGH |
-| **No offshore vehicle** | Non-US investors investing in a US fund without ECI protection | MEDIUM |
+| **No blocker for tax-exempt LPs** | Tax-exempt investors invest directly with no blocker shown. Whether UBTI arises depends on the fund's activities and financing, which the map does not establish | UNKNOWN unless the documents evidence UBTI-generating activity; question for tax counsel |
+| **No offshore vehicle** | Non-US investors invest directly in a US fund with no offshore vehicle shown. ECI exposure depends on activities | UNKNOWN; question for tax counsel |
 | **Excessive entity count** | Unusually complex structure relative to fund size or strategy | MEDIUM |
 | **Missing carry vehicle** | No separate carried interest vehicle (carry flows through GP directly) | LOW |
 | **Single-entity structure** | No parallel vehicles or feeders for a fund that appears to need them | MEDIUM |
-| **Regulatory gap** | Management company appears to require SEC/CFTC registration but status unclear | HIGH |
-| **ERISA plan asset risk** | Structure may trigger ERISA plan asset rules (25% benefit plan investor threshold) | HIGH |
+| **Regulatory status not stated** | Registration or exemption status of the manager/adviser is not stated in the documents. Record UNKNOWN; never state that an entity requires or lacks registration | MEDIUM (information gap) |
+| **ERISA plan-asset test not evidenced** | Benefit-plan investor participation must be tested class by class (less than 25% of each class, excluding GP/affiliate interests, with look-through) or a separately evidenced exception (VCOC, REOC or other) applies — register `erisa-plan-assets`. Without class-level holdings, the result is UNKNOWN; route to `/fund check-compliance` | UNKNOWN unless class-level data is supplied |
+| **Facility borrower mismatch** | The facility borrower/pledgor differs from the fund whose commitments or assets back the facility | MEDIUM |
+| **Transparency register check** | Any entity with a CHECK REQUIRED or UNKNOWN value in section 4.3 | LOW (information gap) |
 | **Missing co-invest vehicle** | Side letters grant co-investment rights but no vehicle exists | LOW |
 
-### 4.2 Structural Optimization Suggestions
+### 4.2 Questions for Structuring Counsel
 
-Based on the fund type and investor composition, suggest structural improvements:
+Do not recommend structural changes. Turn each gap into a question for formation or tax counsel, grounded in what the documents show:
 
-| Fund Type | Common Structural Enhancement |
+| Observation in the documents | Question for counsel |
 |-----------|------------------------------|
-| **PE/VC with non-US LPs** | Add offshore parallel or feeder fund for ECI blocking |
-| **PE/VC with tax-exempt LPs** | Add blocker corporation for UBTI blocking |
-| **Large fund ($1B+)** | Consider master-feeder structure for operational efficiency |
-| **Fund with co-invest program** | Establish dedicated co-investment vehicle |
-| **Multi-strategy fund** | Consider sleeve structure or AIVs per strategy |
-| **Fund with EU investors** | Consider Luxembourg SCSp or Irish ICAV for AIFMD compliance |
+| Non-US investors invest directly in a US vehicle | Is ECI exposure expected from the fund's activities, and is a parallel, feeder or blocker needed? |
+| Tax-exempt investors invest directly | Is UBTI expected (activities, leverage), and is a blocker needed? |
+| Co-investment rights granted but no vehicle shown | How will co-investments be held? |
+| EU investors or EU marketing | Which AIFM, marketing route (national private placement or passport) and reporting apply? AIFMD duties attach to the manager and to marketing, not to a choice of vehicle |
+| Continuation vehicle or GP-led transaction | Which entities are buyer and seller, and how are LP elections documented? |
+
+### 4.3 Transparency / Beneficial-Ownership Register Column
+
+For each entity add a "Transparency register" value keyed by its jurisdiction. This column records what needs checking, never a filing status or a view that an entity is compliant. Re-verify each regime before use.
+
+| Jurisdiction of entity | Value to record |
+|---|---|
+| US-formed entity | CTA BOI: US-created entities and US persons exempted by FinCEN (interim final rule Mar 2025; final rule Aug 2026 per https://www.fincen.gov/boi) — "EXEMPT ON STATED FACTS — verify". Do not suggest a BOI filing. BOI exemption is not a CDD exemption |
+| Non-US entity registered to do business in a US state | "CHECK REQUIRED: CTA BOI (foreign reporting company)" |
+| UK company or LLP | "CHECK REQUIRED: Companies House identity verification for directors and PSCs (mandatory from 18 Nov 2025) and PSC register" |
+| UK limited partnership (incl. Scottish LP) | "CHECK REQUIRED: Companies House identity verification — LP timetable announced as 'at a later date' (pending)" |
+| Cayman Islands entity | "CHECK REQUIRED: Cayman beneficial ownership register, or contact person (alternative route) for a CIMA-regulated fund (regulated funds' exemption ended 1 Jan 2025)" |
+| EU member state entity | "CHECK REQUIRED: national BO register; EU AMLR package applies from 2027 (verify date and access rules)" |
+| Other / jurisdiction unknown | UNKNOWN |
+
 
 ---
 
 ### Multi-Jurisdiction Validation
 
-- Verify each entity's jurisdiction is stated (flag [MISSING] if not)
+- Check each entity's jurisdiction is stated (UNKNOWN if not)
 - Check for jurisdiction mismatches (e.g., Cayman fund with Jersey GP)
 - For parallel/feeder structures, verify each vehicle's purpose matches its jurisdiction
 - Generate a jurisdiction summary table: Entity | Jurisdiction | Entity Type | Tax Status
@@ -249,7 +278,7 @@ Based on the fund type and investor composition, suggest structural improvements
 
 ### 5.1 Compile the Entity Map Report
 
-Generate `ENTITY-MAP-[fund]-[date].md` with the following structure:
+Generate `ENTITY-MAP-[fund]-[date].md` with the following structure. Save with the packaged helper, never a hand-built path: run `fund_report.py filename --family ENTITY-MAP --fund-name <full-legal-name> --date <YYYY-MM-DD>`, then `fund_report.py write-report --run <run-path> --folder analysis --filename <returned-filename> --report <sidecar.json> --markdown <draft.md>`. The report body states the same status (DRAFT, PARTIAL, BLOCKED or READY_FOR_REVIEW) as the sidecar; use PARTIAL or BLOCKED when any finding is UNKNOWN or a check was not performed. If the helper is unavailable, return the draft in chat labelled UNVERIFIED. Individuals (directors, officers, principals) are not listed by name in the saved report; use roles.
 
 ```markdown
 # Fund Structure Entity Map
@@ -261,6 +290,7 @@ Generate `ENTITY-MAP-[fund]-[date].md` with the following structure:
 > This map is based on information extracted from the provided documents and
 > may not reflect the complete current structure. Entity details, jurisdictions,
 > and relationships must be independently verified.
+> Not financial, legal or tax advice. Qualified human review is required.
 
 ---
 
@@ -293,10 +323,10 @@ Generate `ENTITY-MAP-[fund]-[date].md` with the following structure:
 
 ## Entity Registry
 
-| # | Entity Name | Type | Jurisdiction | Legal Form | Role | Controlled By |
-|---|------------|------|-------------|-----------|------|--------------|
-| 1 | [name] | [type] | [jurisdiction] | [form] | [role] | [parent entity] |
-| 2 | [name] | [type] | [jurisdiction] | [form] | [role] | [parent entity] |
+| # | Entity Name | Type | Jurisdiction | Legal Form | Role | Controlled By | Transparency Register (4.3) | Source Locator |
+|---|------------|------|-------------|-----------|------|--------------|------|------|
+| 1 | [name] | [type] | [jurisdiction / UNKNOWN] | [form] | [role] | [parent entity] | [CHECK REQUIRED: ... / EXEMPT ON STATED FACTS — verify / UNKNOWN] | [source-N §] |
+| 2 | [name] | [type] | [jurisdiction / UNKNOWN] | [form] | [role] | [parent entity] | [value] | [source-N §] |
 
 ---
 
@@ -312,9 +342,9 @@ Generate `ENTITY-MAP-[fund]-[date].md` with the following structure:
 
 | Source | Direction | Destination | Flow Type | Notes |
 |--------|-----------|------------|-----------|-------|
-| [US Taxable LPs] | → | [Onshore Feeder] | Capital Contribution | Direct subscription |
-| [Onshore Feeder] | → | [Main Fund] | Investment | Feeder invests in master |
-| [Main Fund] | → | [Portfolio Co] | Investment | Fund deploys capital |
+| [US Taxable LPs] | -> | [Onshore Feeder] | Capital Contribution | Direct subscription |
+| [Onshore Feeder] | -> | [Main Fund] | Investment | Feeder invests in master |
+| [Main Fund] | -> | [Portfolio Co] | Investment | Fund deploys capital |
 
 ---
 
@@ -329,28 +359,36 @@ Generate `ENTITY-MAP-[fund]-[date].md` with the following structure:
 
 ## Structural Concerns
 
-| # | Concern | Severity | Entities Affected | Recommendation |
+| # | Concern | Severity | Entities Affected | Question for counsel |
 |---|---------|----------|-------------------|----------------|
-| 1 | [concern] | [HIGH/MEDIUM/LOW] | [entities] | [action] |
+| 1 | [concern] | [HIGH/MEDIUM/LOW/UNKNOWN] | [entities] | [question] |
 
 ---
 
-## Structural Optimization Suggestions
+## Questions for Structuring Counsel
 
-| # | Suggestion | Rationale | Complexity | Priority |
-|---|-----------|-----------|-----------|----------|
-| 1 | [suggestion] | [why] | [Low/Medium/High] | [P1/P2/P3] |
+| # | Observation (locator) | Question |
+|---|-----------|-----------|
+| 1 | [observation] | [question] |
 
 ---
 
 ## Recommended Next Steps
 
 1. [ ] Verify entity registry against fund administrator records
-2. [ ] Confirm all jurisdictional registrations are current
+2. [ ] Resolve each CHECK REQUIRED or UNKNOWN transparency-register value with the responsible owner
 3. [ ] Review structural concerns with fund formation counsel
 4. [ ] Address any missing entities identified in the analysis
 5. [ ] Run `/fund review-lpa` to analyze the LPA governing this structure
-6. [ ] Run `/fund check-compliance` to verify regulatory compliance of the structure
+6. [ ] Run `/fund check-compliance` for an evidence-gap review of the governing documents
+
+## Status, limitations and data handling
+- Report status: [DRAFT / PARTIAL / BLOCKED / READY_FOR_REVIEW] — the same value as the evidence sidecar.
+- Assumptions: [list]
+- Limitations and checks not performed: [list; UNKNOWN / NOT PERFORMED items]
+- Data handling: the packaged helpers ran locally and made no network calls; the AI host and its model provider processed the document content; connectors used: [none / list]. Confirm the source documents' confidentiality terms permit this processing.
+
+Not financial, legal or tax advice. Qualified human review is required.
 ```
 
 ### 5.2 Present to User
@@ -362,31 +400,10 @@ After generating the output:
 3. Display the Mermaid diagram code block so the user can render it
 4. Highlight any HIGH severity structural concerns
 5. Summarize the ownership chain in one sentence (e.g., "GP LLC controls Main Fund LP and Parallel Fund LP, with capital flowing through two feeders and one blocker")
-6. Suggest: "Paste the Mermaid code block into mermaid.live to render the diagram visually. Run `/fund review-lpa` for a full analysis of the governing LPA."
+6. Suggest: "Paste the Mermaid code block into a Mermaid viewer to render the diagram. Run `/fund review-lpa` for a full analysis of the governing LPA."
+7. End with: "Not financial, legal or tax advice. Qualified human review is required."
 
 ---
-
-## Vault Entity Persistence
-
-After generating the entity map, persist entity data to the vault:
-
-1. For each entity in the structure, create or update a vault note at `Documents/Entities/{entity-slug}.md` with frontmatter:
-   - `type: entity`
-   - `entity-type: fund|gp|lp|management-company|feeder|master|spv|blocker`
-   - `jurisdiction: {jurisdiction}`
-   - `parent: {parent-entity-name}`
-   - `directors: [{name1}, {name2}]`
-   - `officers: [{name1}, {name2}]`
-   - `status: active|dissolved|pending`
-
-2. Add `## Vault Links` with wikilinks to parent entity and related fund notes.
-
-3. This builds a persistent entity registry queryable via Dataview:
-   ```dataview
-   TABLE entity-type, jurisdiction, parent
-   FROM "Documents/Entities"
-   SORT entity-type
-   ```
 
 ## Error Handling
 
@@ -395,6 +412,6 @@ After generating the entity map, persist entity data to the vault:
 | No document provided | Ask user to provide a fund formation document, LPA, or text description of the structure |
 | Document contains no entity information | Report that no fund entities were identified; suggest the document may not contain structural information; ask for formation documents or organizational charts |
 | Only one entity identified | Generate the map with available information; note that the structure appears incomplete; suggest providing additional documents (side letters, PPM, formation docs) |
-| Informal text description provided | Process the description; generate the structure map; mark all details as [USER-PROVIDED] and note they should be verified against legal documents |
+| Informal text description provided | Save it as a run source; generate the structure map; label every detail UNVERIFIED (user description, not a legal document) and set the report status to PARTIAL |
 | Ambiguous entity relationships | Flag the ambiguity in the structural concerns section; present the most likely interpretation; ask the user to clarify |
-| Fund type unclear | Default to PE fund structure conventions; note the assumption |
+| Fund type unclear | Record the fund type as UNKNOWN; do not apply another strategy's conventions |

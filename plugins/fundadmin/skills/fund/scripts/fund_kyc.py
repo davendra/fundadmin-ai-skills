@@ -10,6 +10,12 @@ rating, a document matrix, one outcome per rule and a routing disposition:
 
 A disposition routes work to a person. It is never an admission, a rejection,
 sanctions clearance or a compliance determination. No network access.
+
+Screening evidence counts only for the subjects and date it covers: the record's
+own subject_ref, every natural-person owner the grid's threshold catches (or
+whose percentage is unknown) and every controller, for sanctions, PEP and
+adverse media, validated as of the review date or later. Anything less is
+INCOMPLETE. Identity flags and tax forms are evaluated too.
 """
 from __future__ import annotations
 
@@ -18,7 +24,7 @@ import json
 import math
 import re
 import sys
-from datetime import date
+from datetime import date, datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -40,6 +46,11 @@ LIMITATIONS = [
     'RULES ARE THE CALLER-SUPPLIED GRID, NOT A LEGAL STANDARD',
     'ROUTING ONLY: NOT AN ADMISSION, REJECTION, CLEARANCE OR COMPLIANCE DETERMINATION',
 ]
+SCREENING_CHECKS = ('sanctions', 'pep', 'adverse_media')
+# W-8 forms whose general validity ends on 31 December of the third succeeding
+# calendar year after signature (Treas. Reg. 1.1441-1(e)(4)(ii)). W-9 and W-8IMY
+# have no routine expiry here; exceptions and changes in circumstances need a person.
+W8_THREE_YEAR = {'W-8BEN', 'W-8BEN-E', 'W-8ECI', 'W-8EXP'}
 REF = re.compile(r'[a-z0-9][a-z0-9-]{0,63}')
 SLUG = re.compile(r'[a-z][a-z0-9_]{0,63}')
 
@@ -190,6 +201,7 @@ CONDITIONS = {
     'jurisdiction_in_list': {'list'},
     'applicant_type_in': {'values'},
     'no_controller_identified': set(),
+    'tax_form_missing': {'forms'},
 }
 
 
@@ -209,6 +221,8 @@ def validate_condition(cond, grid):
         required(cond['list'] in grid.get('jurisdiction_lists', {}), 'UNKNOWN_JURISDICTION_LIST')
     if kind == 'applicant_type_in':
         required(isinstance(cond['values'], list) and cond['values'] and set(cond['values']) <= APPLICANT_TYPES, 'INVALID_CONDITION_VALUES')
+    if kind == 'tax_form_missing':
+        required(isinstance(cond['forms'], list) and cond['forms'] and all(text(f, 40) for f in cond['forms']), 'INVALID_CONDITION_FORMS')
 
 
 def validate_grid(grid):
@@ -289,6 +303,51 @@ def document_state(record, doc_type, as_of, warning_days):
     return best, [d['source'] for d in matches]
 
 
+def form_name(value):
+    """Normalise 'w8 ben e', 'W-8BEN-E' and 'W8BENE' to one spelling."""
+    compact = re.sub(r'[^A-Z0-9]', '', value.upper())
+    known = {re.sub(r'[^A-Z0-9]', '', f): f for f in W8_THREE_YEAR | {'W-9', 'W-8IMY'}}
+    return known.get(compact, value.strip().upper())
+
+
+def tax_form_states(record, as_of, warning_days):
+    """One row per form name: RECEIVED / EXPIRING / EXPIRED / INCOMPLETE, with the validity end."""
+    rows = {}
+    for item in record.get('tax_forms', []):
+        name = form_name(item['form'])
+        signed = optional_date(item.get('signed'), 'INVALID_TAX_FORM_DATE')
+        until = date(signed.year + 3, 12, 31) if name in W8_THREE_YEAR and signed else None
+        if item['status'] == 'incomplete' or (name in W8_THREE_YEAR and signed is None):
+            state = 'INCOMPLETE'
+        elif until is not None and until < as_of:
+            state = 'EXPIRED'
+        elif until is not None and (until - as_of).days <= warning_days:
+            state = 'EXPIRING'
+        else:
+            state = 'RECEIVED'
+        rows.setdefault(name, []).append((state, until, item['source']))
+    result = []
+    for name, entries in rows.items():
+        best = next(s for s in ('RECEIVED', 'EXPIRING', 'INCOMPLETE', 'EXPIRED') if any(e[0] == s for e in entries))
+        until = max((e[1] for e in entries if e[0] == best and e[1]), default=None)
+        result.append({'form': name, 'state': best, 'valid_until': until.isoformat() if until else None,
+                       'sources': [e[2] for e in entries]})
+    return result
+
+
+def screening_subjects(record, grid):
+    """The record subject, natural-person owners at or above the grid threshold (or with no
+    percentage; all of them without a grid) and every controller."""
+    threshold = grid['ubo_threshold_pct'] if grid else None
+    subjects = [record['subject_ref']]
+    for owner in record['beneficial_owners']:
+        pct = owner['ownership_pct']
+        if owner['is_natural_person'] and (threshold is None or pct is None or pct >= threshold):
+            subjects.append(owner['ref'])
+    subjects += [c['ref'] for c in record.get('controllers', [])]
+    return list(dict.fromkeys(subjects))
+
+
 def condition_hit(cond, record, grid, as_of):
     """Return (triggered, evidence). triggered is True, False or None (cannot evaluate)."""
     kind = cond['type']
@@ -329,6 +388,12 @@ def condition_hit(cond, record, grid, as_of):
         if record['applicant_type'] == 'individual':
             return False, 'individual applicant'
         return not record.get('controllers'), f"controllers identified: {len(record.get('controllers', []))}"
+    if kind == 'tax_form_missing':
+        wanted = {form_name(f) for f in cond['forms']}
+        states = {t['form']: t['state'] for t in tax_form_states(record, as_of, grid.get('expiry_warning_days', 60))}
+        usable = sorted(f for f in wanted if states.get(f) in ('RECEIVED', 'EXPIRING'))
+        seen = ', '.join(f'{f}: {states[f]}' for f in sorted(wanted) if f in states) or 'none of the listed forms supplied'
+        return not usable, f'tax forms listed by this rule: {seen}'
     raise ValueError('INVALID_CONDITION')
 
 
@@ -343,13 +408,34 @@ def evaluate(record, grid=None, screening=None):
     for item in record.get('unreadable', []):
         reasons['integrity'].append(f"Source could not be read ({item['source']})")
 
-    screen = None
+    identity = record['identity']
+    if not identity['legal_name_present']:
+        reasons['documents'].append(f"Identity: no legal name found in a primary document ({identity['source']})")
+    if not identity['registration_or_id_present']:
+        reasons['documents'].append(f"Identity: no registration or ID number found ({identity['source']})")
+
+    if grid is not None:
+        validate_grid(grid)
+    subjects = screening_subjects(record, grid)
+    screen, status, uncovered, evidence_as_of = None, 'NOT PERFORMED', [], None
     if screening is not None:
         screen = fund_screening.validate_evidence(screening)
-        if screen['status'] == 'POTENTIAL MATCH':
+        status = screen['status']
+        evidence_as_of = datetime.fromisoformat(screen['as_of']).astimezone(timezone.utc).date()
+        covered = {(r.get('subject_ref'), r.get('check')) for r in screening['requirements']}
+        uncovered = [f'{s}:{c}' for s in subjects for c in SCREENING_CHECKS if (s, c) not in covered]
+        gaps = []
+        if uncovered:
+            gaps.append('Screening scope: no evidence requirement for ' + ', '.join(uncovered))
+        if evidence_as_of < as_of:
+            gaps.append(f'Screening evidence as of {evidence_as_of.isoformat()} predates the review date {as_of.isoformat()}')
+        if status == 'POTENTIAL MATCH':
             reasons['escalate'].append('Screening: POTENTIAL MATCH requires qualified human adjudication')
-        elif screen['status'] != 'NO MATCH REPORTED':
-            reasons['hold'].append(f"Screening: {screen['status']}")
+        elif gaps and status == 'NO MATCH REPORTED':
+            status = 'INCOMPLETE'
+        if status not in ('POTENTIAL MATCH', 'NO MATCH REPORTED'):
+            reasons['hold'].append(f'Screening: {status}')
+        reasons['hold'].extend(gaps)
     else:
         reasons['hold'].append('Screening: NOT PERFORMED (no screening evidence supplied)')
 
@@ -358,21 +444,31 @@ def evaluate(record, grid=None, screening=None):
         'subject_ref': record['subject_ref'],
         'applicant_type': record['applicant_type'],
         'as_of': record['as_of'],
-        'screening': {'status': screen['status'] if screen else 'NOT PERFORMED',
+        'screening': {'status': status,
+                      'required_subjects': subjects,
+                      'uncovered': uncovered,
+                      'evidence_as_of': evidence_as_of.isoformat() if evidence_as_of else None,
                       'checks': [{'check': c['check'], 'status': c['status'], 'issues': c['issues']} for c in screen['checks']] if screen else []},
     }
+    warning = grid.get('expiry_warning_days', 60) if grid else 60
+    tax_forms = tax_form_states(record, as_of, warning)
+    for form in tax_forms:
+        if form['state'] in ('EXPIRED', 'INCOMPLETE'):
+            detail = f", valid until {form['valid_until']}" if form['valid_until'] else ''
+            reasons['documents'].append(f"Tax form {form['form']}: {form['state']}{detail} ({'; '.join(form['sources'])})")
+    expiring = [{'item': d['type'], 'expires': d['expires']} for d in record['documents']
+                if d['status'] == 'received' and d.get('expires') and 0 <= (iso(d['expires'], 'INVALID_DOCUMENT_DATE') - as_of).days <= warning]
+    expiring += [{'item': f"tax form {t['form']}", 'expires': t['valid_until']} for t in tax_forms if t['state'] == 'EXPIRING']
 
     if grid is None:
         reasons['integrity'].append('Rules grid not supplied: no rule was evaluated')
         result.update(grid={'name': None, 'example': None}, risk_rating='UNASSESSED', risk_factors=[], documents=[],
-                      rule_outcomes=[], refresh_due=None)
+                      rule_outcomes=[], refresh_due=None, refresh_overdue=None,
+                      completeness={'received': None, 'required': None, 'pct': None})
     else:
-        validate_grid(grid)
         if grid['example']:
             limitations.append('EXAMPLE RULES GRID: NOT FIRM POLICY')
             reasons['hold'].append("Rules grid is the shipped example, not the firm's own grid")
-        warning = grid.get('expiry_warning_days', 60)
-
         factors, points, forced = [], 0, False
         for factor in grid['risk_factors']:
             hit, evidence = condition_hit(factor['when'], record, grid, as_of)
@@ -421,11 +517,18 @@ def evaluate(record, grid=None, screening=None):
                 reasons[bucket].append(f"Rule {rule['id']}: {evidence}")
 
         last = optional_date(record.get('last_completed_review'), 'INVALID_LAST_REVIEW')
+        due = add_months(last, grid['refresh_months'][rating]) if last else None
+        received = sum(1 for d in documents if d['state'] in ('RECEIVED', 'EXPIRING'))
         result.update(
             grid={'name': grid['name'], 'example': grid['example'], 'effective_date': grid.get('effective_date')},
             risk_rating=rating, risk_points=points, risk_factors=factors, documents=documents, rule_outcomes=outcomes,
-            refresh_due=add_months(last, grid['refresh_months'][rating]).isoformat() if last else None,
+            refresh_due=due.isoformat() if due else None,
+            refresh_overdue=(due < as_of) if due else None,
+            # Rounded down, so 100 means every required document is on file.
+            completeness={'received': received, 'required': len(documents),
+                          'pct': 100 * received // len(documents) if documents else None},
         )
+    result.update(tax_forms=tax_forms, expiring=sorted(expiring, key=lambda e: (e['expires'], e['item'])))
 
     if reasons['escalate']:
         disposition = 'ESCALATE FOR EDD'
@@ -453,6 +556,16 @@ def _col(key, label, kind='text'):
     return {'key': key, 'label': label, 'type': kind}
 
 
+def _completeness(e):
+    c = e.get('completeness') or {}
+    return 'NOT CALCULABLE' if c.get('pct') is None else f"{c['received']}/{c['required']} ({c['pct']}%)"
+
+
+def _overdue(e):
+    value = e.get('refresh_overdue')
+    return 'UNKNOWN' if value is None else 'OVERDUE' if value else 'NO'
+
+
 def xlsx_spec(evaluations, title=None):
     """Table spec for scripts/fund_xlsx.py: one investor in detail, or a tracker for several."""
     required(isinstance(evaluations, list) and evaluations, 'NO_EVALUATIONS')
@@ -465,10 +578,15 @@ def xlsx_spec(evaluations, title=None):
                 {'field': 'As of', 'value': e['as_of']}, {'field': 'Disposition', 'value': e['disposition']},
                 {'field': 'Risk rating', 'value': e['risk_rating']}, {'field': 'Screening', 'value': e['screening']['status']},
                 {'field': 'Rules grid', 'value': str(e['grid']['name'])}, {'field': 'Refresh due', 'value': e['refresh_due'] or 'UNKNOWN'},
+                {'field': 'Refresh overdue', 'value': _overdue(e)},
+                {'field': 'Document completeness', 'value': _completeness(e)},
             ], 'autofilter': False},
             {'name': 'Reasons', 'columns': [_col('reason', 'Reason')], 'rows': [{'reason': r} for r in e['reasons']]},
             {'name': 'Documents', 'columns': [_col('document', 'Document'), _col('state', 'State'), _col('sources', 'Sources')],
-             'rows': [{'document': d['document'], 'state': d['state'], 'sources': '; '.join(d['sources'])} for d in e['documents']]},
+             'rows': [{'document': d['document'], 'state': d['state'], 'sources': '; '.join(d['sources'])} for d in e['documents']]
+             + [{'document': f"tax form {t['form']}", 'state': t['state'],
+                 'sources': '; '.join(([f"valid until {t['valid_until']}"] if t['valid_until'] else []) + t['sources'])}
+                for t in e.get('tax_forms', [])]},
             {'name': 'Rules', 'columns': [_col('rule_id', 'Rule'), _col('text', 'Rule text'), _col('outcome', 'Outcome'), _col('on_trigger', 'On trigger'), _col('evidence', 'Evidence')],
              'rows': [{k: o[k] for k in ('rule_id', 'text', 'outcome', 'on_trigger', 'evidence')} for o in e['rule_outcomes']]},
             {'name': 'Risk factors', 'columns': [_col('id', 'Factor'), _col('text', 'Description'), _col('outcome', 'Outcome'), _col('points', 'Points', 'integer'), _col('evidence', 'Evidence')],
@@ -478,21 +596,25 @@ def xlsx_spec(evaluations, title=None):
     else:
         doc_types = sorted({d['document'] for e in evaluations for d in e['documents']})
         columns = [_col('subject', 'Subject'), _col('applicant_type', 'Type'), _col('disposition', 'Disposition'),
-                   _col('risk', 'Risk'), _col('screening', 'Screening'), _col('refresh_due', 'Refresh due'), _col('open_items', 'Open items', 'integer')]
-        doc_types = doc_types[:53]  # fund_xlsx allows 60 columns; 7 are fixed
+                   _col('risk', 'Risk'), _col('screening', 'Screening'), _col('refresh_due', 'Refresh due'),
+                   _col('refresh_overdue', 'Refresh overdue'), _col('completeness', 'Completeness'), _col('open_items', 'Open items', 'integer')]
+        doc_types = doc_types[:51]  # fund_xlsx allows 60 columns; 9 are fixed
         columns += [_col(f'doc_{i}', d.replace('_', ' ').capitalize()) for i, d in enumerate(doc_types)]
         rows = []
         for e in evaluations:
             states = {d['document']: d['state'] for d in e['documents']}
             row = {'subject': e['subject_ref'], 'applicant_type': e['applicant_type'], 'disposition': e['disposition'],
                    'risk': e['risk_rating'], 'screening': e['screening']['status'], 'refresh_due': e['refresh_due'] or 'UNKNOWN',
-                   'open_items': len(e['reasons'])}
+                   'refresh_overdue': _overdue(e), 'completeness': _completeness(e), 'open_items': len(e['reasons'])}
             row.update({f'doc_{i}': states.get(d, 'N/A') for i, d in enumerate(doc_types)})
             rows.append(row)
-        outstanding = [{'subject': e['subject_ref'], 'reason': r} for e in evaluations for r in e['reasons']]
+        # Owner and target date are left blank for the team to fill in; the helper never assigns them.
+        outstanding = [{'subject': e['subject_ref'], 'reason': r, 'owner': None, 'target_date': None}
+                       for e in evaluations for r in e['reasons']]
         sheets = [
             {'name': 'Investors', 'columns': columns, 'rows': rows},
-            {'name': 'Open items', 'columns': [_col('subject', 'Subject'), _col('reason', 'Reason')], 'rows': outstanding},
+            {'name': 'Open items', 'columns': [_col('subject', 'Subject'), _col('reason', 'Reason'), _col('owner', 'Owner'),
+                                               _col('target_date', 'Target date', 'date')], 'rows': outstanding},
         ]
         title = title or f'KYC tracker — {len(evaluations)} investors'
     return {'schema_version': '1', 'title': title[:200], 'sheets': sheets, 'notes': notes,

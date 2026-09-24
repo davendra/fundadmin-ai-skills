@@ -3,12 +3,16 @@
 # This file shows the structure. It is NOT firm policy, NOT a legal standard and
 # NOT a recommendation of thresholds, documents or refresh cycles. Every value
 # below is a placeholder chosen to exercise the helper. Because `example: true`,
-# any evaluation with this grid is capped at HOLD and marked
-# "EXAMPLE RULES GRID: NOT FIRM POLICY".
+# an evaluation with this grid is never better than HOLD (ESCALATE FOR EDD and
+# REQUEST DOCUMENTS still apply) and is marked "EXAMPLE RULES GRID: NOT FIRM POLICY".
 #
 # To use a real grid: copy this file, have the firm's compliance owner set every
 # value from the firm's approved AML/KYC procedures and applicable law, set
 # `example: false`, and fill in `owner` and `effective_date`.
+#
+# Screening scope is not set here: the helper requires sanctions, PEP and adverse
+# media evidence for the applicant, every natural-person owner at or above
+# ubo_threshold_pct (or with no percentage) and every controller.
 #
 # Jurisdiction lists are deliberately not maintained here. Populate them from the
 # current FATF statements, sanctions programmes and the firm's own risk
@@ -125,3 +129,7 @@ rules:
     text: The applicant or an owner is connected to a higher-risk jurisdiction
     when: {type: jurisdiction_in_list, list: higher_risk}
     on_trigger: escalate-edd
+  - id: R-6.1
+    text: No current US tax form (W-9 or a W-8 series form) is on file
+    when: {type: tax_form_missing, forms: [W-9, W-8BEN, W-8BEN-E, W-8ECI, W-8EXP, W-8IMY]}
+    on_trigger: request-docs

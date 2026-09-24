@@ -4,9 +4,9 @@ How a release reaches a user, which sources are installation targets and which a
 
 ## What `main` is
 
-`main` in the public marketplace repository `davendra/fundadmin-ai-skills` is the public marketplace source, and it carries a release only after that release's checks pass: production-policy sync, the generated-tree check, strict plugin and marketplace validation, the runtime and contract suites, and candidate-bound host evidence accepted by `tools/verify_release_evidence.py`. Content that has not passed those checks does not reach it.
+`main` in the marketplace repository `davendra/fundadmin-ai-skills` is the marketplace source. It is public only once the repository's visibility is set to public; until then, adding the marketplace needs GitHub access to it. Releases are intended to reach it only after that release's checks pass: production-policy sync, the generated-tree check, strict plugin and marketplace validation, the runtime and contract suites, and candidate-bound host evidence accepted by `tools/verify_release_evidence.py`. A release can be published without host evidence (1.2.0 was); the [verification record](verification.md) states each release's actual evidence status, and that record, not this intent, is what a pilot should rely on.
 
-`main` in the source repository `davendra/fundadmin-ai` is a development branch. It is a build input, never an installation target.
+`main` in the private source repository (maintainers only) is a development branch. It is a build input, never an installation target.
 
 In either repository `main` is a moving reference: it names a source, not a reviewed set of bytes, and what it points at can differ between one installation and the next.
 
@@ -30,7 +30,7 @@ A marketplace sync can bring later plugin content into a host or a workspace. A 
 
 ## One installation method per environment
 
-Use exactly one installation method in any one host environment. The plugin route, a plain-skills installation from a source checkout, and raw skill files copied by a third-party installer all provide skills of the same names. Two copies in one host leave it ambiguous which instructions ran, and evidence collected against one copy does not describe the other. Remove the previous installation before switching methods.
+Use exactly one installation method in any one host environment. The plugin route, a maintainer's plain-skills installation from a source checkout, and raw skill files copied by a third-party installer all provide skills of the same names. Two copies in one host leave it ambiguous which instructions ran, and evidence collected against one copy does not describe the other. Remove the previous installation before switching methods.
 
 Third-party skill installers copy selected raw skill files only. They do not install the plugin manifest, the agents, the marketplace metadata, the version metadata or the release assets, and skills copied that way run without the packaged report helper, so their output is an unverified draft rather than a saved report with source hashes and an evidence sidecar. That route is developer compatibility, not a supervised-pilot configuration.
 
@@ -41,7 +41,7 @@ Record the following for each pilot environment, and again at every change to it
 | Field | What to write down |
 |---|---|
 | Installation method | Native marketplace plugin, workspace marketplace import, or reviewed source checkout |
-| Plugin version and release tag or commit | For example 1.1.0 and `fundadmin--v1.1.0` |
+| Plugin version and release tag or commit | For example 1.3.0 and `fundadmin--v1.3.0` |
 | Host and host version | For example Claude Code 2.1.278 |
 | Model or runtime identifier | The resolved identifier from the trace, not an alias |
 

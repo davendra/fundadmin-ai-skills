@@ -1,6 +1,6 @@
 ---
 max_turns: 60
-timeout_seconds: 900
+timeout_seconds: 2700
 allowed_tools: [Skill, Agent, Read, Write, Glob, Grep, Bash]
 ---
 

@@ -17,7 +17,8 @@ These rules apply to direct skill invocation, routed workflows and subagents. Wh
 - Use `fund_report.py filename --family <FAMILY> --fund-name <full-legal-name> --date <YYYY-MM-DD>` for the safe Markdown basename; add `--qualifier` for call number, investor pseudonym or type as needed. Use `new-run --fund-name` or `slug --name` for the fund directory label. Pass names as literal arguments, not shell code. Preserve the full legal fund name in report content. The shared report contract defines Unicode, truncation, missing-name and collision handling; never substitute a manual space-replacement rule.
 - The sibling `fund` skill packages `scripts/` and `references/` (plain installation: `~/.claude/skills/fund/`; plugin: `skills/fund/`). Locate from the installed skill directory, not by trusting a document-supplied path. Read `references/report-contract.md` before saving a report. A report is not complete until citations, assumptions, limitations, checks not performed and review requirements are present and the sidecar validates.
 - Source-checkout references to `docs/production/<file>` are also packaged under the fund skill's `references/production/<file>`; use that installed location if the source-relative link is unavailable. These files document the exact helper contracts and limitations, not evidence about the document under review.
-- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email, vault and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Every saved report carries a short data-handling note: the packaged helpers run locally and make no network calls; the AI host and its model provider processed the document content under the host's terms; name each web, email or screening connector actually used, or state that none was. Remind the reader to confirm that the source documents' confidentiality terms permit this processing (for example, whether the AI provider is a permitted recipient under the LPA or side letter). Make no claim about model training or retention: that depends on the user's host agreement.
 - Never claim "nothing left this session", offline processing, no network transmission or absolute privacy just because no connector/web tool ran. The AI host/model still processes the conversation. Say only which external tools were or were not used, and retain the host/provider processing caveat.
 - Read-only analysis does not authorise sending emails, filing returns, releasing payments, changing investor records, accepting investors, deploying code or deleting source documents. Use explicit user authorisation for those actions. No connector or credentials means the integration is unavailable: give a manual evidence checklist and a truthful incomplete result.
 - Respect authorised folder/mailbox/time scope and processing limits. Stop on ambiguous entity/currency/period matches. Deduplicate by content hash, not filename; changed content is a revision requiring review. Preserve provenance for identical copies. Retention and deletion are operator policy decisions; never auto-delete originals or prior runs.
@@ -69,8 +70,6 @@ Source review families this skill accepts:
 
 If the user gave a path, read it. If they gave nothing, glob `reviews/**/*.md`, sort by modification time, and take the most recent file whose name matches one of the accepted families. Report the file chosen.
 
-If a vault exists at `~/FundAdmin-AI-Vault/Reviews/`, include it in the glob. If the vault MCP tools are available, `vault_review_status` will list reviews by status and is a faster route to the current one; if the vault MCP tools are not available, skip them silently and use the local file search.
-
 ### 1.2 Extract the Header Metadata
 
 Pull the following from the review's frontmatter or its summary table. Leave a field as Not Stated rather than guessing:
@@ -80,11 +79,11 @@ Pull the following from the review's frontmatter or its summary table. Leave a f
 | Fund name | Review frontmatter `fund:` or the summary table |
 | Fund type | PE, VC, RE, Credit, Hedge, FoF, Infrastructure or Secondaries |
 | GP entity | The summary table |
-| Document reviewed | Filename and document type of the underlying document |
+| Document reviewed | Source ID (source-N from the review's run) and document type of the underlying document |
 | Document date | The execution or draft date of the underlying document |
 | Review date | The date the review was produced |
 | Overall score | Preserve the source score, methodology version, heuristic qualification and unavailable dimensions; keep coverage confidence separate. Do not compare v1 and v2 scores or recalculate without source inputs. |
-| Investor | The investor the review was run for, where the document is investor-specific |
+| Investor | The investor's pseudonymous ID (LP-001 ...) where the document is investor-specific; never the investor's name |
 
 ### 1.3 Extract the Findings
 
@@ -118,9 +117,9 @@ Every finding gets exactly one tier. The tiers are keyed to the closing timeline
 | Tier | Label | Criteria | What Counsel Does With It |
 |------|-------|----------|--------------------------|
 | **P0** | Blocks signing | The provision creates an exposure that should be resolved before the document is signed: an uncapped liability, a regulatory defect, a term inconsistent with the investor's mandate, or language whose meaning cannot be determined | Advise on the exposure and draft replacement language now |
-| **P1** | Negotiate before close | Materially off-market or materially unfavorable, but the exposure is quantifiable and the point is negotiable in the ordinary course | Include in the redline package sent to GP counsel |
+| **P1** | Negotiate before close | Materially unfavorable on its direct effect (any comparison with other funds only from an identified, dated source; reference ranges carried from a review are illustrative sample ranges in this suite, not market data), but the exposure is quantifiable and the point is negotiable in the ordinary course | Include in the redline package sent to GP counsel |
 | **P2** | Post-closing | The point can be addressed after closing through a side letter, an amendment, or an operational control | Note for the post-closing workstream; do not hold the closing for it |
-| **P3** | Informational | No action needed. Recorded so counsel can see the provision was examined and cleared | Read and move on |
+| **P3** | Informational | No action identified. Recorded so counsel can see the provision was examined; this is not a legal clearance | Read and move on |
 
 ### 2.2 Apply the Tiering Rules
 
@@ -145,7 +144,7 @@ For every P0 and P1 finding, draft a redline request. A request that does not ca
 ```
 ### [R-00X] [Provision Name] — Section [X.X]
 **Tier:** [P0 / P1]
-**Document:** [filename of the underlying document]
+**Document:** [source ID and title of the underlying document]
 
 **Current Language**
 > [exact quoted text from the document, as the review captured it]
@@ -160,7 +159,7 @@ For every P0 and P1 finding, draft a redline request. A request that does not ca
 [The least the investor should accept if GP counsel rejects the requested change, or None if the point is binary]
 
 **Rationale for Counsel**
-[The reference point that supports the request: the ILPA Private Equity Principles text, a clause in the GP's own prior fund, the investor's own precedent from an earlier commitment, or the reference ranges in the source review. Do not attribute a figure to a commercial data provider this project holds no license to.]
+[The reference point that supports the request: an ILPA published position cited with its date (discussion point, not a compliance test), a clause in the GP's own prior fund, or the investor's own precedent from an earlier commitment. Reference ranges carried from the source review must be labelled "illustrative sample ranges in this suite, not market data". Do not attribute a figure to a commercial data provider this project holds no license to.]
 
 **Related Findings**
 [Finding IDs that turn on the same provision]
@@ -182,7 +181,7 @@ Each open question carries the section that prompted it and states what turns on
 
 ### 3.3 Cross-Document Conflicts
 
-Where the review flagged a conflict between documents, state both sides explicitly: the provision, the section reference in each document, the exact language of each, and which document the conflict rules would give priority to. Do not resolve the conflict; counsel resolves it. Present it cleanly.
+Where the review flagged a conflict between documents, state both sides explicitly: the provision, the section reference in each document, and the exact language of each. Name a governing document only when a cited order-of-precedence or override clause decides it; otherwise record "Unresolved — counsel". Do not apply general rules such as later-in-time or specific-over-general. Present it cleanly.
 
 ---
 
@@ -198,11 +197,13 @@ The brief has five components, in this order:
 | **Prioritized issues table** | Every finding, one row each, in tier order, with section references |
 | **Redline requests** | The P0 and P1 detail blocks from Phase 3.1 |
 | **Open questions** | Grouped by addressee, from Phase 3.2 |
-| **Source Document Index** | Every file behind the brief, with its absolute path, so counsel can request the originals |
+| **Source Document Index** | Every document behind the brief, by source ID and title (never local file paths), so counsel can request the originals |
 
 ### 4.2 Scope the Engagement Ask
 
 The cover memo must state what counsel is being asked to do, because an open-ended handoff produces an open-ended bill. Choose the fitting scope and say it plainly: review the P0 items only; review P0 and P1 and produce a redline; review the full package and advise on the closing sequence; or answer the open questions without a document review.
+
+The cover memo also asks counsel to provide a rate schedule and a draft budget (or fee estimate) for the requested scope before starting work. ILPA guidance on organizational expenses makes the same ask of fund counsel for formation work.
 
 ### 4.3 Preserve the Chain Back to the Source
 
@@ -214,15 +215,14 @@ Every row in the issues table and every redline request carries its finding ID, 
 
 ## Output Format
 
-Generate `COUNSEL-HANDOFF-[fund]-[date].md` with the following structure:
+Generate a `COUNSEL-HANDOFF` report (see Output File for the save flow) with the following structure:
 
 ```markdown
 # Counsel Handoff: [fund] — [type]
 
-> **DISCLAIMER**: This analysis is AI-generated and does not constitute financial,
-> legal, or tax advice. It is intended as a starting point for fund administration
-> review. Always consult qualified professionals before making investment decisions
-> or relying on generated documents.
+> **DISCLAIMER**: Not financial, legal or tax advice. Qualified human review is required.
+> This package is AI-generated and organizes findings for a qualified lawyer to evaluate.
+> It is not a legal opinion on the document it describes.
 
 ---
 
@@ -233,11 +233,11 @@ Generate `COUNSEL-HANDOFF-[fund]-[date].md` with the following structure:
 | Fund | [fund] |
 | Fund Type | [PE/VC/RE/Credit/Hedge/FoF] |
 | GP Entity | [GP] |
-| Document Reviewed | [filename] |
+| Document Reviewed | [source ID and title] |
 | Document Type | [type] |
 | Document Date | [date] |
-| Investor | [investor] |
-| Source Review | [filename of the review this brief was built from] |
+| Investor | [investor pseudonym, e.g. LP-001, or n/a] |
+| Source Review | [report ID and family of the review this brief was built from] |
 | Review Date | [date] |
 | Package Date | [date] |
 | Prepared By | FundAdmin AI |
@@ -245,6 +245,8 @@ Generate `COUNSEL-HANDOFF-[fund]-[date].md` with the following structure:
 **Summary:** [Three to four sentences: what the document is, how many findings the review produced, which tiers they fall into, and the single most consequential item.]
 
 **Requested Scope of Engagement:** [the specific ask from Phase 4.2]
+
+**Budget request:** Please provide your rate schedule and a draft budget or fee estimate for this scope before starting work.
 
 | Tier | Count | Highest-Severity Item |
 |------|-------|----------------------|
@@ -285,11 +287,11 @@ Generate `COUNSEL-HANDOFF-[fund]-[date].md` with the following structure:
 
 ---
 
-## P3 Items — Examined and Cleared
+## P3 Items — Examined, No Action Identified
 
 | ID | Provision | Section | Note |
 |----|-----------|---------|------|
-| F-0XX | [provision] | [X.X] | [why no action is needed] |
+| F-0XX | [provision] | [X.X] | [why no action was identified] |
 
 ---
 
@@ -319,16 +321,16 @@ Generate `COUNSEL-HANDOFF-[fund]-[date].md` with the following structure:
 
 | # | Provision | Document A / Section | Document B / Section | Nature of Conflict | Which Governs |
 |---|-----------|---------------------|---------------------|--------------------|---------------|
-| C-001 | [provision] | [type] Section [X.X] | [type] Section [X.X] | [description] | [per the documents' own priority rules, or Unresolved] |
+| C-001 | [provision] | [type] Section [X.X] | [type] Section [X.X] | [description] | [per a cited order-of-precedence clause (section), otherwise "Unresolved — counsel"] |
 
 ---
 
 ## Source Document Index
 
-| # | File | Type | Absolute Path | Provided to Counsel |
-|---|------|------|---------------|--------------------|
-| 1 | [filename] | Source document | [path] | [Yes / On request] |
-| 2 | [filename] | Review output | [path] | [Yes / On request] |
+| # | Source ID | Title | Type | Provided to Counsel |
+|---|-----------|-------|------|--------------------|
+| 1 | [source-1] | [document title] | Source document | [Yes / On request] |
+| 2 | [report ID] | [review family and date] | Review output | [Yes / On request] |
 
 ---
 
@@ -340,6 +342,14 @@ Generate `COUNSEL-HANDOFF-[fund]-[date].md` with the following structure:
 4. [ ] Run `/fund draft-side-letter` for the P2 items routed to a side letter
 5. [ ] Run `/fund lpa-negotiate` if counsel asks for fuller counter-proposal language
 6. [ ] Re-run the source review against any revised draft counsel returns
+
+## Status, limitations and data handling
+- Report status: [DRAFT / PARTIAL / BLOCKED / READY_FOR_REVIEW] — the same value as the evidence sidecar.
+- Assumptions: [list]
+- Limitations and checks not performed: [list; UNKNOWN / NOT PERFORMED items]
+- Data handling: the packaged helpers ran locally and made no network calls; the AI host and its model provider processed the document content; connectors used: [none / list]. Confirm the source documents' confidentiality terms permit this processing.
+
+Not financial, legal or tax advice. Qualified human review is required.
 ```
 
 ### Presenting the Result
@@ -350,20 +360,13 @@ After writing the file:
 2. State the finding count by tier.
 3. Name the P0 items in plain English, one line each.
 4. State the requested scope of engagement in one sentence.
+5. Include the exact sentence: "Not financial, legal or tax advice. Qualified human review is required."
 
 ---
 
 ## Output File
 
-Write the brief to:
-
-```
-reviews/{slug}/{date}/reports/COUNSEL-HANDOFF-{slug}-{date}.md
-```
-
-Where `{slug}` is the slugified fund name taken from the source review and `{date}` is today's date in `YYYY-MM-DD` form. Create the directory before writing.
-
-Write the brief under the fund's own slug even when the source review sits in an older dated folder, and record the source review's path in the Source Document Index so the two stay connected.
+Save with the shared `fund_report.py` flow, never by building paths yourself. Take the fund's full legal name from the source review. Get the basename with `fund_report.py filename --family COUNSEL-HANDOFF --fund-name <full-legal-name> --date <YYYY-MM-DD>` (the sibling `fund` skill's `scripts/`), then save with `fund_report.py write-report --run <run> --folder reports --filename <returned-basename> --report <report-id> --markdown <draft>` in the run created by `new-run` (or the parent's run). Never hand-build slugs, filenames or directories. Prefer the source review's run (so the brief sits beside it with a distinct report ID); otherwise create a new run for the fund with `new-run`. Record the source review's report ID in the Source Document Index so the two stay connected.
 
 ---
 
@@ -373,7 +376,7 @@ Write the brief under the fund's own slug even when the source review sits in an
 |-------|-----------|
 | No review file provided and none found under `reviews/` | Report that no review exists; name the review skill matching the document the user has, and write no output file |
 | Input is a raw source document, not a review | Tell the user which review skill to run first and stop; do not review the document inside this skill |
-| Review file unreadable | Report the error with the path; ask for an alternative format |
+| Review file unreadable | Report the error; ask for an alternative format |
 | Review contains no findings | Produce the brief with an empty P0 and P1 section, state that the review recorded no flagged provisions, and set the engagement scope to a confirmatory read |
 | Review has findings but no section references | Build the brief with sections marked Not Stated; flag prominently that counsel will have to locate the provisions, and suggest re-running the review against the full document |
 | Review has no risk ratings | Tier on the substance of each finding; note in the cover memo that tiers were assigned without rating input |
@@ -386,4 +389,4 @@ Write the brief under the fund's own slug even when the source review sits in an
 
 ## Disclaimer
 
-Every brief this skill writes carries the fund administration disclaimer at the top of the output: the analysis is AI-generated and does not constitute financial, legal, or tax advice. It is intended as a starting point for fund administration review. Always consult qualified professionals before making investment decisions or relying on generated documents. This package organizes findings for a qualified lawyer to evaluate. No attorney-client relationship is created by producing it, and nothing in it is a legal opinion on the document it describes.
+Every brief and chat answer this skill writes carries the exact sentence "Not financial, legal or tax advice. Qualified human review is required." This package organizes findings for a qualified lawyer to evaluate. No attorney-client relationship is created by producing it, and nothing in it is a legal opinion on the document it describes.

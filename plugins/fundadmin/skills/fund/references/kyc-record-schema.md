@@ -83,7 +83,26 @@ Each also carries a `source` locator.
 | `source` | locator | |
 
 For `tax_forms`, `form` (e.g. `W-8BEN-E`), `status`, `signed` (date or null) and
-`source`.
+`source`. The helper normalises the form name by case, spaces and hyphens, and
+recognises `W-9`, `W-8BEN`, `W-8BEN-E`, `W-8ECI`, `W-8EXP` and `W-8IMY`. The four
+W-8 forms other than W-8IMY are valid until 31 December of the third succeeding
+calendar year after `signed` (general rule; exceptions need a person), so record
+the signature date exactly as printed, or `null` when the form shows none
+(the helper then treats that W-8 as INCOMPLETE). Other forms, such as CRS
+self-certifications, are carried with no routine expiry.
+
+## References and screening evidence
+
+`subject_ref`, owner `ref` and controller `ref` are also the keys the screening
+evidence uses. The `fund_screening.py` evidence file must use these same values
+as its `subject_ref`, one requirement per subject for `sanctions`, `pep` and
+`adverse_media`; `fund_kyc.py evaluate` lists any required subject or check the
+evidence does not cover (see `docs/production/kyc.md`). Keep the mapping from a
+provider's subject to these references in the run folder, and never change it to
+make coverage pass.
+
+`identity.legal_name_present: false` or `registration_or_id_present: false`
+routes the record to REQUEST DOCUMENTS at best.
 
 ## `injection_suspected[]` and `unreadable[]`
 

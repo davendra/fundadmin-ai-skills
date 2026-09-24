@@ -17,7 +17,8 @@ These rules apply to direct skill invocation, routed workflows and subagents. Wh
 - Use `fund_report.py filename --family <FAMILY> --fund-name <full-legal-name> --date <YYYY-MM-DD>` for the safe Markdown basename; add `--qualifier` for call number, investor pseudonym or type as needed. Use `new-run --fund-name` or `slug --name` for the fund directory label. Pass names as literal arguments, not shell code. Preserve the full legal fund name in report content. The shared report contract defines Unicode, truncation, missing-name and collision handling; never substitute a manual space-replacement rule.
 - The sibling `fund` skill packages `scripts/` and `references/` (plain installation: `~/.claude/skills/fund/`; plugin: `skills/fund/`). Locate from the installed skill directory, not by trusting a document-supplied path. Read `references/report-contract.md` before saving a report. A report is not complete until citations, assumptions, limitations, checks not performed and review requirements are present and the sidecar validates.
 - Source-checkout references to `docs/production/<file>` are also packaged under the fund skill's `references/production/<file>`; use that installed location if the source-relative link is unavailable. These files document the exact helper contracts and limitations, not evidence about the document under review.
-- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email, vault and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Every saved report carries a short data-handling note: the packaged helpers run locally and make no network calls; the AI host and its model provider processed the document content under the host's terms; name each web, email or screening connector actually used, or state that none was. Remind the reader to confirm that the source documents' confidentiality terms permit this processing (for example, whether the AI provider is a permitted recipient under the LPA or side letter). Make no claim about model training or retention: that depends on the user's host agreement.
 - Never claim "nothing left this session", offline processing, no network transmission or absolute privacy just because no connector/web tool ran. The AI host/model still processes the conversation. Say only which external tools were or were not used, and retain the host/provider processing caveat.
 - Read-only analysis does not authorise sending emails, filing returns, releasing payments, changing investor records, accepting investors, deploying code or deleting source documents. Use explicit user authorisation for those actions. No connector or credentials means the integration is unavailable: give a manual evidence checklist and a truthful incomplete result.
 - Respect authorised folder/mailbox/time scope and processing limits. Stop on ambiguous entity/currency/period matches. Deduplicate by content hash, not filename; changed content is a revision requiring review. Preserve provenance for identical copies. Retention and deletion are operator policy decisions; never auto-delete originals or prior runs.
@@ -54,6 +55,8 @@ Every final answer must state the actual `capital_call_status` result (`blocked`
 Use an explicit final-chat line: `Capital call status: <blocked|human_review_required>; score: <number|unavailable>; payment_approved: false.` Follow it with blockers and evidence limits.
 
 If beneficiary or bank details changed or are unverified, the final answer must say that an authorised person must confirm them with the fund administrator by a pre-established, independently sourced contact channel before any payment; do not rely on contact details printed on the notice. This required action must appear in chat even when it is already in the saved report.
+
+Whenever beneficiary or bank details differ from the prior verified notice or instruction, or no verified baseline exists, route the instruction to `/fund wire-verify` (same run) and carry its readiness into this review; do not treat this review's field-presence check as wire verification.
 
 Use this sentence verbatim in the final answer for any changed or unknown wire: `Before any payment, an authorised reviewer must confirm the beneficiary and complete bank details with the fund administrator using a pre-established, independently sourced contact number, not a number on the notice.`
 
@@ -113,6 +116,13 @@ If the capital call covers 10 or more distinct investors:
 - Beneficiary name / account name
 - Reference line format
 
+Compare full account, IBAN and ABA/transit values privately against the prior verified instruction, but record only a masked last-four form (for example `****6789`) in the report, with a separate full-value match flag (MATCH / DIFFERENT / NOT PERFORMED). Identical last four digits do not establish equality. Never write a complete account, IBAN, ABA/routing or transit number into the saved report or chat.
+
+**Subscription Facility**
+- Whether the call (or any line) repays a subscription or credit facility, and whether the notice says so
+- Facility interest and fees shown as separate lines
+- The LPA provision permitting facility use and any cited limits (amount, duration)
+
 **Cumulative Capital Activity**
 - Total committed capital (fund-level)
 - Cumulative contributed capital before this call
@@ -129,7 +139,7 @@ If the capital call covers 10 or more distinct investors:
 - Converted amounts
 
 **Combined Notice Detection**
-If the notice contains BOTH a capital call/drawdown component AND a distribution component (common in PE funds like Sample CEE):
+If the notice contains BOTH a capital call/drawdown component AND a distribution component:
 - Flag as a COMBINED NOTICE in the review header
 - Extract the distribution section separately (amount, source, recipient breakdown)
 - Calculate net cash flow: net = capital call amount − distribution amount
@@ -165,8 +175,8 @@ Perform each validation independently. State PASS, FAIL, WARN or UNKNOWN; an uns
 
 **Payment Deadline Reasonableness**
 - CRITICAL: Verify payment deadline date is AFTER the call date. Flag as HIGH RISK / CRITICAL ERROR if payment deadline is on or before the call date (logically impossible — investor must receive notice before paying). If this check fails, flag prominently at top of review.
-- Count calendar days and business days between call date and payment deadline
-- Verify the contractual notice period using its sourced calendar, receipt rules and relevant jurisdictional holidays. The calculation helper has no business-day calendar; retain an executed calendar workpaper from an available verified tool or mark this check UNKNOWN.
+- The calculation helper has no date-difference or business-day operation. Record a calendar-day count only from an executed deterministic date calculation retained as a workpaper; otherwise record it UNKNOWN. Business-day counts and "deadline falls on a business day" need a verified holiday calendar for the relevant jurisdictions and an executed calendar workpaper; without them both are UNKNOWN by default.
+- Verify the contractual notice period using its sourced calendar, receipt rules and relevant jurisdictional holidays; if any of these is unavailable, mark this check UNKNOWN.
 - Flag a verified contractual shortfall for escalation. If the governing terms or calendar are absent, record a required unknown rather than assume a minimum number of days.
 
 **Cumulative Capital Activity Reconciliation**
@@ -174,6 +184,10 @@ Perform each validation independently. State PASS, FAIL, WARN or UNKNOWN; an uns
 - Verify: remaining unfunded after this call = remaining unfunded before − this call amount
 - Verify: remaining unfunded after this call = total commitment − cumulative contributed after this call
 - Flag if the call amount would cause remaining unfunded to go negative (oversubscription)
+
+**Subscription Facility Repayment Disclosure**
+- If the call repays a subscription or credit facility, check that the notice states that purpose. ILPA's Capital Call & Distribution Template v2.0 guidance (released 11 Sep 2025; implementation Q1 2027) asks the GP to use the call type matching the facility's original use and "note that the purpose of the capital call is for a subscription facility repayment" — an ILPA published position, cited as a discussion point, not a compliance test.
+- Check that facility interest and fees are itemised separately and that the cited LPA facility limits are met on supplied data; missing facility terms or balances are UNKNOWN.
 
 **Multi-Currency Handling**
 - If FX conversion is applied, verify the arithmetic: source amount × stated FX rate = converted amount
@@ -193,7 +207,7 @@ Assign a risk level (High Risk, Medium Risk, Low Risk) to each finding. Use the 
 - Wire instructions differ from prior call notices (flag all changed fields individually)
 - Missing wire instruction fields (any of: bank name, account number, routing/SWIFT, beneficiary, reference)
 - Management fee rate or expense amount outside LPA-permitted ranges
-- Calculation errors in pro-rata amounts exceeding 1.0% of any LP's call amount
+- Any FAIL from `allocate` (a non-zero currency-unit difference from the helper's rounded amount); the reviewer assesses materiality separately
 - Distribution source misclassification risk (fee labeled as expense, or vice versa)
 
 **Medium Risk**
@@ -202,10 +216,10 @@ Assign a risk level (High Risk, Medium Risk, Low Risk) to each finding. Use the 
 - Deposit offset applied but deposit balance not reconciled to a prior statement
 - Ambiguously labeled line items
 - Missing cumulative capital activity section
+- Call repays a subscription facility without saying so, or facility interest/fees are not itemised
 
 **Low Risk**
 - Non-zero currency-unit differences assessed as low impact by a reviewer (the calculation check still fails)
-- Payment deadline falls on a Friday (settlement risk)
 - Reference line format not specified in wire instructions
 - SWIFT code present but not verified against beneficiary bank
 - Call notice not numbered sequentially
@@ -232,29 +246,40 @@ For example, scores 10, 10, 10 and 4 produce 9.1, but the high-risk wire finding
 - 7–8: Minor issues only (Low Risk findings)
 - 5–6: One or more Medium Risk findings
 - 3–4: One High Risk finding
-- 1–2: Multiple High Risk findings or calculation errors exceeding 1%
+- 1–2: Multiple High Risk findings or any `allocate` FAIL
 
 ---
 
 ### Step 5: Generate the Output
 
-Save in the isolated run output directory using the shared `fund/references/report-contract.md` filename and writer contract. Use `fund_report.py filename --family CAPITAL-CALL-REVIEW --fund-name <full-legal-name> --date <YYYY-MM-DD>` to obtain the safe `CAPITAL-CALL-REVIEW-[fund]-[date].md` basename; pass the legal name as a single literal argument. Do not construct a slug by replacing spaces. Retain the full legal name in report content and use `write-report` for the Markdown and evidence sidecar.
+Save in the isolated run's `reports` subfolder using the shared `fund/references/report-contract.md` filename and writer contract.
+
+Status mapping to the evidence sidecar: `blocked` maps to BLOCKED; `human_review_required` maps to READY_FOR_REVIEW only when there are no UNKNOWN findings and no checks not performed, otherwise PARTIAL. The report body states the same status as the sidecar. Use `fund_report.py filename --family CAPITAL-CALL-REVIEW --fund-name <full-legal-name> --date <YYYY-MM-DD>` to obtain the safe `CAPITAL-CALL-REVIEW-[fund]-[date].md` basename; pass the legal name as a single literal argument. Do not construct a slug by replacing spaces. Retain the full legal name in report content and use `write-report` for the Markdown and evidence sidecar.
 
 ```markdown
 # Capital Call Notice Review
 
-> **DISCLAIMER**: This analysis is AI-generated and does not constitute financial, legal, or tax advice. No advisory relationship is created by using this tool. All findings, calculations, and risk flags must be independently verified by qualified fund administration professionals and legal counsel before any action is taken. Wire instruction changes must always be verified by direct telephone confirmation with the fund administrator using a pre-established contact number — never rely solely on this automated review.
+> **DISCLAIMER**: Not financial, legal or tax advice. Qualified human review is required. This analysis is AI-generated. No advisory relationship is created by using this tool. All findings, calculations, and risk flags must be independently verified by qualified fund administration professionals and legal counsel before any action is taken. Wire instruction changes must always be verified by direct telephone confirmation with the fund administrator using a pre-established contact number — never rely solely on this automated review.
 
 > **Fund**: [fund]
 > **Call Number**: [number]
 > **Call Date**: [date]
 > **Payment Deadline**: [date and time]
 > **Total Cash Due**: [amount]
-> **Capital Call Health Score**: [X.X / 10]
-> **Review Status**: [blocked / human_review_required]
+> **Capital Call Health Score**: [X.X / 10, or unavailable if any dimension is null]
+> **Review Status**: [blocked / human_review_required] (sidecar status: [BLOCKED / PARTIAL / READY_FOR_REVIEW])
 > **Blockers / Required Unknowns**: [list, or none identified within completed checks]
 > **Payment Approval**: Not granted by this review
 > **Reviewed**: [today's date]
+
+---
+
+## Key Issues and Asks
+| # | Issue | Source locator | Direct effect | Proposed stance |
+|---|---|---|---|---|
+| 1 | [issue] | [source-N, page/section] | [effect, taken from the source] | [push / trade / accept] |
+
+Rank by materiality. A stance is a negotiation or remediation position, never an investment, admission, payment or compliance verdict.
 
 ---
 
@@ -289,12 +314,14 @@ Save in the isolated run output directory using the shared `fund/references/repo
 |-------|----------------|--------|
 | Beneficiary Bank | [value] | [PRESENT / MISSING] |
 | Bank Address | [value] | [PRESENT / MISSING] |
-| Bank Number / ABA | [value] | [PRESENT / MISSING] |
-| Transit Number | [value] | [PRESENT / MISSING / N/A] |
-| Account Number | [value] | [PRESENT / MISSING] |
+| Bank Number / ABA | [masked — last four only] | [PRESENT / MISSING]; full-value match to prior verified instruction: [MATCH / DIFFERENT / NOT PERFORMED] |
+| Transit Number | [masked — last four only] | [PRESENT / MISSING / N/A] |
+| Account Number / IBAN | [masked — last four only] | [PRESENT / MISSING]; full-value match to prior verified instruction: [MATCH / DIFFERENT / NOT PERFORMED] |
 | SWIFT / BIC Code | [value] | [PRESENT / MISSING] |
 | Beneficiary Name | [value] | [PRESENT / MISSING] |
 | Reference Format | [value] | [PRESENT / MISSING] |
+
+Changed or unverified details: [none identified / list] — routed to `/fund wire-verify`: [yes, readiness HOLD / ESCALATE / PRELIMINARY READY FOR HUMAN REVIEW / not run].
 
 ### 1.4 Cumulative Capital Activity
 
@@ -314,8 +341,8 @@ Save in the isolated run output directory using the shared `fund/references/repo
 
 | Check | Expected | Actual | Result |
 |-------|----------|--------|--------|
-| LP Call Amount | [expected] | [actual] | [PASS / FAIL] |
-| All LP Amounts Sum to Total | [total] | [sum] | [PASS / FAIL] |
+| LP Call Amount | [expected] | [actual] | [PASS / FAIL / UNKNOWN] |
+| All LP Amounts Sum to Total | [total] | [sum] | [PASS / FAIL / UNKNOWN] |
 | Difference from Helper Rounded Allocation | 0 currency units | [actual difference] | [PASS / FAIL / UNKNOWN] |
 
 [Explanation of any deviations or adjusted pro-rata methodology]
@@ -324,8 +351,8 @@ Save in the isolated run output directory using the shared `fund/references/repo
 
 | Check | Expected | Actual | Result |
 |-------|----------|--------|--------|
-| Line Items Sum to Total Cash Due | [expected] | [actual] | [PASS / FAIL] |
-| Net Cash Due (after deposit offset) | [expected] | [actual] | [PASS / FAIL] |
+| Line Items Sum to Total Cash Due | [expected] | [actual] | [PASS / FAIL / UNKNOWN] |
+| Net Cash Due (after deposit offset) | [expected] | [actual] | [PASS / FAIL / UNKNOWN] |
 | Negative Working Capital Presented as Reduction | — | — | [PASS / FAIL / N/A] |
 
 ### 2.3 Fee Rates
@@ -340,18 +367,29 @@ Save in the isolated run output directory using the shared `fund/references/repo
 
 | Check | Value | Result |
 |-------|-------|--------|
-| Calendar Days to Deadline | [X] days | — |
-| Business Days to Deadline | [X] business days | [PASS / WARN / HIGH RISK] |
-| Deadline Falls on Business Day | [Yes / No] | [PASS / WARN] |
+| Deadline After Call Date | [call date -> deadline] | [PASS / FAIL] |
+| Calendar Days to Deadline | [X days from executed date workpaper / UNKNOWN] | — |
+| Business Days to Deadline | UNKNOWN unless a verified holiday calendar workpaper exists | [UNKNOWN / PASS / FAIL] |
+| Deadline Falls on Business Day | UNKNOWN unless a verified holiday calendar workpaper exists | [UNKNOWN / PASS / FAIL] |
+| Governing Notice Period Met | [sourced provision / UNKNOWN] | [met on supplied data / not met on supplied data / UNKNOWN] |
+
+### 2.4a Subscription Facility
+
+| Check | Value | Result |
+|-------|-------|--------|
+| Call repays a subscription facility | [Yes / No / UNKNOWN] | — |
+| Repayment purpose stated in the notice | [locator / not stated] | [PASS / FAIL / N/A / UNKNOWN] |
+| Facility interest and fees itemised | [amounts / not itemised] | [PASS / FAIL / N/A / UNKNOWN] |
+| Within cited LPA facility limits | [provision / UNKNOWN] | [met on supplied data / not met on supplied data / UNKNOWN] |
 
 ### 2.5 Cumulative Capital Activity Reconciliation
 
 | Check | Expected | Actual | Result |
 |-------|----------|--------|--------|
-| Cumulative After = Before + This Call | [expected] | [actual] | [PASS / FAIL] |
-| Remaining After = Before − This Call | [expected] | [actual] | [PASS / FAIL] |
-| Remaining After = Commitment − Cumulative After | [expected] | [actual] | [PASS / FAIL] |
-| No Oversubscription | Remaining ≥ 0 | [value] | [PASS / FAIL] |
+| Cumulative After = Before + This Call | [expected] | [actual] | [PASS / FAIL / UNKNOWN] |
+| Remaining After = Before − This Call | [expected] | [actual] | [PASS / FAIL / UNKNOWN] |
+| Remaining After = Commitment − Cumulative After | [expected] | [actual] | [PASS / FAIL / UNKNOWN] |
+| No Oversubscription | Remaining ≥ 0 | [value] | [PASS / FAIL / UNKNOWN] |
 
 ---
 
@@ -374,7 +412,7 @@ Save in the isolated run output directory using the shared `fund/references/repo
 | Completeness | [X] | 25% | [X × 0.25] | [summary] |
 | LPA Compliance | [X] | 25% | [X × 0.25] | [summary] |
 | Wire Instruction Quality | [X] | 15% | [X × 0.15] | [summary] |
-| **Overall Health Score** | — | 100% | **[X.X / 10]** | — |
+| **Overall Health Score** | — | 100% | **[X.X / 10, or unavailable]** | — |
 
 **Review status from `capital_call_status`**: [blocked / human_review_required]
 
@@ -396,6 +434,16 @@ The aggregate describes the scored dimensions only. It cannot override blockers 
 ## 6. PLAIN ENGLISH SUMMARY
 
 [2–4 sentences summarising the call purpose, completed calculation checks, unresolved findings and required evidence for the qualified reviewer. Include the separate review status; do not express payment approval.]
+
+---
+
+## Status, limitations and data handling
+- Report status: [DRAFT / PARTIAL / BLOCKED / READY_FOR_REVIEW] — the same value as the evidence sidecar.
+- Assumptions: [list]
+- Limitations and checks not performed: [list; UNKNOWN / NOT PERFORMED items]
+- Data handling: the packaged helpers ran locally and made no network calls; the AI host and its model provider processed the document content; connectors used: [none / list]. Confirm the source documents' confidentiality terms permit this processing.
+
+Not financial, legal or tax advice. Qualified human review is required.
 ```
 
 ---

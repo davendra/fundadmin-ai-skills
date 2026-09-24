@@ -23,7 +23,7 @@ This redline reflects 15 negotiation items. Items marked **[NEW]** were not in t
 **Proposed:**
 > "The General Partner shall be entitled to a Carried Interest equal to ~~twenty-five percent (25%)~~ **twenty percent (20%)** of Net Profits allocable with respect to each LP's Capital Account after such LP has received distributions equal to its Invested Capital."
 
-**Counsel Note:** 25% carry with no preferred return is above market for a US buyout fund of this size ($2B target). ILPA guidelines and Burgiss benchmarks support 20% as the market median. Our clients are unwilling to commit at 25% carry absent a meaningful hurdle rate. This is a threshold issue.
+**Counsel Note:** 25% carry with no preferred return is above market for a US buyout fund of this size ($2B target). ILPA guidance treats a preferred return as a core LP protection; we have not seen a sourced comparison supporting 25% without one. Our clients are unwilling to commit at 25% carry absent a meaningful hurdle rate. This is a threshold issue.
 
 ---
 
@@ -131,7 +131,7 @@ This redline reflects 15 negotiation items. Items marked **[NEW]** were not in t
 **Proposed:**
 > "Monitoring fees, transaction fees, and other fees received by the General Partner or its Affiliates from Portfolio Companies shall offset the Management Fee at a rate of ~~fifty percent (50%)~~ **one hundred percent (100%)**."
 
-**Counsel Note:** 50% fee offset is below market. ILPA principles call for 100% offset, which is now the median for buyout funds. The GP is essentially charging the portfolio companies (whose economic returns flow to LPs) and then keeping half of those fees — which is a form of double-charging. We require 100%.
+**Counsel Note:** 50% fee offset is below market. ILPA Principles 3.0 recommend that fee income offset the management fee in full. The GP is essentially charging the portfolio companies (whose economic returns flow to LPs) and then keeping half of those fees — which is a form of double-charging. We require 100%.
 
 ---
 

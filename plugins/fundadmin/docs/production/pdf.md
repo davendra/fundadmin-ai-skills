@@ -43,7 +43,8 @@ rendered recursively as labelled content. No field whitelist removes financial
 exposure, waterfall details, sources or limitations.
 
 JSON `score` is a finite number or null. Its default scale is 100 and its default
-label is `LPA Safety Score`, for legacy payloads. Other assessments should supply
+label is `LPA document favourability (heuristic, methodology v2)`, for legacy
+payloads; it is a heuristic, not a safety verdict. Other assessments should supply
 `score_label` and a positive numeric `score_scale`. Scores must be within the
 scale. Decimals are not rounded. Missing/null scores display `Score: Not supplied`;
 explicit zero displays zero. No grade, risk verdict or recommendation is inferred.
@@ -63,18 +64,34 @@ content-preserving report layout.
   a cell longer than 1,200 characters uses labelled records to avoid clipping.
 - Long paragraphs and records split across pages. Malformed table rows remain
   literal text instead of being discarded.
-- Inline Markdown, links, footnotes, code and HTML remain literal visible text;
-  headings and pipe tables receive layout. No HTML executes and no external
-  images or linked content are fetched. Whitespace/indentation is not facsimile
-  rendering; this is a text report exporter, not a full CommonMark typesetter.
-- Unsupported font glyphs appear as `[U+XXXX]` markers rather than disappearing
-  or becoming black squares. Latin currency and typographic punctuation are
-  covered by the bundled font. Full CJK/emoji and complex-script shaping are not
-  supported. Unicode markers preserve identity, not original visual appearance.
+- Headings (three sizes), pipe tables, bullet and task lists, block quotes and a
+  small inline subset receive layout: `**bold**`, `*italic*`, `` `code` `` and
+  `[text](https://…)`, which prints as `text (URL)` so the address stays
+  visible. Markup characters are removed only where they are typeset. Source
+  text is escaped before this subset is applied, so HTML in the source remains
+  literal visible text and never executes; footnotes remain literal text. No
+  external images or linked content are fetched. Code fences stay literal.
+  Whitespace/indentation is not facsimile rendering; this is a text report
+  exporter, not a full CommonMark typesetter.
+- Report symbols the bundled font cannot draw are mapped to words so their
+  meaning survives: 🔴 `HIGH`, 🟠 `ELEVATED`, 🟡 `MEDIUM`, 🟢 `LOW`, ⬜/☐ `[ ]`,
+  ☑/✅ `[x]`, ❌ `[no]`, ⚠ `WARNING`, → `->`. Any other unsupported glyph appears
+  as a `[U+XXXX]` marker rather than disappearing or becoming a black square;
+  for example the full block, light shade, check mark and ballot X print as
+  `[U+2588]`, `[U+2591]`, `[U+2713]` and `[U+2717]`. Templates should use plain
+  text (`OK`, `FAIL`, `[ ]`, `->`) instead.
+  Latin currency and typographic punctuation are covered by the bundled font.
+  Full CJK/emoji and complex-script shaping are not supported.
 - Page counts are drawn by the PDF canvas; source text is never globally replaced
   to insert totals. No synthetic gauge or score-dependent advisory text is added.
-- Original source limitations and citations remain part of the report. A general
-  AI-generated/not financial, legal, tax or investment advice notice is appended.
+- Original source limitations and citations remain part of the report. An
+  AI-generated notice is appended with the exact sentence "Not financial, legal or
+  tax advice. Qualified human review is required." and a data-handling note.
+- The PDF is untagged: it is not PDF/UA and has no structure tags for screen
+  readers. Accessibility is a known limitation.
+- When `/fund review-lpa` has already rendered `FUND-REVIEW-REPORT.pdf` for a
+  report, `/fund report-pdf` returns that path instead of rendering again; a new
+  rendering uses `--output` with a new name in the same report directory.
 
 ## Verification
 
@@ -91,7 +108,19 @@ and tables in temporary directories, then verify extracted content, scores,
 citations, final limitations and page continuation. No production/client reports
 or generated PDFs are committed.
 
-Visual review performed on 21 September 2026 using the shared `.venv-hardening`
+The pinned version in `requirements-plugin.txt` is ReportLab 5.0.1. The 23
+September review below ran on ReportLab 4.4.10, an older version than the pin;
+repeat it on the pinned version before relying on it for a release.
+
+Visual review on 23 September 2026 (ReportLab 4.4.10, Poppler `pdftoppm`) after
+inline typesetting and symbol mapping were added: the Obrelund quickstart LPA
+review (17 pages) and ERISA subscription review (10 pages) rendered with no
+`[U+…]` markers, no stray `**`, backticks or quote markers in extracted text, and
+all sections through the final limitations. Tables still split long rows across
+pages with repeated headers. This supersedes the layout description below for
+inline Markdown and symbols; the earlier stress-test findings still apply.
+
+Earlier visual review performed on 21 September 2026 using the shared `.venv-hardening`
 (ReportLab 5.0.1, pypdf 6.19.0) and Poppler `pdftoppm`: the one-page Markdown
 fixture, one-page JSON fixture and every page of an 11-page synthetic stress
 report were rendered and inspected. The stress report contained 150 table rows

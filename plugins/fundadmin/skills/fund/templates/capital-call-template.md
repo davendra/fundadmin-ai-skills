@@ -49,29 +49,31 @@ The General Partner, [GP Entity Legal Name], proposes the following call amounts
 | [e.g., "Management fees — Q[X] [Year]"] | $[amount] | [X]% |
 | [e.g., "Fund expenses (legal, audit, administration)"] | $[amount] | [X]% |
 | [e.g., "Organizational expenses"] | $[amount] | [X]% |
+| [e.g., "Subscription facility repayment (original use: [investment / fees / expenses])"; state that the call repays the facility and show facility interest and fees as separate lines] | $[amount] | [X]% |
 | **Total** | **$[total]** | **100%** |
 
 ---
 
 ## Per-LP Capital Call Schedule
 
-| LP Name | Total Commitment | Previously Called | This Call | Remaining Unfunded | % of Commitment Called to Date |
-|---------|-----------------|-------------------|-----------|-------------------|-------------------------------|
-| [LP 1 Legal Name] | $[commitment] | $[cumulative prior calls] | $[this call amount] | $[remaining] | [X]% |
-| [LP 2 Legal Name] | $[commitment] | $[cumulative prior calls] | $[this call amount] | $[remaining] | [X]% |
-| [LP 3 Legal Name] | $[commitment] | $[cumulative prior calls] | $[this call amount] | $[remaining] | [X]% |
-| [LP 4 Legal Name] | $[commitment] | $[cumulative prior calls] | $[this call amount] | $[remaining] | [X]% |
-| [LP 5 Legal Name] | $[commitment] | $[cumulative prior calls] | $[this call amount] | $[remaining] | [X]% |
+| Investor ID | Total Commitment | Previously Called | This Call | Remaining Unfunded | % of Commitment Called to Date |
+|-------------|-----------------|-------------------|-----------|-------------------|-------------------------------|
+| [LP-001] | $[commitment] | $[cumulative prior calls] | $[this call amount] | $[remaining] | [X]% |
+| [LP-002] | $[commitment] | $[cumulative prior calls] | $[this call amount] | $[remaining] | [X]% |
+| [LP-003] | $[commitment] | $[cumulative prior calls] | $[this call amount] | $[remaining] | [X]% |
+| [LP-004] | $[commitment] | $[cumulative prior calls] | $[this call amount] | $[remaining] | [X]% |
+| [LP-005] | $[commitment] | $[cumulative prior calls] | $[this call amount] | $[remaining] | [X]% |
 | **TOTAL** | **$[total commitments]** | **$[total previously called]** | **$[total this call]** | **$[total remaining]** | **[X]%** |
 
 ---
 
-## Recallable / Non-Recallable Designation
+## Impact on Unfunded Commitment
 
-<!-- Use only the actual LPA recallability/recycling terms; purpose alone does not establish them. -->
+<!-- Use only the actual LPA recallability/recycling terms; purpose alone does not establish them. ILPA's Capital Call & Distribution Template v2.0 (released 11 Sep 2025; implementation Q1 2027) expresses recallability through each line's impact on unfunded commitment: an ILPA published position, not a compliance test. -->
 
-- **Recallable Capital:** [Currency/amount, sourced conditions, time limits and provision; otherwise MISSING]
-- **Non-Recallable Capital:** [Currency/amount and sourced provision; otherwise MISSING]
+| Purpose line | Amount | Impact on Unfunded Commitment | Governing provision |
+|--------------|--------|-------------------------------|---------------------|
+| [purpose] | $[amount] | [Reduces unfunded / Restores unfunded (recallable or recycled amount) / No effect / MISSING] | [provision / MISSING] |
 
 **Commitment Period Status:** [Active / Expired on [date]]
 
@@ -103,11 +105,11 @@ Please wire funds to the following account:
 |-------|-------|
 | **Bank Name** | [Bank name] |
 | **Bank Address** | [Bank address] |
-| **ABA / Routing Number** | [routing number] |
+| **ABA / Routing Number** | [masked — last four only] |
 | **Account Name** | [Fund legal name or custodial account name] |
 | **Account Number** | [masked — last four only] |
 | **SWIFT Code** | [SWIFT code — for international wires] |
-| **Reference** | [LP Name — Capital Call No. [X]] |
+| **Reference** | [investor reference ID — Capital Call No. [X]] |
 
 **For international transfers, please also include:**
 
@@ -116,7 +118,9 @@ Please wire funds to the following account:
 | **Intermediary Bank** | [intermediary bank name, if applicable] |
 | **Intermediary SWIFT** | [intermediary SWIFT code] |
 
-Please ensure the wire reference includes your LP name and the capital call number for proper allocation.
+Please ensure the wire reference includes your investor reference and the capital call number for proper allocation.
+
+<!-- The saved draft shows masked account details only. The authorised operator inserts the full payment instructions from the verified system of record at issue, outside the saved report, after independent callback verification of any new or changed instruction. Legal names are merged from the protected investor register at issue. -->
 
 ---
 
@@ -126,7 +130,7 @@ Upon sending your wire, please confirm payment by emailing [confirmation email a
 1. Wire confirmation / reference number
 2. Date of wire
 3. Amount wired
-4. LP entity name
+4. Investor reference
 
 ---
 
@@ -143,6 +147,16 @@ Name: [Authorized Signatory Name]
 Title: [Title — e.g., Managing Director, Authorized Person]
 
 Date: ____________________________
+
+---
+
+## Status, limitations and data handling
+- Report status: [DRAFT / PARTIAL / BLOCKED / READY_FOR_REVIEW] — the same value as the evidence sidecar.
+- Assumptions: [list]
+- Limitations and checks not performed: [list; UNKNOWN / NOT PERFORMED items]
+- Data handling: the packaged helpers ran locally and made no network calls; the AI host and its model provider processed the document content; connectors used: [none / list]. Confirm the source documents' confidentiality terms permit this processing.
+
+Not financial, legal or tax advice. Qualified human review is required.
 
 ---
 

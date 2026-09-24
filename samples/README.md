@@ -4,7 +4,8 @@
 24 synthetic fund documents for one fictional private equity fund family,
 **Obrelund Capital Partners Fund III**, so you can try every major command right after
 installing. Every file is marked `SYNTHETIC SAMPLE DATA`; every name, figure and identifier
-is fictional and identifiers are built to fail their checksums. Most documents carry
+is fictional. Routing numbers are built to fail the ABA checksum; tax identifiers such as
+EINs have no checksum, so treat every identifier as fictional. Most documents carry
 planted issues the skill should find; the ones marked *clean* should come back clean, so a
 skill that flags everything is wrong too.
 
@@ -43,5 +44,4 @@ Run any command from the repository root (or copy the file next to your own docu
 | `complex-legalese-passage.md` | `/fundadmin:fund plain-english samples/complex-legalese-passage.md` | — | none (clean control, should come back clean) |
 | `lpa-redline-obrelund.md` | `/fundadmin:fund lpa-negotiate samples/lpa-redline-obrelund.md` | `counsel-handoff`, `amendment-draft` | none (clean control, should come back clean) |
 
-The full corpus (1,100+ documents across eight fund families, with the generators) lives in
-the [source repository](https://github.com/davendra/fundadmin-ai) under `samples/`.
+These files are a curated subset of a larger synthetic corpus that is not published here.

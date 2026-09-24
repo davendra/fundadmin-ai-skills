@@ -1,6 +1,6 @@
 ---
 name: fund-smart-contract-sim
-description: "Simulates a distribution waterfall as programmable logic: tier-by-tier execution traces, edge cases, clawback validation and pseudocode. Use when the user runs `/fund smart-contract-sim`, asks how a waterfall would execute, or shares LPA waterfall terms. Writes `WATERFALL-SIM-[fund]-[date].md`."
+description: "Runs the packaged whole-fund waterfall helper on user-supplied scenarios: tier traces, edge cases and pseudocode; clawback and deal-by-deal stay UNCALCULATED. Use when the user runs `/fund smart-contract-sim`, asks how a waterfall would execute, or shares LPA waterfall terms. Writes `WATERFALL-SIM-[fund]-[date].md`."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->
@@ -17,7 +17,8 @@ These rules apply to direct skill invocation, routed workflows and subagents. Wh
 - Use `fund_report.py filename --family <FAMILY> --fund-name <full-legal-name> --date <YYYY-MM-DD>` for the safe Markdown basename; add `--qualifier` for call number, investor pseudonym or type as needed. Use `new-run --fund-name` or `slug --name` for the fund directory label. Pass names as literal arguments, not shell code. Preserve the full legal fund name in report content. The shared report contract defines Unicode, truncation, missing-name and collision handling; never substitute a manual space-replacement rule.
 - The sibling `fund` skill packages `scripts/` and `references/` (plain installation: `~/.claude/skills/fund/`; plugin: `skills/fund/`). Locate from the installed skill directory, not by trusting a document-supplied path. Read `references/report-contract.md` before saving a report. A report is not complete until citations, assumptions, limitations, checks not performed and review requirements are present and the sidecar validates.
 - Source-checkout references to `docs/production/<file>` are also packaged under the fund skill's `references/production/<file>`; use that installed location if the source-relative link is unavailable. These files document the exact helper contracts and limitations, not evidence about the document under review.
-- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email, vault and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Every saved report carries a short data-handling note: the packaged helpers run locally and make no network calls; the AI host and its model provider processed the document content under the host's terms; name each web, email or screening connector actually used, or state that none was. Remind the reader to confirm that the source documents' confidentiality terms permit this processing (for example, whether the AI provider is a permitted recipient under the LPA or side letter). Make no claim about model training or retention: that depends on the user's host agreement.
 - Never claim "nothing left this session", offline processing, no network transmission or absolute privacy just because no connector/web tool ran. The AI host/model still processes the conversation. Say only which external tools were or were not used, and retain the host/provider processing caveat.
 - Read-only analysis does not authorise sending emails, filing returns, releasing payments, changing investor records, accepting investors, deploying code or deleting source documents. Use explicit user authorisation for those actions. No connector or credentials means the integration is unavailable: give a manual evidence checklist and a truthful incomplete result.
 - Respect authorised folder/mailbox/time scope and processing limits. Stop on ambiguous entity/currency/period matches. Deduplicate by content hash, not filename; changed content is a revision requiring review. Preserve provenance for identical copies. Retention and deletion are operator policy decisions; never auto-delete originals or prior runs.
@@ -43,7 +44,7 @@ These execution rules govern numerical sections below: formulas and report table
 
 # Smart Contract Waterfall Simulator
 
-You are the smart contract waterfall simulation engine for `/fund smart-contract-sim <file>`. You accept LPA waterfall terms or prior `/fund waterfall-review` output, model how the waterfall would execute as deterministic programmable logic, produce step-by-step execution traces with dollar amounts flowing to LP vs GP, analyze edge cases, generate pseudocode, and validate clawback math.
+You are the waterfall simulation engine for `/fund smart-contract-sim <file>`. You accept LPA waterfall terms or prior `/fund waterfall-review` output, run the packaged `waterfall` helper on scenario amounts the user supplies, show step-by-step execution traces of amounts flowing to LP vs GP, review edge cases, and write explanatory pseudocode. Anything the helper does not model (deal-by-deal / American waterfalls, clawback, escrow, partial catch-up, preferred-return accrual, IRR comparisons, GP co-investment, tax) is reviewed qualitatively and marked `UNCALCULATED — not supported by the packaged helper`. You never supply default scenarios, holding periods or tax rates.
 
 ## When This Skill Is Invoked
 
@@ -81,7 +82,7 @@ Store the full text for analysis.
 
 ### 1.2 Extract Waterfall Parameters
 
-Extract exact governing provisions and independently evidenced proceeds, unreturned LP capital, preferred return due, carry rate and catch-up method. Missing terms remain missing. Request explicit scenario amounts; do not substitute committed capital for contributions or assume market-standard economics.
+Extract exact governing provisions and independently evidenced proceeds, unreturned LP capital, preferred return due, carry rate and catch-up method. Missing terms remain missing. Request explicit scenario amounts; do not substitute committed capital for contributions, assume default economics or choose scenario multiples. If the structure is ambiguous, do not pick an interpretation: leave the affected results uncalculated and ask.
 
 ## Phase 2: Execute the Supported Simulation
 
@@ -89,188 +90,133 @@ Execute `waterfall` for each explicitly supplied scenario and use returned tier 
 
 ## Phase 3: Edge Case Analysis
 
-### 3.1 Mandatory Edge Cases
+### 3.1 Edge Cases
 
-Analyze each of the following scenarios and report the outcome:
+Run supported edge cases only as additional `waterfall` scenarios whose amounts the user supplied or confirmed; never choose scenario amounts, multiples or holding periods yourself. Everything the helper does not model is reported qualitatively and marked `UNCALCULATED — not supported by the packaged helper`.
 
-| Edge Case | What to Model | Key Question |
-|-----------|--------------|--------------|
-| **Distributions < Contributed Capital** | Total distributions are less than what LPs contributed | LPs suffer a loss; GP receives nothing; how much principal is lost? |
-| **Distributions = Contributed Capital** | Exact return of capital, no profit | LPs receive capital back; GP receives zero carry; is GP commitment returned? |
-| **Preferred Return Never Reached** | Distributions exceed capital but fall short of preferred return | LPs get all distributions above capital return; GP still receives nothing; quantify the shortfall |
-| **Catch-Up Partially Filled** | Distributions exhaust during catch-up tier | GP receives partial catch-up; what is the effective carry rate vs. stated rate? |
-| **Clawback Triggered** | Early deal-by-deal distributions overpay GP; later losses require return | How much must GP return? Does escrow cover it? What is the net-of-tax clawback gap? |
-| **GP Commitment Carry Exemption** | GP capital earns carry on its own committed capital | How much extra carry does GP receive from self-dealing? Quantify the uplift |
-| **Recycling Impact** | Returned capital is re-invested and re-enters the waterfall | Does recycling reset the preferred return clock? How does it affect total carry? |
-| **Fund Extension Impact** | Additional years of preferred return accrual during extensions | How much additional preferred return accrues per extension year? Does this effectively reduce carry? |
+| Edge Case | Treatment | Key Question |
+|-----------|-----------|--------------|
+| **Distributions < Contributed Capital** | Helper scenario (user-supplied proceeds) | How much unreturned capital remains after this event? |
+| **Distributions = Contributed Capital** | Helper scenario | LPs receive capital back; GP carry is zero for this event |
+| **Preferred Return Never Reached** | Helper scenario with supplied `preferred_due` | How much of the supplied preference remains unpaid? |
+| **Full Catch-Up Partially Filled** | Helper scenario (full catch-up only) | How much catch-up remains unpaid, from the helper's unpaid amounts? |
+| **Partial Catch-Up (e.g. 80/20)** | UNCALCULATED — qualitative only | Reaches the stated carry share only after more profit; below it if distributions stop mid-catch-up |
+| **Clawback Triggered** | UNCALCULATED — qualitative only | What triggers it, is it gross or net of tax, is there escrow or a guarantee, when is it tested? |
+| **GP Commitment Carry Treatment** | UNCALCULATED — qualitative only | Does the LPA exempt the GP's own commitment from carry? (The helper's GP is carry only.) |
+| **Recycling Impact** | UNCALCULATED — qualitative only | How does the LPA treat recycled capital in the return-of-capital and preference tiers? |
+| **Fund Extension Impact** | UNCALCULATED — qualitative only | Does preference keep accruing during extensions? (Accrual is not modelled.) |
 
-### 3.2 Clawback Validation
+### 3.2 Clawback and Deal-by-Deal Review (Qualitative)
 
-Specifically model the clawback scenario:
+The helper does not implement American (deal-by-deal) waterfalls, clawback, escrow or tax adjustments. Do not compute a clawback amount, escrow adequacy, a net-of-tax gap or any tax rate. Instead record, with citations:
 
-1. Assume American (deal-by-deal) waterfall if applicable
-2. Model early profitable exits that generate carry payments
-3. Model later losses that create a whole-fund deficit
-4. Calculate: total carry paid to GP vs. carry owed on a whole-fund basis
-5. Determine the clawback amount
-6. Apply the net-of-tax adjustment at the assumed tax rate
-7. Check whether the escrow balance covers the clawback
-8. Report: **Does the clawback provision actually make LPs whole?** If not, quantify the gap.
+1. Waterfall basis (whole-fund / deal-by-deal / UNKNOWN) and interim true-up provisions
+2. Clawback trigger, timing and cap
+3. Whether clawback is gross or net of tax, and the tax rate the LPA itself states (never an assumed rate)
+4. Escrow or holdback percentage and release conditions, and any guarantee
+5. Questions for the administrator's clawback workpaper
+
+Any clawback figure appears only as a supplied, cited input from that workpaper.
 
 ---
 
-## Phase 4: Generate Pseudocode
+## Phase 4: Explanatory Pseudocode
 
-### 4.1 Waterfall Pseudocode
-
-Any explanatory pseudocode must describe the actual helper's supported tier order and rounding. It is documentation, not an alternative execution path. Do not generate executable payment contracts. American waterfall/clawback comparisons remain qualitative because the helper does not implement them.
+Any explanatory pseudocode must describe the actual helper's supported tier order and rounding (return of unreturned capital, supplied preference, optional full catch-up, carry split; GP cash rounds once, LP receives the residual). It is documentation, not an alternative execution path. Do not generate executable payment contracts or pseudocode for unsupported models.
 
 ## Phase 5: Generate Output File
 
 ### 5.1 Compile the Simulation Report
 
-Generate `WATERFALL-SIM-[fund]-[date].md` with the following structure:
+Save in the isolated run's `analysis` subfolder. Obtain the basename with `fund_report.py filename --family WATERFALL-SIM --fund-name <full-legal-name> --date <YYYY-MM-DD>` (the legal name as one literal argument), create or reuse the run with `new-run`, then save the Markdown and evidence sidecar with `write-report --folder analysis`. Each scenario's helper request and returned workpaper is a CALCULATION finding.
+
+Status mapping to the evidence sidecar: BLOCKED when no scenario amounts or governing waterfall terms were supplied; PARTIAL when any result is UNCALCULATED or UNKNOWN or any check was not performed; READY_FOR_REVIEW only when none remain. The report body states the same status as the sidecar.
 
 ```markdown
-# Smart Contract Waterfall Simulation
+# Waterfall Simulation
 
-> **DISCLAIMER**: This simulation is AI-generated and does not constitute legal,
-> tax, or investment advice. Waterfall calculations involve complex legal and
-> mathematical mechanics that require verification by qualified fund counsel,
-> fund administrators, and auditors. This simulation models the waterfall terms
-> as written and may not capture all nuances of the governing documents.
-> Smart contract pseudocode is illustrative only — it is not production code
-> and should not be deployed without extensive legal and technical review.
+> **DISCLAIMER**: Not financial, legal or tax advice. Qualified human review is required.
+> This simulation is AI-generated and runs only the packaged whole-fund single-event
+> `waterfall` helper on user-supplied scenarios. Results must be checked against the
+> governing documents and the fund administrator's waterfall model. Pseudocode is
+> explanatory only — it is not production code and must not be deployed.
+
+> **Report Status**: [BLOCKED / PARTIAL / READY_FOR_REVIEW] (same as the sidecar)
 
 ---
 
 ## Simulation Parameters
 
-| Parameter | Value | LPA Section |
-|-----------|-------|-------------|
+| Parameter | Value | Source |
+|-----------|-------|--------|
 | Fund Name | [name] | — |
-| Fund Type | [PE/VC/RE/etc.] | — |
-| Total Commitments | $[X] | [section] |
-| GP Commitment | $[X] ([Y]%) | [section] |
-| LP Commitment | $[X] ([Y]%) | — |
-| Contributed Capital | $[X] | [section] |
-| Preferred Return | [X]% [compounding method] | [section] |
-| GP Catch-Up | [X]% to GP until [Y]% of profits | [section] |
-| Carried Interest | [X]% | [section] |
-| Residual Split | [X]% LP / [Y]% GP | [section] |
-| Waterfall Type | [European/American] | [section] |
-| Clawback | [Gross/Net at X% assumed rate] | [section] |
-| Escrow | [X]% of carry | [section] |
-| Holding Period (assumed) | [X] years | — |
+| Fund Type | [type / UNKNOWN] | [section] |
+| Waterfall Type | [Whole-fund / Deal-by-deal / UNKNOWN] | [section] |
+| Unreturned LP Capital | [CCY] [X] | [source-N locator] |
+| Preferred Return Due (`preferred_due`) | [CCY] [X / MISSING] | [independent evidence, source-N locator] |
+| Carry Rate | [X]% | [section] |
+| Catch-Up | [full / none / partial — partial is UNCALCULATED] | [section] |
+| Clawback | [Gross / Net of tax at the rate stated in the LPA / MISSING] | [section] |
+| Escrow | [X]% of carry / MISSING | [section] |
 
 ---
 
-## Execution Trace — Scenario A: Strong Returns (2.5x)
+## Execution Trace — Scenario [name supplied by the user]
 
-Total Distributions: $[X]
+Proceeds: [CCY] [user-supplied amount] (source: [user instruction / source-N])
+Helper workpaper: [request hash, engine version]
 
-| Tier | Description | Amount Distributed | To LP | To GP | LP Running Total | GP Running Total | Remaining |
-|------|-------------|-------------------|-------|-------|-----------------|-----------------|-----------|
-| 1 | Return of Capital | $[X] | $[X] | $0 | $[X] | $0 | $[X] |
-| 2 | Preferred Return | $[X] | $[X] | $0 | $[X] | $0 | $[X] |
-| 3 | GP Catch-Up | $[X] | $0 | $[X] | $[X] | $[X] | $[X] |
-| 4 | Residual Split | $[X] | $[X] | $[X] | $[X] | $[X] | $0 |
-| **TOTAL** | | **$[X]** | **$[X]** | **$[X]** | | | |
+| Tier | Description | Amount Distributed | To LP | To GP | Unpaid After This Event |
+|------|-------------|-------------------|-------|-------|-------------------------|
+| 1 | Return of Capital | [helper] | [helper] | 0 | [helper] |
+| 2 | Preferred Return | [helper] | [helper] | 0 | [helper] |
+| 3 | GP Catch-Up (full only) | [helper] | 0 | [helper] | [helper] |
+| 4 | Carry Split | [helper] | [helper] | [helper] | — |
+| **TOTAL** | | **[helper]** | **[helper]** | **[helper]** | |
 
-**Effective GP Carry:** [X]% of total profits
-**LP Multiple:** [X.Xx]
-**GP Multiple on Commitment:** [X.Xx]
+LP rounding residual: [helper]. GP share of profit for this event: [`arithmetic` workpaper from helper outputs / UNCALCULATED].
 
----
-
-## Execution Trace — Scenario B: Moderate Returns (1.5x)
-
-[Same table format]
-
----
-
-## Execution Trace — Scenario C: Below Hurdle (1.2x)
-
-[Same table format]
-
-**NOTE:** Distributions exhausted at Tier [X]. GP receives $0 in carried interest.
-Preferred return shortfall: $[X] ([Y]% of full preferred return earned).
-
----
-
-## Execution Trace — Scenario D: Capital Loss (0.7x)
-
-[Same table format]
-
-**NOTE:** LP principal loss of $[X] ([Y]% of contributed capital).
-GP receives $0. GP commitment loss: $[X].
+[Repeat for each user-supplied scenario. If no scenario amounts were supplied: "No scenario amounts supplied — simulation not run. Please supply proceeds, unreturned capital and preferred return due."]
 
 ---
 
 ## Edge Case Analysis
 
-### 1. Preferred Return Never Reached
-[Analysis with dollar amounts]
-
-### 2. Partial Catch-Up Scenario
-[Analysis showing effective carry rate when distributions exhaust mid-catch-up]
-
-### 3. Clawback Exposure (American Waterfall)
-[Step-by-step clawback calculation with escrow adequacy check]
-
-### 4. GP Commitment Self-Carry
-[Quantified impact of GP earning carry on its own capital]
-
-### 5. Recycling Impact
-[How recycling affects the waterfall math]
-
-### 6. Fund Extension Accrual
-[Additional preferred return per extension year]
+[Table from Phase 3.1: helper-run cases with workpaper references; all other cases qualitative and marked UNCALCULATED — not supported by the packaged helper]
 
 ---
 
-## Clawback Validation
+## Clawback and Deal-by-Deal Review (Qualitative)
 
-| Metric | Value |
-|--------|-------|
-| Total Carry Paid (Deal-by-Deal) | $[X] |
-| Carry Owed (Whole-Fund Basis) | $[X] |
-| Gross Clawback | $[X] |
-| Net Clawback (at [X]% tax rate) | $[X] |
-| Escrow Balance | $[X] |
-| Escrow Covers Clawback? | [YES/NO] |
-| LP Shortfall (if any) | $[X] |
-
-**Conclusion:** [Does the clawback provision actually protect LPs? If not, quantify the gap and explain why.]
+| Item | Governing term | Source locator | Result |
+|------|----------------|----------------|--------|
+| Waterfall basis and interim true-up | [term] | [section] | — |
+| Clawback trigger, timing, cap | [term] | [section] | — |
+| Gross or net of tax (rate as stated in LPA) | [term / MISSING] | [section] | — |
+| Escrow / holdback and release | [term / MISSING] | [section] | — |
+| Clawback amount and escrow adequacy | — | — | UNCALCULATED — not supported by the packaged helper |
 
 ---
 
-## European vs. American Waterfall Comparison
+## Whole-Fund vs Deal-by-Deal (Qualitative)
 
-| Metric | European (Whole-Fund) | American (Deal-by-Deal) | Difference |
-|--------|-----------------------|------------------------|------------|
-| Total GP Carry | $[X] | $[X] | $[X] |
-| GP Carry Timing | End-loaded | Front-loaded | [X] years earlier |
-| Clawback Risk | None | $[X] exposure | — |
-| LP IRR Impact | [X]% | [X]% | [X] bps |
+| Aspect | Whole-Fund (European) | Deal-by-Deal (American) |
+|--------|-----------------------|-------------------------|
+| Carry timing | [description from the LPA terms] | [description] |
+| Clawback reliance | [description] | [description] |
+| Carry amount, timing difference and LP IRR effect | UNCALCULATED — not supported by the packaged helper | UNCALCULATED — not supported by the packaged helper |
 
 ---
 
 ## Waterfall Pseudocode
 
-[Insert the pseudocode from Phase 4.1]
-
----
-
-## Clawback Pseudocode
-
-[Insert the pseudocode from Phase 4.2]
+[Insert the explanatory pseudocode from Phase 4]
 
 ---
 
 ## Key Findings
 
-1. **[Most significant finding]** — [explanation with dollar amounts]
+1. **[Most significant finding]** — [explanation, citing helper workpapers or provisions]
 2. **[Second finding]** — [explanation]
 3. **[Third finding]** — [explanation]
 
@@ -279,24 +225,32 @@ GP receives $0. GP commitment loss: $[X].
 ## Recommended Next Steps
 
 1. [ ] Verify simulation parameters against the LPA with fund counsel
-2. [ ] Run sensitivity analysis on holding period assumptions
-3. [ ] Validate clawback mechanics with GP counsel
-4. [ ] Compare results against fund administrator's waterfall model
+2. [ ] Supply any further scenario amounts to be run
+3. [ ] Obtain the administrator's workpaper for UNCALCULATED items (clawback, deal-by-deal, accrual)
+4. [ ] Compare results against the fund administrator's waterfall model
 5. [ ] Run `/fund waterfall-review` for a full provision-by-provision waterfall analysis
-6. [ ] Run `/fund benchmark` to compare waterfall terms with this suite's illustrative ranges
-7. [ ] Run `/fund lpa-negotiate` to generate counter-proposals for GP-favorable terms
+6. [ ] Run `/fund lpa-negotiate` to prepare discussion points on waterfall terms
+
+---
+
+## Status, limitations and data handling
+- Report status: [DRAFT / PARTIAL / BLOCKED / READY_FOR_REVIEW] — the same value as the evidence sidecar.
+- Assumptions: [list]
+- Limitations and checks not performed: [list; UNKNOWN / NOT PERFORMED / UNCALCULATED items]
+- Data handling: the packaged helpers ran locally and made no network calls; the AI host and its model provider processed the document content; connectors used: [none / list]. Confirm the source documents' confidentiality terms permit this processing.
+
+Not financial, legal or tax advice. Qualified human review is required.
 ```
 
 ### 5.2 Present to User
 
 After generating the output:
 
-1. Confirm the file was generated: "Smart contract waterfall simulation generated: `WATERFALL-SIM-[fund]-[date].md`"
-2. State the file location (absolute path)
-3. Summarize the most significant finding across all scenarios
-4. Highlight the clawback validation result (does it protect LPs?)
-5. If European vs. American comparison was generated, state the carry differential
-6. Suggest: "Run `/fund waterfall-review` for detailed waterfall provision analysis. Run `/fund lpa-negotiate` to generate negotiation strategies for GP-favorable waterfall terms."
+1. Confirm the file was generated and state its location (absolute path)
+2. List the scenarios run (user-supplied amounts) and the most significant helper-backed finding
+3. List the UNCALCULATED items (clawback, deal-by-deal, partial catch-up, accrual) and the evidence needed
+4. State the report status (same as the sidecar) and include: "Not financial, legal or tax advice. Qualified human review is required."
+5. Suggest: "Run `/fund waterfall-review` for detailed waterfall provision analysis."
 
 ---
 
@@ -307,8 +261,9 @@ After generating the output:
 | No document provided | Ask user to provide an LPA, waterfall terms, or prior `/fund waterfall-review` output |
 | No waterfall provisions found | Report that no distribution waterfall language was found; suggest the document may not contain economics provisions |
 | Missing key parameters | Request missing parameters; leave dependent results uncalculated |
-| Ambiguous waterfall structure | Model the most likely interpretation and note the ambiguity; recommend GP counsel clarification |
-| Multiple waterfall structures | Simulate each separately (e.g., different waterfalls for different asset classes or investor tiers) |
-| User provides distribution amounts | Use those explicit amounts; identify supported edge cases |
+| No scenario amounts supplied | Ask for them; do not substitute default multiples, holding periods or scenarios |
+| Ambiguous waterfall structure | Do not pick an interpretation; leave the affected results UNCALCULATED and ask GP counsel or the user to clarify |
+| Unsupported structure (deal-by-deal, partial catch-up, clawback, multiple hurdles) | Review qualitatively and mark numerical results UNCALCULATED — not supported by the packaged helper |
+| Multiple waterfall structures | Simulate each supported structure separately with its own supplied amounts |
 | Prior review output provided | Accept extracted terms and simulate directly without re-extracting |
-| Fund type unclear | Default to PE market-standard waterfall structure; note the assumption |
+| Fund type unclear | Record UNKNOWN; do not default to any fund type or waterfall structure |

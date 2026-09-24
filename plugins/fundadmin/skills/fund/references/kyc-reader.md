@@ -71,15 +71,23 @@ Give the reader this brief verbatim, with the placeholders filled:
 > 8. Owner chains: record each owner with its look-through percentage and chain
 >    depth. When a chain stops at an entity with no natural person disclosed,
 >    record that entity with `is_natural_person: false`.
+> 9. Tax forms (W-9, W-8 series, CRS self-certifications) go in `tax_forms`
+>    with the signature date exactly as printed, or `null` if none is shown.
+> 10. Set `identity.legal_name_present` and `registration_or_id_present` to
+>    `true` only when a primary document shows them; otherwise `false`.
 
 ## After the reader
 
 1. `fund_kyc.py validate-record` passes.
-2. Screening evidence, if any, is gathered separately (see the skill), never from
-   the reader.
+2. Screening evidence, if any, is gathered separately (see `/fund aml-screen`),
+   never from the reader. Its `subject_ref` values are this record's
+   `subject_ref`, owner `ref` and controller `ref`, so the helper can check that
+   every required subject was screened.
 3. `fund_kyc.py evaluate --record <file> [--grid <firm grid>] [--screening
    <evidence>]` produces the rating, document matrix, rule outcomes and
    disposition.
-4. The report quotes the evaluation. It does not overrule it upward: a person can
+4. One record per investor per run: a later skill in the same run reuses the
+   validated record instead of reading again.
+5. The report quotes the evaluation. It does not overrule it upward: a person can
    decide differently, but the report records the helper's result and any human
    decision separately.

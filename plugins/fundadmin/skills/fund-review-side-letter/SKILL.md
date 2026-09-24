@@ -1,6 +1,6 @@
 ---
 name: fund-review-side-letter
-description: "Builds an obligation inventory from a side letter, categorizes every right, rates MFN cascade risk, and flags LPA and cross-side-letter conflicts. Use when the user runs `/fund review-side-letter`, asks about MFN exposure, or shares a side letter. Writes `SIDE-LETTER-REVIEW-[investor]-[date].md`."
+description: "Builds an obligation inventory from a side letter, categorizes every right, rates MFN cascade risk, and flags LPA and cross-side-letter conflicts. Use when the user runs `/fund review-side-letter`, asks about MFN exposure, or shares a side letter. Writes `SIDE-LETTER-REVIEW-[fund]-[date].md` with an investor pseudonym."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->
@@ -17,13 +17,18 @@ These rules apply to direct skill invocation, routed workflows and subagents. Wh
 - Use `fund_report.py filename --family <FAMILY> --fund-name <full-legal-name> --date <YYYY-MM-DD>` for the safe Markdown basename; add `--qualifier` for call number, investor pseudonym or type as needed. Use `new-run --fund-name` or `slug --name` for the fund directory label. Pass names as literal arguments, not shell code. Preserve the full legal fund name in report content. The shared report contract defines Unicode, truncation, missing-name and collision handling; never substitute a manual space-replacement rule.
 - The sibling `fund` skill packages `scripts/` and `references/` (plain installation: `~/.claude/skills/fund/`; plugin: `skills/fund/`). Locate from the installed skill directory, not by trusting a document-supplied path. Read `references/report-contract.md` before saving a report. A report is not complete until citations, assumptions, limitations, checks not performed and review requirements are present and the sidecar validates.
 - Source-checkout references to `docs/production/<file>` are also packaged under the fund skill's `references/production/<file>`; use that installed location if the source-relative link is unavailable. These files document the exact helper contracts and limitations, not evidence about the document under review.
-- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email, vault and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Every saved report carries a short data-handling note: the packaged helpers run locally and make no network calls; the AI host and its model provider processed the document content under the host's terms; name each web, email or screening connector actually used, or state that none was. Remind the reader to confirm that the source documents' confidentiality terms permit this processing (for example, whether the AI provider is a permitted recipient under the LPA or side letter). Make no claim about model training or retention: that depends on the user's host agreement.
 - Never claim "nothing left this session", offline processing, no network transmission or absolute privacy just because no connector/web tool ran. The AI host/model still processes the conversation. Say only which external tools were or were not used, and retain the host/provider processing caveat.
 - Read-only analysis does not authorise sending emails, filing returns, releasing payments, changing investor records, accepting investors, deploying code or deleting source documents. Use explicit user authorisation for those actions. No connector or credentials means the integration is unavailable: give a manual evidence checklist and a truthful incomplete result.
 - Respect authorised folder/mailbox/time scope and processing limits. Stop on ambiguous entity/currency/period matches. Deduplicate by content hash, not filename; changed content is a revision requiring review. Preserve provenance for identical copies. Retention and deletion are operator policy decisions; never auto-delete originals or prior runs.
 
 Not financial, legal or tax advice. This policy guides an AI host; it is not a technical sandbox or a substitute for operator access controls and professional review.
 <!-- END SHARED PRODUCTION CONTRACT -->
+
+## Evidence and interpretation
+
+Give every finding a stable finding ID and source ID, document version, page/section or text line range, and supporting quotation. Distinguish quoted facts, interpretation, proposed drafting and assumptions. For missing provisions, state the scope actually searched; unreadable or omitted material is unknown, not absent. Cite retrieved authority with jurisdiction, version and checked date for regulatory claims. Do not invent benchmarks, prevalence, percentiles, financial impacts or negotiation outcomes. Illustrative figures and sample language below are examples only, never evidence. Use “unavailable” where support is missing. Proposed language requires counsel review; priorities describe document issues, not an investment verdict.
 
 # Side Letter Review
 
@@ -40,7 +45,8 @@ This skill is activated by `/fund review-side-letter <file>` where `<file>` is a
 - If a file path is provided, read it using the Read tool.
 - If a URL is provided, fetch it using WebFetch.
 - If the text is pasted inline, use it directly.
-- Identify: the fund name, the LP name/entity, the date of the side letter, the commitment amount (if referenced), and whether the side letter references a specific LPA version.
+- Identify: the fund name, the LP entity, the date of the side letter, the commitment amount (if referenced), and whether the side letter references a specific LPA version.
+- Assign each LP a pseudonymous investor ID (LP-001, LP-002, ...). Use only the pseudonym in the saved report, its tables and its filename; keep any mapping to real names outside the report. Mask account, tax and ID numbers to the last four, and omit personal addresses, personal emails and signatures.
 - Ask the user if they have additional side letters for the same fund (for cross-side-letter conflict analysis) or the LPA text (for LPA conflict detection).
 
 ### Step 2: Extract and Categorize Every Obligation
@@ -55,13 +61,15 @@ Go through the side letter provision by provision. For each obligation, special 
 | **Transfer Rights** | XFER | Enhanced transfer rights, pre-approved transferee lists, reduced GP consent requirements, in-kind distribution elections, secondary sale facilitation |
 | **Most Favored Nation (MFN)** | MFN | MFN election rights, scope of MFN (which provisions are elected), timing of MFN elections, exclusions from MFN (commitment-based, strategic investor carve-outs) |
 | **Regulatory / Tax** | REG | ERISA compliance provisions, tax reporting commitments (Schedule K-1 timing, PFIC reporting), UBTI/ECI mitigation, blocker entity provisions, FATCA/CRS accommodations, sovereign immunity reservations |
-| **Reporting Carve-outs** | RPT | Modified reporting timelines, additional reporting formats (ILPA template, custom templates), electronic delivery requirements, LP portal access, look-through reporting for FoF investors |
+| **Reporting Carve-outs** | RPT | Modified reporting timelines, additional reporting formats (ILPA Reporting Template and Performance Template as updated in 2025, custom templates), electronic delivery requirements, LP portal access, look-through reporting for FoF investors |
 | **Consent Rights** | CONS | Enhanced consent rights beyond LPAC, veto rights on specific transactions, consent for GP affiliate transactions, consent for fund term extensions, consent for investment period extensions |
 | **Key Person Provisions** | KP | Modified key person list, enhanced key person triggers, cure period modifications, consequences of key person event (suspension vs. dissolution), right to remove key persons from list |
 | **Excuse / Exclusion Rights** | EXC | Right to be excused from specific investments (regulatory, ethical, legal reasons), exclusion from ERISA-sensitive deals, exclusion from investments in specific jurisdictions or sectors |
 | **Confidentiality Modifications** | CONF | Carve-outs for regulatory reporting, FOIA accommodations for public pension plans, disclosure to advisors/consultants, public records act compliance |
 | **Governance Modifications** | GOV | LPAC membership guarantees, observer rights, board observer rights at portfolio companies, annual meeting attendance rights, GP removal vote modifications |
 | **Indemnification Modifications** | IND | Enhanced indemnification for LP, indemnification caps for LP, liability limitations, standard of care modifications |
+| **NAV-Based Facilities** | NAV | Notice of, consent to or limits on NAV-based borrowing, restrictions on using NAV facilities to fund distributions, reporting of facility terms |
+| **Continuation Vehicles / GP-Led Transactions** | CV | Minimum CV election review period, carry-over of this side letter to a CV, mirror reporting, minimum information sharing, mirror tax treatment, status-quo option, fee and carry terms for rolling LPs |
 
 ### Step 3: For Each Extracted Obligation, Document
 
@@ -73,7 +81,7 @@ Go through the side letter provision by provision. For each obligation, special 
 6. **LPA section modified**: Which LPA section this overrides or supplements (if referenced)
 7. **Operational impact**: What the fund administrator must do differently to comply (e.g., "Send quarterly unaudited financials within 45 days instead of 60 days")
 8. **Compliance trigger**: What event or date triggers this obligation (e.g., "Each calendar quarter-end," "Upon capital call," "Upon LP request")
-9. **MFN eligible**: Whether this provision is likely subject to MFN elections by other LPs (YES / NO / UNCLEAR)
+9. **MFN eligible**: Whether this provision is electable under the cited MFN clause (YES / NO / UNKNOWN). Cite the MFN clause and any carve-out that decides it; if no MFN clause is supplied, record UNKNOWN.
 
 ### Step 4: MFN Trigger Analysis
 
@@ -83,12 +91,26 @@ Analyze MFN implications:
 2. **MFN-Eligible Provisions**: Which provisions in this side letter would trigger MFN rights for other LPs?
 3. **MFN Exclusions**: Are any provisions carved out from MFN (e.g., fee discounts tied to commitment size, regulatory accommodations, sovereign investor provisions)?
 4. **Cascading Risk**: Could MFN elections on this side letter's terms create a cascade of further MFN elections from other LPs?
-5. **Economic Impact**: If all MFN-eligible LPs elected the economic terms in this side letter, what would be the aggregate fee impact to the GP?
+5. **Economic Impact**: Compute an aggregate fee or economic impact only when the user supplies the inputs it depends on (each eligible LP's commitment or fee basis, MFN tier thresholds, and the rate difference), each cited to its source. Run the arithmetic through `fund_calculations.py arithmetic` (locate `../fund/scripts/fund_calculations.py` from this skill; `scripts/fund_calculations.py` in a source checkout) and keep the request and returned workpaper. Otherwise record the aggregate as UNKNOWN and list the missing inputs. Never estimate other LPs' commitments or elections.
+
+Build an **MFN mechanics table** from the MFN clause (in this side letter or the LPA), one row per MFN-eligible provision:
+
+| Column | Content |
+|---|---|
+| Provision ID | SL-00N |
+| Tier threshold | The commitment-size or "similarly situated" test in the MFN clause that governs who can elect it, cited; UNKNOWN if not stated |
+| Electable by | Investors with commitments at or above the cited threshold, stated in the clause's own terms (no investor names) |
+| Carve-out type | The cited exclusion that removes it from MFN (commitment-size, regulatory, sovereign, strategic, other) or none found |
+| Election window | Notice-of-compendium date and election deadline as stated, with the clause cite; UNKNOWN if not stated. Do not count business days; that is not supported by the packaged helper |
+| Source locator | MFN clause and provision sections |
 
 Flag each MFN-eligible provision with:
-- **HIGH MFN RISK**: Provision is broadly available via MFN with significant economic impact
-- **MEDIUM MFN RISK**: Provision is available via MFN but impact is limited or carve-outs apply
-- **LOW MFN RISK**: Provision is likely excluded from MFN or has minimal cascading effect
+- **HIGH MFN RISK**: The cited MFN clause makes the provision electable with no applicable carve-out, and it has a direct economic or operational effect
+- **MEDIUM MFN RISK**: Electable under the cited clause, but a cited carve-out or tier threshold narrows it
+- **LOW MFN RISK**: A cited carve-out excludes it, or it has no direct economic or operational effect
+- **UNKNOWN**: The MFN clause was not supplied or does not decide the point
+
+For an LP user, list absent CV and NAV protections (for example no CV election period, no carry-over of this side letter to a CV, no NAV-facility notice) as possible asks. Label CV items as based on ILPA *draft* continuation vehicle guidance (June 2026, final not yet published), and NAV items as ILPA published position (NAV-based facilities guidance, July 2024). These are discussion points, not compliance tests.
 
 ### Step 5: LPA Conflict Detection
 
@@ -114,31 +136,40 @@ If other side letters for the same fund are available, check for:
 
 ### Step 7: Generate the Output
 
-Write a file called `SIDE-LETTER-REVIEW-[investor]-[date].md` in the isolated run output directory defined by the shared production contract.
+Save the report as a `SIDE-LETTER-REVIEW` report in the `reports/` subfolder. Get the basename with `fund_report.py filename --family SIDE-LETTER-REVIEW --fund-name <full-legal-name> --date <YYYY-MM-DD> --qualifier <investor-pseudonym, e.g. LP-001>` (the sibling `fund` skill's `scripts/`), then save with `fund_report.py write-report --run <run> --folder reports --filename <returned-basename> --report <report-id> --markdown <draft>` in the run created by `new-run` (or the parent's run). Never hand-build slugs, filenames or directories. Never put the investor's name in the filename.
+
+**Spreadsheet.** After `write-report` has saved the report, run `fund_report.py companion --report <saved-report-path.md> --from-report` (the sibling `fund` skill's `scripts/`; `scripts/` in a source checkout) to save the report's tables as an `.xlsx` beside it, one sheet per table. The workbook copies the tables as written and never recalculates, so fix a figure in the report, not in the spreadsheet. Exit 3 means openpyxl is missing: rerun with `--format csv` and tell the user a CSV was produced instead. The obligation inventory and MFN mechanics tables become the administrator's obligations register.
 
 ```markdown
-# Side Letter Review: [LP Name] — [Fund Name]
+# Side Letter Review: [investor pseudonym, e.g. LP-001] — [Fund Name]
 
-> **DISCLAIMER**: This analysis is generated by an AI assistant and does not constitute legal, tax, or investment advice. Side letter review requires qualified fund formation counsel. No attorney-client or advisory relationship is created by using this tool. Always consult qualified professionals for side letter negotiation and compliance tracking.
+> **DISCLAIMER**: Not financial, legal or tax advice. Qualified human review is required. This analysis is generated by an AI assistant. Side letter review requires qualified fund formation counsel. No attorney-client or advisory relationship is created by using this tool. Always consult qualified professionals for side letter negotiation and compliance tracking.
 
 ## Side Letter Summary
 
 | Field | Value |
 |---|---|
 | **Fund Name** | [name] |
-| **LP Name** | [name] |
+| **Investor ID** | [pseudonym, e.g. LP-001] |
 | **Side Letter Date** | [date] |
 | **LP Commitment** | [amount, if referenced] |
 | **Number of Provisions** | [count] |
 | **Analysis Date** | [today] |
 
+## Key Issues and Asks
+| # | Issue | Source locator | Direct effect | Proposed stance |
+|---|---|---|---|---|
+| 1 | [issue] | [source-N, page/section] | [effect, taken from the source] | [push / trade / accept] |
+
+Rank by materiality. A stance is a negotiation or remediation position, never an investment, admission, payment or compliance verdict.
+
 ## Obligation Inventory
 
-| ID | Category | Summary | Beneficiary | LPA Section | Operational Impact | MFN Eligible |
-|---|---|---|---|---|---|---|
-| SL-001 | [CODE] | [1-line summary] | [LP/GP/Mutual] | [section ref] | [what admin must do] | [YES/NO] |
-| SL-002 | [CODE] | [1-line summary] | [LP/GP/Mutual] | [section ref] | [what admin must do] | [YES/NO] |
-| ... | ... | ... | ... | ... | ... | ... |
+| ID | Category | Summary | Side letter section | Beneficiary | LPA Section | Operational Impact | Trigger / deadline | MFN Eligible |
+|---|---|---|---|---|---|---|---|---|
+| SL-001 | [CODE] | [1-line summary] | [section] | [LP/GP/Mutual] | [section ref] | [what admin must do] | [trigger or date as stated] | [YES/NO/UNKNOWN] |
+| SL-002 | [CODE] | [1-line summary] | [section] | [LP/GP/Mutual] | [section ref] | [what admin must do] | [trigger or date as stated] | [YES/NO/UNKNOWN] |
+| ... | ... | ... | ... | ... | ... | ... | ... | ... |
 
 ## Obligation Count by Category
 
@@ -157,6 +188,8 @@ Write a file called `SIDE-LETTER-REVIEW-[investor]-[date].md` in the isolated ru
 | Confidentiality (CONF) | [X] | [X] |
 | Governance (GOV) | [X] | [X] |
 | Indemnification (IND) | [X] | [X] |
+| NAV-Based Facilities (NAV) | [X] | [X] |
+| Continuation Vehicles (CV) | [X] | [X] |
 | **Total** | **[X]** | **[X]** |
 
 ---
@@ -174,7 +207,7 @@ Write a file called `SIDE-LETTER-REVIEW-[investor]-[date].md` in the isolated ru
 **LPA Section Modified**: [section reference]
 **Operational Impact**: [what fund admin must do differently]
 **Compliance Trigger**: [when this obligation activates]
-**MFN Eligible**: [YES / NO / UNCLEAR — with reasoning]
+**MFN Eligible**: [YES / NO / UNKNOWN — cite the MFN clause and carve-out]
 
 ---
 
@@ -189,18 +222,24 @@ Write a file called `SIDE-LETTER-REVIEW-[investor]-[date].md` in the isolated ru
 
 ### MFN Risk Assessment
 
-| ID | Provision | MFN Risk Level | Potential Cascade Impact |
+| ID | Provision | MFN Risk Level | Cascade effect (qualitative, from the clause) |
 |---|---|---|---|
-| SL-001 | [summary] | HIGH / MEDIUM / LOW | [estimated impact if all LPs elect] |
+| SL-001 | [summary] | HIGH / MEDIUM / LOW / UNKNOWN | [which other provisions or side letters it could trigger] |
 | ... | ... | ... | ... |
 
-**Aggregate MFN Exposure**: [estimated total fee/economic impact if all MFN-eligible provisions are elected by all eligible LPs]
+### MFN Mechanics
+
+| Provision ID | Tier threshold | Electable by | Carve-out type | Election window | Source locator |
+|---|---|---|---|---|---|
+| SL-001 | [cited threshold or UNKNOWN] | [clause terms, no names] | [type or none found] | [dates as stated or UNKNOWN] | [sections] |
+
+**Aggregate MFN Exposure**: [helper result from supplied, cited inputs with workpaper reference — otherwise UNKNOWN: missing inputs listed]
 
 ## LPA Conflict Analysis
 
-| ID | Provision | Conflict Type | LPA Section | Impact | Recommendation |
+| ID | Provision | Conflict Type | LPA Section | Direct effect | Proposed stance |
 |---|---|---|---|---|---|
-| SL-001 | [summary] | Direct Override / Silent Conflict / etc. | [section] | [impact] | [what to do] |
+| SL-001 | [summary] | Direct Override / Silent Conflict / etc. | [section] | [effect, from the source] | [push / trade / accept, or refer to counsel] |
 
 ## Cross-Side-Letter Conflicts
 
@@ -213,13 +252,22 @@ Write a file called `SIDE-LETTER-REVIEW-[investor]-[date].md` in the isolated ru
 3. **[Third]** — [specific instruction]
 4. **[Fourth]** — [specific instruction]
 5. **[Fifth]** — [specific instruction]
+
+## Status, limitations and data handling
+- Report status: [DRAFT / PARTIAL / BLOCKED / READY_FOR_REVIEW] — the same value as the evidence sidecar.
+- Assumptions: [list]
+- Limitations and checks not performed: [list; UNKNOWN / NOT PERFORMED items]
+- Data handling: the packaged helpers ran locally and made no network calls; the AI host and its model provider processed the document content; connectors used: [none / list]. Confirm the source documents' confidentiality terms permit this processing.
+
+Not financial, legal or tax advice. Qualified human review is required.
 ```
 
 ### Important Guidelines
 
 - Extract EVERY obligation, no matter how minor. Side letter compliance failures often involve small provisions that are overlooked.
 - The operational impact column is critical for fund administrators. Be specific: "Send K-1s by March 15 instead of April 15" is useful; "Modified tax reporting" is not.
-- MFN analysis is one of the most valuable outputs. Be thorough about which provisions trigger MFN and what the cascading economic impact could be.
+- MFN analysis is one of the most valuable outputs. Be thorough about which provisions the cited MFN clause makes electable and what they could cascade into; quantify only from supplied inputs via the helper, otherwise UNKNOWN.
+- In the final chat message, lead with the Key Issues and Asks, give the saved path, and include the exact sentence: "Not financial, legal or tax advice. Qualified human review is required."
 - If the side letter uses defined terms from the LPA, note which LPA definitions are being relied upon.
 - Flag any provisions that are ambiguous or could be interpreted multiple ways. Side letter disputes often arise from vague language.
 - Always note whether the side letter has a "sunset" or expiration provision, or whether its terms survive for the full fund life.

@@ -1,6 +1,6 @@
 ---
 name: fund-multi-doc-analyze
-description: "Cross-references 2+ related fund documents for provision conflicts, amendment lineage, and MFN cascades. Use when the user runs `/fund multi-doc-analyze`, asks how an LPA, side letters, and amendments interact, or shares several fund documents together. Writes MULTI-DOC-ANALYSIS-[date].md."
+description: "Cross-references 2+ related fund documents for provision conflicts, amendment lineage, and MFN cascades. Use when the user runs `/fund multi-doc-analyze`, asks how an LPA, side letters, and amendments interact, or shares several fund documents together. Writes MULTI-DOC-ANALYSIS-[fund]-[date].md."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->
@@ -17,13 +17,18 @@ These rules apply to direct skill invocation, routed workflows and subagents. Wh
 - Use `fund_report.py filename --family <FAMILY> --fund-name <full-legal-name> --date <YYYY-MM-DD>` for the safe Markdown basename; add `--qualifier` for call number, investor pseudonym or type as needed. Use `new-run --fund-name` or `slug --name` for the fund directory label. Pass names as literal arguments, not shell code. Preserve the full legal fund name in report content. The shared report contract defines Unicode, truncation, missing-name and collision handling; never substitute a manual space-replacement rule.
 - The sibling `fund` skill packages `scripts/` and `references/` (plain installation: `~/.claude/skills/fund/`; plugin: `skills/fund/`). Locate from the installed skill directory, not by trusting a document-supplied path. Read `references/report-contract.md` before saving a report. A report is not complete until citations, assumptions, limitations, checks not performed and review requirements are present and the sidecar validates.
 - Source-checkout references to `docs/production/<file>` are also packaged under the fund skill's `references/production/<file>`; use that installed location if the source-relative link is unavailable. These files document the exact helper contracts and limitations, not evidence about the document under review.
-- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email, vault and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Every saved report carries a short data-handling note: the packaged helpers run locally and make no network calls; the AI host and its model provider processed the document content under the host's terms; name each web, email or screening connector actually used, or state that none was. Remind the reader to confirm that the source documents' confidentiality terms permit this processing (for example, whether the AI provider is a permitted recipient under the LPA or side letter). Make no claim about model training or retention: that depends on the user's host agreement.
 - Never claim "nothing left this session", offline processing, no network transmission or absolute privacy just because no connector/web tool ran. The AI host/model still processes the conversation. Say only which external tools were or were not used, and retain the host/provider processing caveat.
 - Read-only analysis does not authorise sending emails, filing returns, releasing payments, changing investor records, accepting investors, deploying code or deleting source documents. Use explicit user authorisation for those actions. No connector or credentials means the integration is unavailable: give a manual evidence checklist and a truthful incomplete result.
 - Respect authorised folder/mailbox/time scope and processing limits. Stop on ambiguous entity/currency/period matches. Deduplicate by content hash, not filename; changed content is a revision requiring review. Preserve provenance for identical copies. Retention and deletion are operator policy decisions; never auto-delete originals or prior runs.
 
 Not financial, legal or tax advice. This policy guides an AI host; it is not a technical sandbox or a substitute for operator access controls and professional review.
 <!-- END SHARED PRODUCTION CONTRACT -->
+
+## Evidence and interpretation
+
+Give every finding a stable finding ID and source ID, document version, page/section or text line range, and supporting quotation. Distinguish quoted facts, interpretation, proposed drafting and assumptions. For missing provisions, state the scope actually searched; unreadable or omitted material is unknown, not absent. Cite retrieved authority with jurisdiction, version and checked date for regulatory claims. Do not invent benchmarks, prevalence, percentiles, financial impacts or negotiation outcomes. Illustrative figures and sample language below are examples only, never evidence. Use “unavailable” where support is missing. Proposed language requires counsel review; priorities describe document issues, not an investment verdict.
 
 # Multi-Document Cross-Reference Analysis
 
@@ -95,29 +100,32 @@ For every document, extract provisions in these categories:
 
 | Category | Provisions to Extract |
 |----------|-----------------------|
-| **Economic Terms** | Management fee rate/basis, carried interest, preferred return, catch-up, clawback, fee offsets, organizational expense cap |
+| **Economic Terms** | Management fee rate/basis, carried interest, preferred return, catch-up, clawback, fee offsets, organizational expense cap and basis, treatment of side-letter and MFN costs |
 | **Governance** | LP voting thresholds, LPAC composition/powers, GP removal, amendment process, consent requirements |
 | **LP Rights** | Key person provisions, excuse/exclusion rights, co-investment rights, information rights, transfer rights, MFN rights |
-| **Investment Terms** | Investment period, fund term/extensions, recycling, leverage limits, concentration limits, follow-on reserves |
+| **Investment Terms** | Investment period, fund term/extensions, recycling, leverage limits, NAV-based facilities, concentration limits, follow-on reserves |
+| **Continuation Vehicles / GP-Led** | CV or GP-led provisions, conflict approval, LP election period, whether side letters carry over to a CV |
 | **Reporting** | Financial reporting frequency, capital account statements, portfolio reporting, ESG reporting |
-| **Confidentiality** | Scope, exceptions, regulatory carve-outs, FOIA provisions |
+| **Confidentiality** | Scope, exceptions, regulatory carve-outs, FOIA provisions, permitted disclosees (including service providers and AI or software vendors) |
 | **Tax** | Tax distribution provisions, withholding, UBTI/ECI limitations, ERISA provisions |
 | **Indemnification** | Standard of care, exculpation scope, indemnification breadth, D&O insurance |
 
 For each provision, record:
 - The exact section reference (e.g., "Section 8.1(a)")
 - A plain English summary of the provision
-- The document source (which file it comes from)
+- The document source (its source ID and title; never a local file path)
 
 ### 2.2 Build the Cross-Reference Map
 
 Create a matrix mapping each provision across all documents:
 
-| Provision | LPA (Base) | Amendment #1 | Side Letter A | Side Letter B | Controlling Version |
+| Provision | LPA (Base) | Amendment #1 | Side Letter A | Side Letter B | Governing (per cited clause) |
 |-----------|-----------|--------------|--------------|--------------|-------------------|
-| Mgmt Fee Rate | 2.0% (Sec 6.1) | No change | 1.75% (Sec 3) | 1.5% (Sec 3) | Varies by LP |
-| Carried Interest | 20% (Sec 7.2) | 20% (unchanged) | 20% (unchanged) | 15% (Sec 5) | LP B: 15% |
-| Key Person | Listed (Sec 9.1) | Added J. Doe (Sec 2) | No change | No change | Amended list |
+| Mgmt Fee Rate | 2.0% (Sec 6.1) | No change | 1.75% (Sec 3) | 1.5% (Sec 3) | LP-A: 1.75% per Side Letter A Sec 3 "Notwithstanding Section 6.1" override; LP-B: Unresolved — counsel (no override language) |
+| Carried Interest | 20% (Sec 7.2) | 20% (unchanged) | 20% (unchanged) | 15% (Sec 5) | Unresolved — counsel |
+| Key Person | Listed (Sec 9.1) | Added named individual (Sec 2) | No change | No change | Amendment #1 Sec 2 (amends LPA Sec 9.1 expressly) |
+
+The "Governing" column names a document only when a cited clause decides it (an express override, an order-of-precedence clause, or an amendment that amends the base section by number). Otherwise it reads "Unresolved — counsel".
 
 ---
 
@@ -141,14 +149,15 @@ Apply these specific checks across all document pairs:
 |-------|----------------|-----------------|
 | **Fee rate mismatch** | Management fee rate in LPA vs. side letters vs. amendments | Different rates without explicit override language |
 | **Carry/hurdle mismatch** | Carried interest or preferred return across documents | Different economics without clear precedence |
-| **Reporting frequency conflict** | Reporting obligations in LPA vs. side letter commitments | Side letter requires more frequent reporting than LPA provides; who controls? |
+| **Reporting frequency conflict** | Reporting obligations in LPA vs. side letter commitments | Side letter requires more frequent reporting than LPA provides; governing only per a cited clause |
 | **Consent threshold conflict** | LP consent percentages across amendments | Amendment changes threshold but side letters reference original threshold |
 | **Key person inconsistency** | Key person list in LPA vs. amendments vs. side letters | Different key person lists or trigger mechanisms across documents |
 | **Transfer restriction conflict** | Transfer rights in LPA vs. side letter transfer carve-outs | Side letter grants transfer right that LPA prohibits |
 | **Confidentiality scope conflict** | Confidentiality obligations in LPA vs. side letter carve-outs | Side letter carve-out may conflict with LPA obligations to other LPs |
 | **MFN cascading conflict** | MFN rights in side letters vs. terms granted to other LPs | MFN election could trigger cascading rights not contemplated by GP |
 | **Definition drift** | Defined terms used across documents | Same term defined differently in LPA vs. amendment vs. side letter |
-| **Temporal conflict** | Provisions with time-dependent applicability | Amendment changes a provision that a side letter already modified — which controls? |
+| **Temporal conflict** | Provisions with time-dependent applicability | Amendment changes a provision that a side letter already modified; record Unresolved — counsel unless a cited clause decides it |
+| **CV side-letter carry-over** | Existing side-letter rights vs. continuation vehicle documents | A rolling LP's side-letter rights do not appear in the CV documents (ILPA *draft* CV guidance, June 2026, says they should apply; discussion point only) |
 
 ---
 
@@ -160,17 +169,28 @@ For each provision that has been modified across document versions, create a lin
 
 ```
 PROVISION: Management Fee Rate
-├── LPA (2020-01-15): 2.0% on committed capital (Section 6.1)
-├── Amendment #1 (2021-06-30): 2.0% during IP, 1.5% on invested capital post-IP (Section 2)
-│   └── Change: Added step-down mechanism post-investment period
-├── Side Letter LP-A (2020-03-01): 1.75% on committed capital (Section 3)
-│   └── Change: Reduced rate for this LP only; no step-down referenced
-└── CURRENT STATE: Base LPA rate is 2.0%/1.5% (per Amendment #1);
-    LP-A pays 1.75% (per Side Letter — but does the step-down apply?)
-    ⚠ WARNING: Side letter predates amendment; unclear if step-down applies to LP-A
++-- LPA (2020-01-15): 2.0% on committed capital (Section 6.1)
++-- Amendment #1 (2021-06-30): 2.0% during IP, 1.5% on invested capital post-IP (Section 2)
+|   +-- Change: Added step-down mechanism post-investment period
++-- Side Letter LP-A (2020-03-01): 1.75% on committed capital (Section 3)
+|   +-- Change: Reduced rate for this LP only; no step-down referenced
++-- AS STATED: Base LPA rate is 2.0%/1.5% (Amendment #1 amends Section 6.1 expressly);
+    LP-A: 1.75% per Side Letter Section 3; whether the step-down applies to LP-A is
+    Unresolved — counsel (no cited clause decides it; do not infer from dates)
+    WARNING: Side letter predates amendment
 ```
 
-### 4.2 Defined Term Evolution
+### 4.2 Governing Terms as of a Date
+
+Build a table of the terms that govern as of a stated date (the analysis date, or a date the user gives). One row per provision (and per LP where side letters differ):
+
+| Provision | As of [date] | Governing document and section | Supersedes | Basis |
+|---|---|---|---|---|
+| [provision] | [term as it reads] | [document, section — or "Unresolved — counsel"] | [what it replaces, with section] | [the cited override, order-of-precedence or amending clause — or "none found"] |
+
+Name a governing document only when a cited clause decides it. Dates alone, and general rules such as later-in-time or specific-over-general, never decide it here. Documents not yet effective on the as-of date, or with no evidence of execution, are listed but not treated as governing.
+
+### 4.3 Defined Term Evolution
 
 Track how defined terms change across documents:
 
@@ -199,7 +219,7 @@ When one document modifies a provision, trace downstream impacts:
 If any side letters contain MFN provisions:
 1. Identify all MFN-eligible terms across side letters
 2. Determine which terms would trigger MFN elections
-3. Calculate the "worst case" for the GP if all MFN elections are exercised
+3. Quantify the aggregate effect of MFN elections only when the user supplies the inputs it depends on (each electing LP's commitment or fee basis, tier thresholds and the rate difference), each cited. Run the arithmetic through `fund_calculations.py arithmetic` (locate `../fund/scripts/fund_calculations.py` from this skill; `scripts/fund_calculations.py` in a source checkout) and keep the workpaper. Otherwise record the aggregate as UNKNOWN and list the missing inputs
 4. Flag any MFN cascades (LP A elects LP B's term, which triggers LP C's MFN for a new term)
 
 ---
@@ -208,13 +228,17 @@ If any side letters contain MFN provisions:
 
 ### 6.1 Compile the Cross-Reference Report
 
-Generate `MULTI-DOC-ANALYSIS-[date].md` with the following structure:
+Save the report as a `MULTI-DOC-ANALYSIS` report in the `analysis/` subfolder. Get the basename with `fund_report.py filename --family MULTI-DOC-ANALYSIS --fund-name <full-legal-name> --date <YYYY-MM-DD>` (the sibling `fund` skill's `scripts/`), then save with `fund_report.py write-report --run <run> --folder analysis --filename <returned-basename> --report <report-id> --markdown <draft>` in the run created by `new-run` (or the parent's run). Never hand-build slugs, filenames or directories.
+
+**Spreadsheet.** After `write-report` has saved the report, run `fund_report.py companion --report <saved-report-path.md> --from-report` (the sibling `fund` skill's `scripts/`; `scripts/` in a source checkout) to save the report's tables as an `.xlsx` beside it, one sheet per table. The workbook copies the tables as written and never recalculates, so fix a figure in the report, not in the spreadsheet. Exit 3 means openpyxl is missing: rerun with `--format csv` and tell the user a CSV was produced instead. The workbook's provision matrix and governing-terms table serve as a side-letter compendium.
+
+Use the following structure:
 
 ```markdown
 # Multi-Document Cross-Reference Report
 
-> DISCLAIMER: This cross-reference analysis is AI-generated and does not
-> constitute legal, tax, or investment advice. Multi-document analysis for
+> DISCLAIMER: Not financial, legal or tax advice. Qualified human review is required.
+> This cross-reference analysis is AI-generated. Multi-document analysis for
 > fund documents involves complex legal interpretation of overlapping
 > contractual provisions that requires qualified fund formation counsel.
 > No attorney-client or advisory relationship is created by using this tool.
@@ -226,11 +250,17 @@ Generate `MULTI-DOC-ANALYSIS-[date].md` with the following structure:
 
 | # | Document | Type | Date | Hierarchy Layer |
 |---|----------|------|------|----------------|
-| 1 | [filename] | [LPA/Amendment/Side Letter] | [date] | [Base/Layer 1/Layer 2] |
-| 2 | [filename] | [type] | [date] | [layer] |
+| 1 | [source ID: title] | [LPA/Amendment/Side Letter] | [date] | [Base/Layer 1/Layer 2] |
+| 2 | [source ID: title] | [type] | [date] | [layer] |
 | ... | ... | ... | ... | ... |
 
-**Order of Precedence**: [State the controlling hierarchy as determined from the documents]
+**Order of Precedence**: [Quote any order-of-precedence or override clause with its section. If none is found, state "No order-of-precedence clause found; precedence Unresolved — counsel"]
+
+## Governing Terms as of [date]
+
+| Provision | As of [date] | Governing document and section | Supersedes | Basis |
+|---|---|---|---|---|
+| [provision] | [term] | [document, section — or "Unresolved — counsel"] | [replaced text, section] | [cited clause or "none found"] |
 
 ---
 
@@ -259,10 +289,10 @@ Generate `MULTI-DOC-ANALYSIS-[date].md` with the following structure:
 
 **Why This Is Critical**: [Explanation of how these provisions contradict each other and the practical consequences]
 
-**Resolution Options**:
-1. [Option A — which document should control and why]
-2. [Option B — alternative interpretation]
-3. [Recommended action — e.g., seek GP counsel clarification, request amendment]
+**Readings for counsel** (precedence: [cited clause, or "Unresolved — counsel"]):
+1. [Reading A — the result if Document A governs]
+2. [Reading B — the result if Document B governs]
+3. [Next step — e.g., seek GP counsel clarification, request amendment]
 
 ---
 
@@ -287,11 +317,11 @@ Generate `MULTI-DOC-ANALYSIS-[date].md` with the following structure:
 
 ## Provision Cross-Reference Matrix
 
-| Provision | [Doc 1] | [Doc 2] | [Doc 3] | Controlling | Conflict? |
+| Provision | [Doc 1] | [Doc 2] | [Doc 3] | Governing (per cited clause) | Conflict? |
 |-----------|---------|---------|---------|-------------|-----------|
-| Mgmt Fee Rate | [value] | [value] | [value] | [which doc] | [Y/N + severity] |
-| Carried Interest | [value] | [value] | [value] | [which doc] | [Y/N] |
-| Preferred Return | [value] | [value] | [value] | [which doc] | [Y/N] |
+| Mgmt Fee Rate | [value] | [value] | [value] | [doc and clause, or Unresolved — counsel] | [Y/N + severity] |
+| Carried Interest | [value] | [value] | [value] | [doc and clause, or Unresolved — counsel] | [Y/N] |
+| Preferred Return | [value] | [value] | [value] | [doc and clause, or Unresolved — counsel] | [Y/N] |
 | [continue for all extracted provisions] | | | | | |
 
 ---
@@ -345,18 +375,27 @@ Generate `MULTI-DOC-ANALYSIS-[date].md` with the following structure:
 - Run `/fund review-lpa <file>` for comprehensive review of the base LPA
 - Run `/fund review-side-letter <file>` for individual side letter analysis
 - Run `/fund mfn-tracker` if MFN cascading conflicts were identified
+
+## Status, limitations and data handling
+- Report status: [DRAFT / PARTIAL / BLOCKED / READY_FOR_REVIEW] — the same value as the evidence sidecar.
+- Assumptions: [list]
+- Limitations and checks not performed: [list; UNKNOWN / NOT PERFORMED items]
+- Data handling: the packaged helpers ran locally and made no network calls; the AI host and its model provider processed the document content; connectors used: [none / list]. Confirm the source documents' confidentiality terms permit this processing.
+
+Not financial, legal or tax advice. Qualified human review is required.
 ```
 
 ### 6.2 Present to User
 
 After generating the output:
 
-1. Confirm the file was generated: "Cross-reference report generated: `MULTI-DOC-ANALYSIS-[date].md`"
+1. Confirm the file was generated, with the basename returned by the helper
 2. State the file location (absolute path)
 3. Lead with the most critical finding — the highest-severity conflict
 4. Summarize conflict counts: "Found X CRITICAL conflicts, Y WARNINGs, Z informational overrides across N documents"
 5. If cascading implications were found, highlight the most impactful cascade
 6. Suggest follow-up commands for deeper analysis of specific document pairs
+7. Include the exact sentence: "Not financial, legal or tax advice. Qualified human review is required."
 
 ---
 
@@ -364,9 +403,9 @@ After generating the output:
 
 | Error | Resolution |
 |-------|-----------|
-| Fewer than 2 documents provided | Ask the user to provide at least 2 related fund documents; suggest `/fund compare` for two-document analysis |
+| Fewer than 2 documents provided | Ask the user to provide at least 2 related fund documents; for a single document suggest `/fund extract-terms` or `/fund review-lpa` |
 | Documents appear unrelated | Warn the user that the documents do not appear to relate to the same fund; proceed if user confirms, noting the assumption |
 | Document unreadable | Report which file failed, proceed with remaining files if 2+ are readable |
 | No overlapping provisions found | Report that the documents do not share common provisions; they may serve different purposes or relate to different funds |
-| Ambiguous document hierarchy | Note that no explicit order of precedence was found; apply default legal rules (later-in-time, specific over general) and flag the assumption |
+| Ambiguous document hierarchy | Note that no explicit order of precedence was found; record precedence as "Unresolved — counsel" and show each document's version side by side. Do not apply default rules such as later-in-time or specific-over-general |
 | Too many documents (>10) | Process all documents but warn that accuracy may decrease; recommend batching into related subsets |

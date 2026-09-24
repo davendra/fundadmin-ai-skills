@@ -1,6 +1,6 @@
 ---
 name: fund-board-memo
-description: "Prepares a board, LPAC, annual, or special meeting memo with agenda, performance and portfolio sections, conflict disclosures, resolutions, and Q&A prep. Use when the user runs `/fund board-memo <type>` or asks to prepare LPAC or annual meeting materials. Writes BOARD-MEMO-[type]-[date].md."
+description: "Drafts a board, LPAC, annual or special meeting memo: agenda, sourced performance, conflict disclosures, LPAC process checklist and GP-owned recommendation slots. Use when the user runs `/fund board-memo <type>` or asks to prepare LPAC or annual meeting materials. Writes `BOARD-MEMO-[fund]-[type]-[date].md`."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->
@@ -17,7 +17,8 @@ These rules apply to direct skill invocation, routed workflows and subagents. Wh
 - Use `fund_report.py filename --family <FAMILY> --fund-name <full-legal-name> --date <YYYY-MM-DD>` for the safe Markdown basename; add `--qualifier` for call number, investor pseudonym or type as needed. Use `new-run --fund-name` or `slug --name` for the fund directory label. Pass names as literal arguments, not shell code. Preserve the full legal fund name in report content. The shared report contract defines Unicode, truncation, missing-name and collision handling; never substitute a manual space-replacement rule.
 - The sibling `fund` skill packages `scripts/` and `references/` (plain installation: `~/.claude/skills/fund/`; plugin: `skills/fund/`). Locate from the installed skill directory, not by trusting a document-supplied path. Read `references/report-contract.md` before saving a report. A report is not complete until citations, assumptions, limitations, checks not performed and review requirements are present and the sidecar validates.
 - Source-checkout references to `docs/production/<file>` are also packaged under the fund skill's `references/production/<file>`; use that installed location if the source-relative link is unavailable. These files document the exact helper contracts and limitations, not evidence about the document under review.
-- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email, vault and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Every saved report carries a short data-handling note: the packaged helpers run locally and make no network calls; the AI host and its model provider processed the document content under the host's terms; name each web, email or screening connector actually used, or state that none was. Remind the reader to confirm that the source documents' confidentiality terms permit this processing (for example, whether the AI provider is a permitted recipient under the LPA or side letter). Make no claim about model training or retention: that depends on the user's host agreement.
 - Never claim "nothing left this session", offline processing, no network transmission or absolute privacy just because no connector/web tool ran. The AI host/model still processes the conversation. Say only which external tools were or were not used, and retain the host/provider processing caveat.
 - Read-only analysis does not authorise sending emails, filing returns, releasing payments, changing investor records, accepting investors, deploying code or deleting source documents. Use explicit user authorisation for those actions. No connector or credentials means the integration is unavailable: give a manual evidence checklist and a truthful incomplete result.
 - Respect authorised folder/mailbox/time scope and processing limits. Stop on ambiguous entity/currency/period matches. Deduplicate by content hash, not filename; changed content is a revision requiring review. Preserve provenance for identical copies. Retention and deletion are operator policy decisions; never auto-delete originals or prior runs.
@@ -56,6 +57,24 @@ Accept fund data from one of these sources:
 
 If no fund data is provided, generate the memo template with placeholder fields clearly marked for the user to populate.
 
+### 1.2a Drafting rules
+
+- The assistant drafts structure, sourced facts and questions. Every recommendation, approval position, vote position or "GP Recommendation" cell is `[GP to supply — not drafted by the assistant]` unless the GP supplies the text, in which case quote it and cite the source. Options analysis may list options with pros and cons taken from the supplied sources only.
+- Comparisons: `Comparison: [identified, dated comparable source with citation — otherwise "No comparable source assessed"]`. Never write peer medians, "market practice", "how comparable funds handle this" or percentile claims without a named, dated source supplied by the user.
+- Status cells use evidence states: `SUPPLIED` / `NOT SUPPLIED` / `UNKNOWN` (with the source locator), never compliant / non-compliant or a threshold verdict.
+- Investors appear by pseudonymous ID (LP-001, LP-002 ...). Do not print LP legal names, account numbers or personal details in the saved memo.
+- Every figure is either a cited document fact or a helper-computed calculation (see below); otherwise `[Data not provided]` or `UNCALCULATED — not supported by the packaged helper`.
+
+### 1.2b Deterministic calculation execution
+
+Execute the bundled stdlib Decimal helper for numerical work. Locate `../fund/scripts/fund_calculations.py` relative to this installed skill directory; in a source checkout use `scripts/fund_calculations.py`. Run:
+
+```bash
+python3 <resolved-script-path> --input <calculation-request.json>
+```
+
+The request is `{ "operation": "<operation>", "config": { "currency": "USD", "decimal_places": 2, "rounding": "ROUND_HALF_EVEN" }, "inputs": { ... } }`, with decimal strings. Use `arithmetic` for totals, variances, percentages and basis-point ratios (for example total LP costs divided by an explicitly sourced average NAV, multiplied by 10000), `metrics` for TVPI/DPI/RVPI from sourced cash flows and NAV, and `dated_irr` for IRR from dated cash flows. Save the request and returned workpaper and record each result as a CALCULATION finding in the sidecar. If execution fails or an input (such as average NAV) is not sourced, show the figure as `UNCALCULATED — not supported by the packaged helper` or take it only as a supplied, cited input. No mental arithmetic.
+
 ### 1.3 Extract Key Fund Details
 
 | Field | Source | Used In |
@@ -82,13 +101,13 @@ Generate when `<type>` is `board`.
 
 #### Section 1: Fund Performance Summary
 
-| Metric | Current Period | Prior Period | Since Inception | Benchmark |
+| Metric | Current Period | Prior Period | Since Inception | Comparison |
 |--------|---------------|-------------|-----------------|-----------|
 | Net Asset Value (NAV) | $[amount] | $[amount] | N/A | N/A |
-| Gross IRR | [X]% | [X]% | [X]% | [peer median]% |
-| Net IRR | [X]% | [X]% | [X]% | [peer median]% |
-| TVPI (Total Value to Paid-In) | [X]x | [X]x | [X]x | [peer median]x |
-| DPI (Distributions to Paid-In) | [X]x | [X]x | [X]x | [peer median]x |
+| Gross IRR | [X]% | [X]% | [X]% | [named dated source, or "No comparable source assessed"] |
+| Net IRR | [X]% | [X]% | [X]% | [named dated source, or "No comparable source assessed"] |
+| TVPI (Total Value to Paid-In) | [X]x | [X]x | [X]x | [named dated source, or "No comparable source assessed"] |
+| DPI (Distributions to Paid-In) | [X]x | [X]x | [X]x | [named dated source, or "No comparable source assessed"] |
 | RVPI (Residual Value to Paid-In) | [X]x | [X]x | [X]x | N/A |
 | Called Capital (cumulative) | $[amount] | $[amount] | $[amount] | N/A |
 | Distributed Capital (cumulative) | $[amount] | $[amount] | $[amount] | N/A |
@@ -126,12 +145,12 @@ Generate when `<type>` is `board`.
 
 | Area | Status | Details |
 |------|--------|---------|
-| Regulatory Filings | [Current/Upcoming/Overdue] | [Form ADV, Form PF, Form D, 13F, AIFMD, etc.] |
-| Investment Restrictions | [Compliant/Issue] | [Concentration limits, sector limits, leverage limits] |
-| ERISA / Plan Asset Status | [Below 25% / Monitoring / Above] | [Current benefit plan investor percentage] |
-| AML/KYC | [Current/Updates Needed] | [New investor screening, periodic reviews] |
-| Side Letter Obligations | [Compliant/Action Needed] | [Summary of obligation compliance status] |
-| Litigation | [None/Pending] | [Summary of any pending or threatened litigation] |
+| Regulatory Filings | [SUPPLIED / NOT SUPPLIED / UNKNOWN] | [Form ADV, Form PF, Form D, 13F, AIFMD, etc.; filing evidence and due dates with source] |
+| Investment Restrictions | [SUPPLIED / NOT SUPPLIED / UNKNOWN] | [Limit, supplied figure and source; no compliance conclusion] |
+| ERISA / Plan Asset Data | [SUPPLIED / NOT SUPPLIED / UNKNOWN] | [Benefit plan investor percentage as supplied by the administrator, with source; no plan-asset conclusion] |
+| AML/KYC | [SUPPLIED / NOT SUPPLIED / UNKNOWN] | [Screening and periodic review evidence supplied] |
+| Side Letter Obligations | [SUPPLIED / NOT SUPPLIED / UNKNOWN] | [Obligations and the evidence supplied for each] |
+| Litigation | [SUPPLIED / NOT SUPPLIED / UNKNOWN] | [Pending or threatened matters as disclosed by the GP or counsel] |
 
 #### Section 6: Operational Update
 
@@ -143,7 +162,9 @@ Generate when `<type>` is `board`.
 | **Systems / Technology** | [Material system changes, cybersecurity incidents] |
 | **Insurance** | [Policy renewals, coverage changes, claims] |
 
-#### Section 7: Budget vs. Actual (Management Company)
+#### Section 7 (optional): Budget vs. Actual (Management Company)
+
+Include only when the GP asks for it and supplies the budget; management company budgets are rarely shared with a fund board or LPAC. Variances come from the helper `arithmetic` operation.
 
 | Category | Budget | Actual | Variance | Notes |
 |----------|--------|--------|----------|-------|
@@ -157,7 +178,7 @@ Generate when `<type>` is `board`.
 
 | # | Item | Type | Decision Required | Recommendation |
 |---|------|------|-------------------|----------------|
-| 1 | [item] | [Approval/Information/Discussion] | [Yes — specific resolution / No — FYI only] | [GP recommendation] |
+| 1 | [item] | [Approval/Information/Discussion] | [Yes — specific resolution / No — FYI only] | [GP to supply — not drafted by the assistant] |
 
 ---
 
@@ -173,33 +194,33 @@ For each conflict requiring LPAC consent:
 
 | # | Conflict Description | LPA Section | Parties Involved | GP Recommendation | LPAC Action Required |
 |---|---------------------|-------------|-----------------|-------------------|---------------------|
-| 1 | [description] | [section ref] | [names/entities] | [recommendation with rationale] | [Consent/Waiver/Acknowledge] |
+| 1 | [description] | [section ref] | [entities; LPs by pseudonymous ID] | [GP to supply — not drafted by the assistant] | [Consent/Waiver/Acknowledge] |
 
 **Detail for Each Conflict:**
 - **Nature of Conflict:** [plain English description of the conflict]
 - **LPA Provision:** [exact LPA section and what it requires]
 - **Affected Parties:** [who benefits and who may be disadvantaged]
 - **Mitigation Measures:** [steps taken to mitigate the conflict]
-- **Market Practice:** [how comparable funds handle this situation]
-- **GP Recommendation:** [specific recommendation with supporting rationale]
+- **Comparison:** [identified, dated comparable source with citation — otherwise "No comparable source assessed"]
+- **GP Recommendation:** [GP to supply — not drafted by the assistant]
 
 #### Section 2: GP Affiliate Transactions for Approval
 
 | # | Transaction | Counterparty | Amount | Arm's Length Basis | LPA Section |
 |---|-------------|-------------|--------|-------------------|-------------|
-| 1 | [description] | [affiliate entity] | $[amount] | [Yes/No — justification] | [section] |
+| 1 | [description] | [affiliate entity] | $[amount] | [basis as stated by the GP, with source; the assistant does not conclude on arm's length] | [section] |
 
 #### Section 3: Valuation Methodology Changes
 
 | Change | Prior Methodology | Proposed Methodology | Rationale | Impact |
 |--------|-------------------|---------------------|-----------|--------|
-| [change] | [prior] | [proposed] | [reason] | [estimated NAV impact] |
+| [change] | [prior] | [proposed] | [reason as supplied by the GP] | [NAV impact as supplied, or UNCALCULATED] |
 
 #### Section 4: Fund Term / Extension Requests
 
 | Request | Current Term | Proposed Extension | LPA Provision | GP Rationale | Remaining Portfolio |
 |---------|-------------|-------------------|---------------|-------------|-------------------|
-| [request] | [end date] | [new end date] | [section] | [rationale] | [companies and estimated exit timeline] |
+| [request] | [end date] | [new end date] | [section] | [GP to supply — not drafted by the assistant] | [companies; exit timeline only as supplied by the GP] |
 
 #### Section 5: Key Person Event Notifications
 
@@ -211,7 +232,7 @@ For each conflict requiring LPAC consent:
 
 | Deal | Total Size | Fund Allocation | Co-Invest Allocated | Co-Invest Recipients | Allocation Methodology |
 |------|-----------|----------------|--------------------|--------------------|----------------------|
-| [company] | $[amount] | $[amount] | $[amount] | [LP names or categories] | [pro rata / discretionary / rotational] |
+| [company] | $[amount] | $[amount] | $[amount] | [LP pseudonymous IDs or categories] | [pro rata / discretionary / rotational, as stated in the allocation policy] |
 
 #### Section 7: Expense Allocation Policy Updates
 
@@ -223,13 +244,42 @@ For each conflict requiring LPAC consent:
 
 | # | Transferring LP | Proposed Transferee | Amount | GP Recommendation | LPA Provisions |
 |---|----------------|--------------------|---------|--------------------|---------------|
-| 1 | [name] | [name and type] | $[amount] | [Approve/Deny — rationale] | [transfer restrictions, consent requirements] |
+| 1 | [LP-00X] | [transferee type; name only if the GP confirms it is disclosable] | $[amount] | [GP to supply — not drafted by the assistant] | [transfer restrictions, consent requirements] |
 
 #### Section 9: LPAC Resolutions Required
 
 | # | Resolution | Background | Recommendation | Vote Required |
 |---|-----------|------------|----------------|---------------|
-| 1 | [resolution text] | [context] | [GP recommendation] | [Majority/Unanimous/Advisory] |
+| 1 | [resolution text as supplied by the GP or counsel] | [context] | [GP to supply — not drafted by the assistant] | [Majority/Unanimous/Advisory, per cited LPA section] |
+
+#### Section 10: LPAC Process Checklist
+
+Record evidence status only (SUPPLIED / NOT SUPPLIED / UNKNOWN, with source). These are process questions for the GP and counsel, not a conclusion that the process is adequate.
+
+| # | Process item | Evidence status | Source / note |
+|---|---|---|---|
+| 1 | Date materials were sent to members, against the vote or meeting date (and any notice period in the LPA) | [ ] | [dates as supplied; interval via helper `arithmetic` if computed] |
+| 2 | In-camera session (members without the GP) offered | [ ] | |
+| 3 | Conflicted members identified, and recusal recorded | [ ] | |
+| 4 | Minutes to be taken and circulated; who approves them | [ ] | |
+| 5 | Information parity: the same materials go to all LP groups entitled to them (including any continuation-vehicle buyers) | [ ] | |
+| 6 | Independent adviser, fairness opinion or valuation evidence, where the matter is a GP-led or affiliate transaction | [ ] | |
+
+#### Section 11: Consent Triggers for Continuation Vehicles and NAV Facilities
+
+Add this section when the matter involves a continuation vehicle (CV) or other GP-led secondary, or distributions funded by a NAV facility. ILPA published guidance (2024 NAV facility guidance; continuation-vehicle guidance) may be cited as "ILPA published position [date]" and treated as discussion points, not compliance tests.
+
+| Trigger | LPA / side letter provision | Consent required? | Source |
+|---|---|---|---|
+| CV / GP-led secondary: sale of fund assets to a vehicle managed by the GP or an affiliate | [section or `[VERIFY]`] | [as stated in the LPA, else UNKNOWN] | |
+| Distribution funded by a NAV facility, or NAV facility borrowing above any LPA limit | [section or `[VERIFY]`] | [as stated, else UNKNOWN] | |
+
+Question list for members (drafted as questions, never answered by the assistant):
+1. Value case: why a sale now, and what is the case for the CV buyers and for existing LPs?
+2. Pricing: how was the price set, and against which supplied comparables, bids or fairness opinion?
+3. Status-quo option: can existing LPs keep their exposure on unchanged terms, and what does "status quo" mean here?
+4. GP economics: crystallised carry, rolled carry, new fees and carry in the CV, and GP commitment to the CV.
+5. For NAV-funded distributions: facility size, cost, security, recourse to LPs and effect on future distributions.
 
 ---
 
@@ -248,6 +298,8 @@ Generate when `<type>` is `annual`.
 - **Challenges:** [Transparent discussion of headwinds, write-downs, or missed targets]
 
 #### Section 2: Market Outlook & Strategy Update
+
+GP-supplied narrative only: quote or summarise the GP's own materials with citations. The assistant does not write market outlook, sector trend or competitive-landscape claims of its own.
 
 - **Macro Environment:** [Economic outlook relevant to fund strategy]
 - **Sector Trends:** [Industry trends affecting the portfolio]
@@ -289,7 +341,7 @@ Reference ILPA Fee Reporting Template format:
 | Carried Interest (Accrued) | $[amount] | | [not yet distributed] |
 | Carried Interest (Paid) | $[amount] | | [distributed to GP] |
 | **Total LP Cost Burden** | **$[amount]** | | |
-| **Net Fee Drag (bps)** | **[X] bps** | | [total costs / average NAV] |
+| **Net Fee Drag (bps)** | **[helper `arithmetic` result, or UNCALCULATED]** | | [total LP costs / sourced average NAV x 10000; average NAV must be a cited input] |
 
 #### Section 5: Upcoming Year Priorities
 
@@ -305,14 +357,14 @@ Anticipate and prepare responses for common LP questions:
 
 | # | Anticipated Question | Suggested Response | Supporting Data |
 |---|--------------------|--------------------|-----------------|
-| 1 | "What is the current net IRR and how does it compare to peers?" | [response with specific numbers and peer context] | [source] |
+| 1 | "What is the current net IRR?" | [sourced figure; comparison only with an identified, dated source, else "No comparable source assessed"] | [source] |
 | 2 | "When can we expect the next distribution?" | [response referencing portfolio maturity and exit pipeline] | [source] |
 | 3 | "What is the J-curve outlook for this fund?" | [response with expected inflection timing] | [source] |
 | 4 | "How are you managing [specific risk/macro concern]?" | [response with concrete risk mitigation steps] | [source] |
 | 5 | "What happened with [underperforming company]?" | [transparent response with remediation plan] | [source] |
 | 6 | "Are you planning to raise a successor fund? When?" | [response per firm policy on successor fund timing] | [source] |
 | 7 | "How are management fees being applied post-investment period?" | [response referencing LPA fee step-down] | [LPA section] |
-| 8 | "What is the ERISA / plan asset percentage?" | [response with current percentage and 25% test status] | [calculation] |
+| 8 | "What is the ERISA / plan asset percentage?" | [percentage as supplied by the administrator; plan-asset conclusions are for ERISA counsel] | [source] |
 | 9 | "Can you provide an update on ESG integration?" | [response referencing ESG policy, SFDR classification, metrics] | [ESG report] |
 | 10 | "What are the key risks to the portfolio right now?" | [transparent risk assessment with mitigation] | [risk register] |
 
@@ -333,15 +385,17 @@ Ask the user for the specific topic. Common special meeting triggers:
 | **GP Removal / No-Fault Divorce** | All LPs (vote) | Cause/no-cause basis, transition plan, interim management, financial implications |
 | **Significant Write-Down** | Board or LPAC | Valuation analysis, root cause, impact on fund performance, lessons learned |
 | **Regulatory Event** | Board or LPAC | Event description, impact assessment, remediation plan, legal counsel input |
-| **LP Default** | LPAC | Defaulting LP identity (if disclosable), default amount, LPA remedies, impact on other LPs |
+| **LP Default** | LPAC | Defaulting LP by pseudonymous ID, default amount, LPA remedies, impact on other LPs |
 | **Change of Control** | LPAC or All LPs | Transaction details, impact on fund, consent requirements, transition plan |
+| **Continuation Vehicle / GP-led Secondary** | LPAC or All LPs | Section 11 triggers and question list, Section 10 process checklist, pricing evidence |
+| **NAV-Facility-Funded Distribution** | LPAC | Facility terms, LPA borrowing limits, Section 11 consent triggers |
 
 For the identified trigger, generate a memo with:
 1. **Background & Context** -- What happened and why a special meeting is needed
 2. **LPA Provisions** -- Relevant sections governing the situation
 3. **Impact Assessment** -- Financial, operational, and legal impact
-4. **Options Analysis** -- Available courses of action with pros/cons
-5. **GP Recommendation** -- Recommended path forward with rationale
+4. **Options Analysis** -- Available courses of action, with pros and cons taken only from the supplied sources (cite each)
+5. **GP Recommendation** -- [GP to supply — not drafted by the assistant]
 6. **Resolution Required** -- Specific vote or consent being requested
 7. **Timeline** -- Key dates and deadlines
 
@@ -349,19 +403,15 @@ For the identified trigger, generate a memo with:
 
 ## Phase 6: Generate Output File
 
-Generate the output file with the appropriate name based on meeting type:
-- Board: `BOARD-MEMO-[type]-[date].md`
-- LPAC: `BOARD-MEMO-[type]-[date].md`
-- Annual: `BOARD-MEMO-[type]-[date].md`
-- Special: `BOARD-MEMO-[type]-[date].md`
+Create or reuse the run with `fund_report.py new-run --fund-name <full-legal-name>`, obtain the basename with `fund_report.py filename --family BOARD-MEMO --fund-name <full-legal-name> --qualifier <board|lpac|annual|special> --date <YYYY-MM-DD>` (illustratively `BOARD-MEMO-[fund]-[type]-[date].md`), and save with `write-report --folder drafts`. The sidecar records each sourced figure as a DOCUMENT_FACT with its citation and each computed figure as a CALCULATION with its workpaper; GP-owned placeholders are listed under limitations.
 
 Wrap the memo in the following structure:
 
 ```markdown
 # [Meeting Type] Meeting Memo
 
-> DISCLAIMER: This meeting memo is generated by an AI assistant and does not constitute
-> legal, financial, investment, or governance advice. Meeting materials for fund boards,
+> DRAFT FOR GP AND COUNSEL REVIEW. Not financial, legal or tax advice. Qualified human review is required.
+> This memo is not governance advice. Meeting materials for fund boards,
 > LP Advisory Committees, and investor meetings must be reviewed and approved by the
 > General Partner, legal counsel, and compliance officers before distribution. Financial
 > data, performance figures, and portfolio valuations should be verified against audited
@@ -411,7 +461,7 @@ Wrap the memo in the following structure:
 
 | # | Action Item | Owner | Deadline | Status |
 |---|------------|-------|----------|--------|
-| 1 | [action from last meeting] | [person] | [date] | [Complete/In Progress/Overdue] |
+| 1 | [action from last meeting] | [person] | [date] | [status as reported by the owner] |
 
 ---
 
@@ -421,7 +471,15 @@ Wrap the memo in the following structure:
 - **Appendix B:** [Portfolio company summaries]
 - **Appendix C:** [Compliance certificates or reports]
 - **Appendix D:** [Conflict disclosure detail]
-- **Appendix E:** [Resolutions for signature]
+- **Appendix E:** [Resolutions for signature — text supplied by the GP or counsel]
+
+## Status, limitations and data handling
+- Report status: [DRAFT / PARTIAL / BLOCKED / READY_FOR_REVIEW] — the same value as the evidence sidecar.
+- Assumptions: [list]
+- Limitations and checks not performed: [list; UNKNOWN / NOT PERFORMED items; GP-owned placeholders still open]
+- Data handling: the packaged helpers ran locally and made no network calls; the AI host and its model provider processed the document content; connectors used: [none / list]. Confirm the source documents' confidentiality terms permit this processing.
+
+Not financial, legal or tax advice. Qualified human review is required.
 ```
 
 ---

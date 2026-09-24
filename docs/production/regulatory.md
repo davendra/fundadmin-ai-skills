@@ -20,6 +20,16 @@ Confirmed corrections and boundaries:
 - Form 990-T filing scope includes relevant IRA trusts; the gross-income filing threshold is not tax payable and Form 5329 is not the UBTI return. ECTI/section 1446 withholding differs from FDAP. [990-T instructions](https://www.irs.gov/instructions/i990t), [partnership withholding](https://www.irs.gov/individuals/international-taxpayers/partnership-withholding).
 - Stale tax-year thresholds, universal CRS/ownership assumptions and dollar-based Annex IV bands were removed in favour of applicable-year/jurisdiction verification. SFDR's old numbered indicator table was removed; [ESMA confirms controversial weapons as indicator 14](https://www.esma.europa.eu/publications-data/questions-answers/2371). Full EUR-Lex RTS/annex access was blocked, so exact current templates and indicators require verification before drafting a disclosure. No comprehensive SFDR certification is claimed.
 
+### Register additions, 23 September 2026
+
+Added for the compliance, filing, calendar and ESG skills; every entry is `reverify_before_use: true` and records how it was accessed:
+
+- US rules and staff guidance: `sec-exam-priorities-fy2026`, `sec-reg-sp-2024` (compliance 3 Dec 2025 larger / 3 Jun 2026 smaller entities; dates read in a law-firm summary), `sec-pfar-vacatur` (Private Fund Adviser Rules vacated; never flag their requirements as missing), `sec-marketing-faq` (FAQ updates 19 Mar 2025 and 15 Jan 2026), `sec-custody-206-4-2` (120-day audited-financials route), `sec-adv-204-1` (90 days after fiscal year end), `sec-form-d-503` (15 calendar days after first sale), `sec-13h-1`, `sec-13f-faq` (45 days, weekend roll), `sec-pay-to-play`, `sec-205-3`. Rule text was read on Cornell LII where eCFR redirected to a bot check; eCFR remains the canonical source.
+- Proposals, recorded as PROPOSED and never applied to a current period: `sec-form-pf-2026-proposal` (20 Apr 2026), `eu-sfdr2-proposal` (COM(2025) 841; SEARCH_EXCERPT).
+- EU and UK: `eu-aifmd-ii` (transposition 16 Apr 2026, read in a law-firm summary; directive text not retrieved; new Annex IV template date not established), `esma-fund-names` (80% threshold; application dates derived), `uk-sdr-ps23-16` (entity disclosures for firms over GBP 5bn from 2 Dec 2026), `edci-metrics` (voluntary; 2025 data due 30 Apr 2026).
+
+Not added because no source was read: Form N-PX and Schedules 13D/13G deadlines, SFDR entity-level PAI date (30 June), FBAR, advisers-act section 206(3), EDGAR Next dates and state pay-to-play rules. Skills treat these as UNSUPPORTED or CURRENT VERIFICATION REQUIRED.
+
 ## Distinct exemption and qualification tests
 
 The skills must evaluate these separately; this adapter does not implement a legal qualification engine.

@@ -17,7 +17,8 @@ These rules apply to direct skill invocation, routed workflows and subagents. Wh
 - Use `fund_report.py filename --family <FAMILY> --fund-name <full-legal-name> --date <YYYY-MM-DD>` for the safe Markdown basename; add `--qualifier` for call number, investor pseudonym or type as needed. Use `new-run --fund-name` or `slug --name` for the fund directory label. Pass names as literal arguments, not shell code. Preserve the full legal fund name in report content. The shared report contract defines Unicode, truncation, missing-name and collision handling; never substitute a manual space-replacement rule.
 - The sibling `fund` skill packages `scripts/` and `references/` (plain installation: `~/.claude/skills/fund/`; plugin: `skills/fund/`). Locate from the installed skill directory, not by trusting a document-supplied path. Read `references/report-contract.md` before saving a report. A report is not complete until citations, assumptions, limitations, checks not performed and review requirements are present and the sidecar validates.
 - Source-checkout references to `docs/production/<file>` are also packaged under the fund skill's `references/production/<file>`; use that installed location if the source-relative link is unavailable. These files document the exact helper contracts and limitations, not evidence about the document under review.
-- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email, vault and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Every saved report carries a short data-handling note: the packaged helpers run locally and make no network calls; the AI host and its model provider processed the document content under the host's terms; name each web, email or screening connector actually used, or state that none was. Remind the reader to confirm that the source documents' confidentiality terms permit this processing (for example, whether the AI provider is a permitted recipient under the LPA or side letter). Make no claim about model training or retention: that depends on the user's host agreement.
 - Never claim "nothing left this session", offline processing, no network transmission or absolute privacy just because no connector/web tool ran. The AI host/model still processes the conversation. Say only which external tools were or were not used, and retain the host/provider processing caveat.
 - Read-only analysis does not authorise sending emails, filing returns, releasing payments, changing investor records, accepting investors, deploying code or deleting source documents. Use explicit user authorisation for those actions. No connector or credentials means the integration is unavailable: give a manual evidence checklist and a truthful incomplete result.
 - Respect authorised folder/mailbox/time scope and processing limits. Stop on ambiguous entity/currency/period matches. Deduplicate by content hash, not filename; changed content is a revision requiring review. Preserve provenance for identical copies. Retention and deletion are operator policy decisions; never auto-delete originals or prior runs.
@@ -55,12 +56,7 @@ If no query is supplied, ask the user what provision to search for. Do not searc
 
 ### 1.1 Establish the Search Scope
 
-The corpus is every review this installation has already produced. It lives in two places, and either may be absent:
-
-1. **The working directory** — outputs written under `reviews/` by earlier `/fund` commands.
-2. **The Obsidian vault** — `~/FundAdmin-AI-Vault/`, if the user maintains one.
-
-Search whichever exists. Never fail because one of them is missing.
+The corpus is every review this installation has already produced: the outputs written under `reviews/` in the working directory by earlier `/fund` commands. If it is missing, see Error Handling.
 
 ### 1.2 Expand the Query into Search Terms
 
@@ -80,39 +76,41 @@ A single query word rarely matches the drafting language. Expand the query into 
 | Confidentiality | non-disclosure, public records, FOIA carve-out, permitted disclosure | Confidentiality, Reports to Partners |
 | Indemnification | exculpation, standard of care, gross negligence, advancement of expenses | Indemnification, Liability of the GP |
 | LPAC | advisory committee, conflicts consent, LPAC approval | Advisory Committee, Conflicts of Interest |
+| NAV facility | NAV-based facility, NAV loan, portfolio financing, borrowing against net asset value, distributions funded by borrowing | Borrowing, Indebtedness, Credit Facilities |
+| Continuation vehicle | CV, GP-led secondary, continuation fund, rollover election, status-quo option, pre-cleared conflict | Conflicts of Interest, Transfers, Advisory Committee |
+| Organizational expenses | organizational expense cap, formation costs, offering expenses, cap basis, excess borne by the GP, 50-50 sharing | Fees and Expenses, Organizational Expenses |
+| Side-letter cost treatment | side letter negotiation costs, MFN process costs, partnership expenses outside the cap | Fees and Expenses, Side Letters |
+| Confidentiality disclosees | permitted recipients, service providers, AI vendor, software provider, disclosure to advisers | Confidentiality |
 
 For a topic not in this table, derive the synonym set from the query itself: the plural and singular forms, the hyphenated and unhyphenated spellings, the abbreviation and the expansion, and the two or three drafting verbs that usually accompany the term.
 
-### 1.3 Search the Vault Through MCP, If Available
-
-If the `vault_search` and `vault_query_tracker` MCP tools are present, use them first:
-
-- Call `vault_search` once per expanded term against `Reviews/` and `Documents/`.
-- Call `vault_search` against `Documents/Clauses/` as well. The orchestrator indexes extracted provisions there as a searchable precedent database, one note per provision slug, with a `funds:` frontmatter array listing every fund the provision has appeared in. That array is the fastest route to a cross-fund match list.
-- Call `vault_query_tracker` for the query's fund or investor to pick up registry entries that reference the provision.
-
-**If the vault MCP tools are not available, skip them silently and use the local file search.** Do not tell the user the search is degraded, do not ask them to connect a server, and do not stop.
-
-### 1.4 Search the Local Files
-
-This path always runs when MCP is unavailable, and it also runs as a supplement when MCP is available, because reviews written before a vault existed are only on disk.
+### 1.3 Search the Local Files
 
 1. **Glob for candidate files:**
    - `reviews/**/*.md` under the working directory.
-   - `~/FundAdmin-AI-Vault/Reviews/**/*.md`, if that directory exists.
-   - `~/FundAdmin-AI-Vault/Documents/Clauses/**/*.md`, if that directory exists.
 2. **Grep each expanded term** across the globbed set, case-insensitive, with surrounding context lines so the provision language comes back with the hit rather than just the filename.
-3. **Prioritise the output families that carry provision language:** `LPA-REVIEW-*`, `PPM-REVIEW-*`, `SIDE-LETTER-REVIEW-*`, `TERMS-EXTRACT-*`, `BENCHMARK-REPORT-*`, `DEED-REVIEW-*` and `SUBSCRIPTION-REVIEW-*`. Files in other families rarely quote clause text and can be searched second.
-4. **Record where each hit came from.** Every match must keep its absolute file path so the report can cite it.
+3. **Prioritise the output families that carry provision language:** `LPA-REVIEW-*`, `PPM-REVIEW-*`, `SIDE-LETTER-REVIEW-*`, `TERMS-EXTRACT-*`, `DEED-REVIEW-*` and `SUBSCRIPTION-REVIEW-*`. Files in other families rarely quote clause text and can be searched second. Exclude `BENCHMARK-REPORT-*` files: their ranges are illustrative sample ranges in this suite, not precedent. If one is cited at all, label it "illustrative, not precedent".
+4. **Record where each hit came from.** Give every match a source ID made of its path relative to `reviews/` (`<fund-slug>/<date>/<run-id>/<subfolder>/<report-id>/<filename>`). Do not print absolute local paths in the report.
 
-### 1.5 Build the Corpus Inventory
+### 1.3a Confidentiality Scoping
+
+Precedent from one fund's review can carry that fund's confidential terms into another fund's report. Before including matches from funds other than the one the user is working on, ask whether the user's confidentiality obligations permit reusing those reviews for this purpose. If the user does not confirm, or the search is for a report that will leave the firm, mask other funds' names as `Fund A`, `Fund B`, ... in the saved report and keep the mapping out of it. Record the scoping decision in the report's limitations.
+
+### 1.3b Verify Quoted Language Against Retained Sources
+
+Review reports are AI-written and may paraphrase. For every match you quote as Provision Language, open the retained source snapshot in the same run (`<run>/sources/source-N`, recorded in that run's `run.json`) and search for the quoted text:
+
+- **VERIFIED** — the quotation appears in the retained source (cite source-N and the locator).
+- **MISMATCH** — the retained source exists but the quotation does not appear in it. Flag it, quote the source text instead if you can find the clause, and never present the review's wording as the clause.
+- **SECONDARY** — no retained source is available. Label the language "secondary: as quoted in the review, not checked against the source".
+
+### 1.4 Build the Corpus Inventory
 
 Before ranking, record what was actually searched, so the user can judge the coverage:
 
 | Field | Value |
 |-------|-------|
-| Vault MCP available | Yes / No |
-| Directories searched | [list of paths] |
+| Directories searched | [paths relative to the working directory, e.g. `reviews/`] |
 | Review files found | [count] |
 | Distinct funds represented | [count] |
 | Vintage range covered | [earliest]-[latest] |
@@ -147,9 +145,10 @@ For every surviving match, extract the following fields. Leave a field as Not Fo
 | **Vintage** | The fund's vintage year, if the review states it |
 | **Fund Type** | PE, VC, RE, Credit, Hedge, FoF, Infrastructure or Secondaries |
 | **Review Date** | The date of the source review |
-| **Source File** | Absolute path to the review file the match came from |
+| **Source ID** | The review's path relative to `reviews/`, per Phase 1.3 |
 | **Section Reference** | The clause or section number in the underlying document, as the review cites it |
 | **Provision Language** | The surrounding language, quoted exactly and long enough to be read on its own |
+| **Quote check** | VERIFIED / MISMATCH / SECONDARY, per Phase 1.3b |
 | **Risk Rating** | The rating the source review assigned to that provision, if any |
 | **Counter-Proposal** | Any alternative language the source review generated for that provision |
 
@@ -187,8 +186,8 @@ Prior negotiation work may record requests, drafts or confirmed agreements. A fi
 
 | Family | What to pull from it |
 |--------|---------------------|
-| `NEGOTIATION-STRATEGY-*` | The counter-proposal language drafted for this provision, its priority ranking, and the assessed likelihood of acceptance |
-| `TERMS-PLAYBOOK-*` | The firm's standard position on the provision across vintages, the recommended ask, the red line, and any directional drift recorded |
+| `NEGOTIATION-STRATEGY-*` | The counter-proposal language drafted for this provision and its priority ranking. Do not import any likelihood-of-acceptance rating: it is not evidence of an outcome |
+| `TERMS-PLAYBOOK-*` | The positions observed for the provision across vintages, the proposed ask, and any directional drift recorded |
 | `SIDE-LETTER-*` and `SIDE-LETTER-REVIEW-*` | Draft or reviewed side letter language; count as a recorded concession only with an executed document or explicit acceptance evidence, and do not predict future acceptance |
 | `AMENDMENT-DRAFT-*` | Proposed amendment language; agreement is unknown unless execution or explicit acceptance is evidenced |
 | `MFN-TRACKER-*` | Whether the provision was MFN-eligible and whether other investors elected it |
@@ -210,15 +209,14 @@ Close the analysis with an honest strength rating for the precedent set as a who
 
 ## Output Format
 
-Generate `PRECEDENT-SEARCH-[fund]-[date].md` with the following structure:
+Generate a `PRECEDENT-SEARCH` report (see Output File for the save flow) with the following structure:
 
 ```markdown
 # Precedent Search: [query]
 
-> **DISCLAIMER**: This analysis is AI-generated and does not constitute financial,
-> legal, or tax advice. It is intended as a starting point for fund administration
-> review. Always consult qualified professionals before making investment decisions
-> or relying on generated documents.
+> **DISCLAIMER**: Not financial, legal or tax advice. Qualified human review is required.
+> This analysis is AI-generated. Precedent drawn from this installation's own review
+> history describes what those documents said; it is not a market measurement.
 
 ---
 
@@ -228,8 +226,8 @@ Generate `PRECEDENT-SEARCH-[fund]-[date].md` with the following structure:
 |-------|-------|
 | Query | [query as the user typed it] |
 | Expanded Terms | [comma-separated synonym set actually searched] |
-| Vault MCP Available | [Yes / No] |
-| Directories Searched | [paths] |
+| Directories Searched | [relative paths] |
+| Cross-fund confidentiality scoping | [confirmed by user on [date] / other funds masked as Fund A, Fund B] |
 | Review Files Searched | [count] |
 | Matching Provisions Found | [count] |
 | Distinct Funds Matched | [count] |
@@ -241,10 +239,10 @@ Generate `PRECEDENT-SEARCH-[fund]-[date].md` with the following structure:
 
 ## Ranked Matches
 
-| # | Fund | Vintage | Type | Section | Provision Summary | Risk Rating | Source Review |
-|---|------|---------|------|---------|-------------------|-------------|---------------|
-| 1 | [fund] | [year] | [PE/VC/RE/...] | [X.X] | [one line] | [High/Medium/Low Risk] | [filename] |
-| 2 | [fund] | [year] | [PE/VC/RE/...] | [X.X] | [one line] | [High/Medium/Low Risk] | [filename] |
+| # | Fund | Vintage | Type | Section | Provision Summary | Risk Rating | Quote check | Source ID |
+|---|------|---------|------|---------|-------------------|-------------|-------------|-----------|
+| 1 | [fund or Fund A] | [year] | [PE/VC/RE/...] | [X.X] | [one line] | [High/Medium/Low Risk] | [VERIFIED / MISMATCH / SECONDARY] | [relative source ID] |
+| 2 | [fund or Fund B] | [year] | [PE/VC/RE/...] | [X.X] | [one line] | [High/Medium/Low Risk] | [ ] | [ ] |
 
 ---
 
@@ -269,12 +267,13 @@ Generate `PRECEDENT-SEARCH-[fund]-[date].md` with the following structure:
 | Fund Type | [type] |
 | Section Reference | [X.X] |
 | Review Date | [date] |
-| Source File | [absolute path] |
+| Source ID | [path relative to `reviews/`] |
+| Quote check | [VERIFIED (source-N, locator) / MISMATCH / SECONDARY] |
 | Risk Rating | [rating, or Not Found] |
 | Classification | [from the position comparison] |
 
 **Provision Language:**
-> [exact quoted language from the source review, with enough surrounding text to stand alone]
+> [exact quoted language, verified against the retained source where available; otherwise labelled "secondary: as quoted in the review"]
 
 **Plain English:** [what this position means in practice]
 
@@ -300,7 +299,7 @@ Generate `PRECEDENT-SEARCH-[fund]-[date].md` with the following structure:
 
 | Position | Precedent Fund | Why It Is Usable | Evidence Strength |
 |----------|----------------|------------------|-------------------|
-| [the strongest LP-favorable position found] | [fund] | [the language exists in a comparable fund] | [Strong / Moderate / Weak] |
+| [the strongest LP-favorable position found] | [fund] | [the language exists in a matched fund in this corpus] | [Strong / Moderate / Weak] |
 | [the fallback position] | [fund] | [rationale] | [Strong / Moderate / Weak] |
 
 ---
@@ -318,8 +317,15 @@ Generate `PRECEDENT-SEARCH-[fund]-[date].md` with the following structure:
 1. [ ] Review the matched language with fund formation counsel
 2. [ ] Run `/fund lpa-negotiate` on the current document to turn this precedent into counter-proposal language
 3. [ ] Run `/fund playbook` across the matched vintages if the matches share a GP
-4. [ ] Run `/fund benchmark` for reference-range context on the provision
-5. [ ] Run `/fund vault-sync` to index any reviews that were on disk but not in the vault
+4. [ ] Run `/fund benchmark` to see any ILPA published position on the provision (its ranges are illustrative, not precedent)
+
+## Status, limitations and data handling
+- Report status: [DRAFT / PARTIAL / BLOCKED / READY_FOR_REVIEW] — the same value as the evidence sidecar.
+- Assumptions: [list]
+- Limitations and checks not performed: [list; UNKNOWN / NOT PERFORMED items]
+- Data handling: the packaged helpers ran locally and made no network calls; the AI host and its model provider processed the document content; connectors used: [none / list]. Confirm the source documents' confidentiality terms permit this processing.
+
+Not financial, legal or tax advice. Qualified human review is required.
 ```
 
 ### Presenting the Result
@@ -329,26 +335,14 @@ After writing the file:
 1. Confirm the file was generated, with its absolute path.
 2. State the match count, the distinct fund count, and the precedent strength rating.
 3. Name the single strongest precedent in one sentence, with the fund and the section.
-4. State the coverage caveat if fewer than three funds matched.
+4. State the coverage caveat if fewer than three funds matched, and any MISMATCH quote checks.
+5. Include the exact sentence: "Not financial, legal or tax advice. Qualified human review is required."
 
 ---
 
 ## Output File
 
-Write the report to:
-
-```
-reviews/{slug}/{date}/analysis/PRECEDENT-SEARCH-{slug}-{date}.md
-```
-
-Where:
-
-| Token | Value |
-|-------|-------|
-| `{slug}` | The slugified fund name when the query is scoped to one fund. When the query spans funds, which is the normal case for a precedent search, `{slug}` is the literal string `precedent` |
-| `{date}` | Today's date in `YYYY-MM-DD` form |
-
-A cross-fund search therefore lands at `reviews/precedent/2026-09-21/analysis/PRECEDENT-SEARCH-precedent-2026-09-21.md`. Create the directory before writing. If a report already exists, preserve it and choose a versioned filename. Overwrite only when the user explicitly requests replacement of that exact file.
+Save with the shared `fund_report.py` flow, never by building paths yourself. Pass the fund's full legal name as `--fund-name` when the query is scoped to one fund; for a cross-fund search, which is the normal case, pass the literal `precedent` (for both `new-run --fund-name` and `filename --fund-name`). Get the basename with `fund_report.py filename --family PRECEDENT-SEARCH --fund-name <full-legal-name or precedent> --date <YYYY-MM-DD>` (the sibling `fund` skill's `scripts/`), then save with `fund_report.py write-report --run <run> --folder analysis --filename <returned-basename> --report <report-id> --markdown <draft>` in the run created by `new-run` (or the parent's run). Never hand-build slugs, filenames or directories. The helper derives the slug and digest and never overwrites an existing report.
 
 ---
 
@@ -357,8 +351,7 @@ A cross-fund search therefore lands at `reviews/precedent/2026-09-21/analysis/PR
 | Error | Resolution |
 |-------|-----------|
 | No query provided | Ask the user what provision to search for; do not search the corpus without a topic |
-| Vault MCP tools unavailable | Skip them silently and search the local files; do not report this as a failure |
-| No `reviews/` directory and no vault | Report that no review history exists yet; suggest running `/fund review-lpa` or `/fund ingest` to build the corpus, and write no output file |
+| No `reviews/` directory | Report that no review history exists yet; suggest running `/fund review-lpa` or `/fund ingest` to build the corpus, and write no output file |
 | Corpus exists but no match | Report zero matches with the expanded term set that was tried, so the user can see the search was wide; suggest alternative phrasings and write the report with Precedent Strength set to Insufficient |
 | Only one fund matches | Produce the report, mark the precedent Weak, and state that a single instance does not establish a pattern |
 | Matches name the provision but quote no language | Report the funds and section references, mark the language as Not Found, and suggest re-running the underlying review to capture clause text |
@@ -371,4 +364,4 @@ A cross-fund search therefore lands at `reviews/precedent/2026-09-21/analysis/PR
 
 ## Disclaimer
 
-Every report this skill writes carries the fund administration disclaimer at the top of the output: the analysis is AI-generated and does not constitute financial, legal, or tax advice. It is intended as a starting point for fund administration review. Always consult qualified professionals before making investment decisions or relying on generated documents. Precedent drawn from this installation's own review history describes what these documents said; it is not a market measurement and it is not a substitute for counsel's judgement on the document in front of the user.
+Every report and chat answer this skill writes carries the exact sentence "Not financial, legal or tax advice. Qualified human review is required." Precedent drawn from this installation's own review history describes what these documents said; it is not a market measurement and it is not a substitute for counsel's judgement on the document in front of the user.

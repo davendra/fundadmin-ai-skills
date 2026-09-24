@@ -1,5 +1,7 @@
 # Quarterly Investor Letter
 
+<!-- Used by skills/fund-draft-investor-letter (long-form quarterly layout). Put the review cover (source register, figure citations, open placeholders, Marketing Rule check, status and data-handling footer) above the letter body; the review cover is not for distribution. Not financial, legal or tax advice. Qualified human review is required. -->
+
 ---
 
 ## [FUND LEGAL NAME]
@@ -20,7 +22,7 @@
 
 <!-- Opening paragraph: brief market context and fund positioning. Tone should be professional, measured, and direct. Avoid hyperbole. -->
 
-[We are pleased to provide you with the quarterly report for [Fund Name] for the [quarter] ended [date]. During the quarter, [brief summary of market conditions relevant to the fund's strategy — e.g., "private equity deal activity remained robust despite elevated interest rates, with mid-market transaction multiples compressing modestly from the prior quarter"]. [Brief summary of fund activity — e.g., "The Fund closed two new platform investments and completed one add-on acquisition during the period."] Below we provide a summary of the Fund's performance, portfolio activity, and operational updates.]
+[We are pleased to provide you with the quarterly report for [Fund Name] for the [quarter] ended [date]. [GP to supply — market context, if any.] [Brief, sourced summary of fund activity during the period.] Below we provide a summary of the Fund's performance, portfolio activity, and operational updates.]
 
 ---
 
@@ -28,12 +30,13 @@
 
 ### Key Metrics (as of [Quarter End Date])
 
-| Metric | Current Quarter | Prior Quarter | Since Inception |
+| Metric | This Quarter-End | Prior Quarter-End | Note |
 |--------|----------------|---------------|-----------------|
-| **Net Asset Value (NAV)** | $[X] | $[X] | — |
-| **NAV Per Unit** | $[X] | $[X] | $[initial] |
-| **Gross IRR** | [X]% | [X]% | [X]% |
-| **Net IRR** | [X]% | [X]% | [X]% |
+| **Net Asset Value (NAV)** | $[X] | $[X] | Quarterly change: $[X] ([X]%) |
+| **NAV Per Unit** | $[X] | $[X] | Initial: $[initial] |
+| **Gross IRR (since inception)** | [X]% | [X]% | |
+| **Net IRR (since inception)** | [X]% | [X]% | |
+| **Net IRR without subscription line (since inception)** | [X]% | [X]% | [administrator report, or Data not provided] |
 | **Gross TVPI (Total Value to Paid-In)** | [X.XX]x | [X.XX]x | — |
 | **Net TVPI** | [X.XX]x | [X.XX]x | — |
 | **DPI (Distributions to Paid-In)** | [X.XX]x | [X.XX]x | — |
@@ -68,7 +71,7 @@
 
 ## Market Commentary
 
-<!-- Provide brief, relevant market context. Keep to 2-3 paragraphs. Focus on factors directly affecting the fund's strategy and portfolio. -->
+<!-- GP-supplied text only: the assistant does not write market commentary. If the GP supplies it, keep it to 2-3 balanced, factual paragraphs and cite any market data to an identified, dated source. -->
 
 ### Macroeconomic Environment
 
@@ -179,6 +182,17 @@ For questions regarding this report, your capital account, or any fund matters, 
 
 ---
 
+## Credit Facilities
+
+| Item | Amount | Source |
+|------|--------|--------|
+| Subscription line outstanding | $[X] | [source] |
+| NAV facility outstanding | $[X] / None | [source] |
+| Distributions funded by NAV facility this quarter | $[X] / None | [source] |
+| Recallable distributions (cumulative) | $[X] | [source] |
+
+---
+
 ## Disclaimer
 
 This quarterly report is provided for informational purposes only to the Limited Partners of [Fund Name]. It does not constitute an offer to sell or a solicitation of an offer to buy any securities. The performance data presented herein is unaudited and subject to revision. Past performance is not indicative of future results. Gross performance figures do not reflect the deduction of management fees, carried interest, or other fund expenses. Net performance figures reflect the deduction of management fees and expenses but may not reflect the impact of carried interest on individual LP returns.
@@ -205,5 +219,9 @@ TEMPLATE USAGE NOTES:
    - Credit: include yield metrics, default rates, portfolio credit quality
    - VC: include financing round updates, milestone progress
 9. K-1 delivery timeline should match the partnership agreement and any filing extensions.
-10. This template should be reviewed by the GP's compliance team before distribution.
+10. This template should be reviewed by the GP's compliance team before distribution. If the letter mentions a successor fund or goes to prospects, flag it as a possible advertisement under the SEC Marketing Rule.
+11. Figures come from supplied sources or the packaged calculation helper only; never estimate.
+12. Market commentary and examples are GP-supplied; do not reuse the illustrative wording as fact.
+
+Not financial, legal or tax advice. Qualified human review is required. (Review cover only; do not print in the letter body.)
 -->

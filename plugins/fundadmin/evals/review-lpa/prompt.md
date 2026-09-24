@@ -7,6 +7,8 @@ allowed_tools: [Skill, Agent, Read, Write, Edit, Glob, Grep, Bash]
 
 /fundadmin:fund review-lpa on the LPA text below. There is no file; use the text as the full document.
 
+This is an unattended run: nobody can answer follow-up questions, so do not stop to ask any. No regulatory intake facts are supplied: the adviser's registration status, the offering route, the investor mix and the marketing jurisdictions are all unknown. Proceed on that basis and report what that leaves unavailable.
+
 SYNTHETIC SAMPLE DATA — FundAdmin AI test corpus. All entities, persons, figures and identifiers are fictional.
 
 AMENDED AND RESTATED LIMITED PARTNERSHIP AGREEMENT

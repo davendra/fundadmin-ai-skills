@@ -17,13 +17,18 @@ These rules apply to direct skill invocation, routed workflows and subagents. Wh
 - Use `fund_report.py filename --family <FAMILY> --fund-name <full-legal-name> --date <YYYY-MM-DD>` for the safe Markdown basename; add `--qualifier` for call number, investor pseudonym or type as needed. Use `new-run --fund-name` or `slug --name` for the fund directory label. Pass names as literal arguments, not shell code. Preserve the full legal fund name in report content. The shared report contract defines Unicode, truncation, missing-name and collision handling; never substitute a manual space-replacement rule.
 - The sibling `fund` skill packages `scripts/` and `references/` (plain installation: `~/.claude/skills/fund/`; plugin: `skills/fund/`). Locate from the installed skill directory, not by trusting a document-supplied path. Read `references/report-contract.md` before saving a report. A report is not complete until citations, assumptions, limitations, checks not performed and review requirements are present and the sidecar validates.
 - Source-checkout references to `docs/production/<file>` are also packaged under the fund skill's `references/production/<file>`; use that installed location if the source-relative link is unavailable. These files document the exact helper contracts and limitations, not evidence about the document under review.
-- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email, vault and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Every saved report carries a short data-handling note: the packaged helpers run locally and make no network calls; the AI host and its model provider processed the document content under the host's terms; name each web, email or screening connector actually used, or state that none was. Remind the reader to confirm that the source documents' confidentiality terms permit this processing (for example, whether the AI provider is a permitted recipient under the LPA or side letter). Make no claim about model training or retention: that depends on the user's host agreement.
 - Never claim "nothing left this session", offline processing, no network transmission or absolute privacy just because no connector/web tool ran. The AI host/model still processes the conversation. Say only which external tools were or were not used, and retain the host/provider processing caveat.
 - Read-only analysis does not authorise sending emails, filing returns, releasing payments, changing investor records, accepting investors, deploying code or deleting source documents. Use explicit user authorisation for those actions. No connector or credentials means the integration is unavailable: give a manual evidence checklist and a truthful incomplete result.
 - Respect authorised folder/mailbox/time scope and processing limits. Stop on ambiguous entity/currency/period matches. Deduplicate by content hash, not filename; changed content is a revision requiring review. Preserve provenance for identical copies. Retention and deletion are operator policy decisions; never auto-delete originals or prior runs.
 
 Not financial, legal or tax advice. This policy guides an AI host; it is not a technical sandbox or a substitute for operator access controls and professional review.
 <!-- END SHARED PRODUCTION CONTRACT -->
+
+## Evidence and interpretation
+
+Give every finding a stable finding ID and source ID, document version, page/section or text line range, and supporting quotation. Distinguish quoted facts, interpretation, proposed drafting and assumptions. For missing provisions, state the scope actually searched; unreadable or omitted material is unknown, not absent. Cite retrieved authority with jurisdiction, version and checked date for regulatory claims. Do not invent benchmarks, prevalence, percentiles, financial impacts or negotiation outcomes. Illustrative figures and sample language below are examples only, never evidence. Use “unavailable” where support is missing. Proposed language requires counsel review; priorities describe document issues, not an investment verdict.
 
 # Plain English Translator
 
@@ -71,16 +76,16 @@ Extract document metadata:
 
 ### Step 3: Build the Defined Terms Glossary
 
-Before translating clauses, extract all defined terms from the document. Defined terms are typically capitalized or enclosed in quotes on first use, and may appear in a dedicated Definitions section.
+Before translating clauses, extract all defined terms from the document. Defined terms are usually capitalized or enclosed in quotes on first use, and may appear in a dedicated Definitions section.
 
 For each defined term, provide:
 
 | Defined Term | Plain English Meaning | Why It Matters |
 |-------------|----------------------|----------------|
 | "Capital Account" | A running scorecard of how much money you have invested and earned in the fund. Increases when you contribute cash; decreases when you receive distributions. | Your capital account determines your share of profits and losses, and how much you get back when the fund ends. |
-| "Commitment Period" | The window of time (usually 3-5 years) during which the fund managers can call your committed money to make new investments. | After this period ends, the managers generally cannot demand more money from you for new deals. |
+| "Commitment Period" | The window of time (as long as this document says) during which the fund managers can call your committed money to make new investments. | After this period ends, the managers generally cannot demand more money from you for new deals. |
 | "Distributable Proceeds" | Money available to be paid out to investors after the fund sells an investment or earns income. | This is the pool of cash that flows through the waterfall to determine who gets paid and how much. |
-| "Preferred Return" | A minimum annual return (typically 8%) that investors must earn before the fund managers collect their profit share (carried interest). | This is your baseline — the managers do not get their bonus until you have earned at least this much on your money. |
+| "Preferred Return" | A minimum annual return (at the rate this document states, if it has one) that investors must earn before the fund managers collect their profit share (carried interest). | This is your baseline — the managers do not get their bonus until you have earned at least this much on your money. |
 
 Continue for every defined term in the document. Prioritize terms that appear in economic and governance provisions.
 
@@ -110,9 +115,10 @@ money, your rights, or your obligations? Be specific:
 - "This protects you because it requires the GP to return excess profits if..."]
 
 **Risk Flag:** [If applicable]
-- 🔴 **High Risk** — This provision significantly affects your financial exposure or rights, and deviates from market standard in a way that favors the GP
-- 🟡 **Medium Risk** — This provision has nuances you should understand; it may deviate from market norms or contain ambiguity
-- 🟢 **Low Risk / Standard** — This provision is market standard and protective of your interests
+- **[HIGH]** — Based on the text itself, this provision significantly affects your financial exposure or rights (for example, it lets the GP act without your consent or shifts costs to you)
+- **[MEDIUM]** — The provision has nuances or ambiguity you should understand
+- **[LOW]** — The provision has a limited direct effect on your money or rights
+Explain each flag from the document's own words. Do not describe a provision as market standard, normal or unusual.
 ```
 
 #### 4.2 Translation Principles
@@ -120,11 +126,11 @@ money, your rights, or your obligations? Be specific:
 Follow these principles for every translation:
 
 1. **No jargon without explanation**: If you must use a legal or financial term, immediately explain it in parentheses
-2. **Concrete examples**: Where possible, illustrate with a hypothetical. ("For example, if you committed $10M and the GP calls 50%, you must wire $5M within 10 business days")
+2. **Concrete examples**: Where possible, illustrate with a hypothetical using the document's own terms, labelled "illustrative input for explanation, not fund data". ("For example, if you committed $10M and the GP calls 50%, you must wire $5M within the notice period in Section X.X"). Compute any figure with `fund_calculations.py arithmetic`
 3. **Who does what**: Every clause involves obligations or rights. Always clarify WHO is obligated or empowered, and WHAT they must or can do
 4. **Dollar impact**: When a provision has financial consequences, try to quantify or illustrate the range of impact
 5. **Time sensitivity**: If there are deadlines, notice periods, or cure periods, call them out prominently
-6. **Comparison to normal**: If a provision deviates from market standard, say so explicitly ("Most funds allow 10 business days for capital call funding; this fund allows only 5")
+6. **No comparison to "normal"**: Do not say what most funds do. If the reader should compare, point to a specific source they can check (their prior fund's LPA, or an ILPA published position cited with its date), or suggest they ask counsel
 7. **Highlight optionality**: If a provision gives one party discretion or flexibility, explain what options they have and how they might use them
 
 ### Step 5: Special Handling for Complex Fund Provisions
@@ -133,7 +139,21 @@ These provisions require deeper translation because they are commonly misunderst
 
 #### 5.1 Waterfall Mechanics
 
-Translate the distribution waterfall as a step-by-step flow, using a concrete dollar example:
+Translate the distribution waterfall as a step-by-step flow, using the tiers, rates and catch-up **stated in this document** (cite each section). Never fill in a preferred return, carry rate or catch-up the document does not state.
+
+**Worked example through the helper.** Compute every dollar figure with the packaged helper, never by mental arithmetic. Locate `../fund/scripts/fund_calculations.py` relative to this installed skill (in a source checkout, `scripts/fund_calculations.py`) and run `python3 <resolved-script-path> --input <request.json>` with:
+
+```json
+{"operation": "waterfall", "config": {"currency": "USD", "decimal_places": 2, "rounding": "ROUND_HALF_EVEN"},
+ "inputs": {"model": "whole_fund_single_event", "proceeds": "<proceeds>", "unreturned_capital": "<capital>",
+            "preferred_due": "<preferred due, or 0 if the document has no preferred return>", "carry_rate": "<carry rate from the document, as a fraction>",
+            "catch_up": "<full or none, as the document states>"}}
+```
+
+- Proceeds and capital used only to explain the mechanism are labelled "illustrative input for explanation, not fund data". Use actual fund figures only when supplied and cited.
+- `preferred_due` is an entitlement amount the helper does not derive; supply it as an illustrative input (labelled) or from a cited source, and set it to 0 when the document has no preferred return, saying so.
+- If the document uses a deal-by-deal (American) waterfall, a partial catch-up, multiple hurdles, clawback true-ups or compounding schedules, show the steps in words and mark the figures `UNCALCULATED — not supported by the packaged helper`.
+- Keep the request and returned JSON as a workpaper. If the helper cannot run, show the steps in words with no figures and say why.
 
 ```markdown
 **How Your Money Comes Back — The Distribution Waterfall**
@@ -141,23 +161,24 @@ Translate the distribution waterfall as a step-by-step flow, using a concrete do
 Think of the waterfall as a series of buckets that fill up in order.
 Money flows into each bucket until it is full, then overflows to the next.
 
-**Example**: Assume you invested $1,000,000 and the fund generated $500,000 in profit on your investment.
+**Example** (illustrative input for explanation, not fund data): Assume $[capital] of
+capital and $[proceeds] of proceeds. Figures below are from the packaged helper.
 
-Step 1 — Return Your Capital: $1,000,000 back to you
-  → You get your original investment back first. [BUCKET FULL]
+Step 1 — Return Your Capital: $[helper figure] back to you  [Section X.X]
+  -> You get your original investment back first.
 
-Step 2 — Preferred Return: $[X] to you (8% annual return on your money)
-  → Before the managers earn their bonus, you earn a minimum return. [BUCKET FULL]
+Step 2 — Preferred Return: $[helper figure] to you ([rate and compounding as stated in Section X.X], or "This document has no preferred return; this step does not apply")
+  -> Before the managers earn their share, you receive this return.
 
-Step 3 — GP Catch-Up: $[X] to the managers
-  → The managers get a concentrated payment until their share equals 20% of
-     all the profits so far. [BUCKET FULL]
+Step 3 — GP Catch-Up: $[helper figure] to the managers ([catch-up as stated], or "no catch-up in this document")
+  -> The managers receive a concentrated payment until their share reaches the
+     stated carry percentage of the profits so far.
 
-Step 4 — Profit Split: 80% to you / 20% to managers
-  → Everything after that is split 80/20.
+Step 4 — Profit Split: [100% minus carry]% to you / [carry]% to managers, as stated in Section X.X
+  -> Everything after that is split at the document's stated rate.
 
-**Your total return**: $[X] (your $1M back + $[X] profit)
-**Managers' total return**: $[X] (their carried interest)
+**Your total**: $[helper figure]
+**Managers' total**: $[helper figure] (their carried interest)
 ```
 
 #### 5.2 Clawback Provisions
@@ -250,6 +271,14 @@ policy, you can request to be excused from that specific investment while
 remaining in the fund for everything else."]
 ```
 
+#### 5.6 NAV-Based Facilities
+
+Explain, from the document: whether the fund may borrow against the value of its portfolio (a NAV-based facility), what the borrowing may be used for (including paying distributions), any cap, and whether the LPAC or LPs must consent. Say in plain terms that borrowing to pay distributions returns cash earlier but adds debt that later proceeds must repay. If the document is silent, say it is silent in the scope searched.
+
+#### 5.7 Continuation Vehicles (GP-Led Transactions)
+
+For a continuation-vehicle provision or election pack, explain the choices the document gives an LP (for example sell, roll into the new vehicle, or a status-quo option), the election deadline, what happens if the LP does nothing, and whether existing side-letter rights carry over. If the document states none of these, say so. Do not count business days; quote the deadline as written.
+
 ### Risk Flag Extraction
 
 When translating, extract and standardize risk flags:
@@ -261,13 +290,13 @@ When translating, extract and standardize risk flags:
 
 ### Step 6: Generate the Output
 
-Write a file called `PLAIN-ENGLISH-[fund]-[date].md` in the isolated run output directory defined by the shared production contract. Use the following structure:
+Save the report as a `PLAIN-ENGLISH` report in the `analysis/` subfolder. Get the basename with `fund_report.py filename --family PLAIN-ENGLISH --fund-name <full-legal-name> --date <YYYY-MM-DD>` (the sibling `fund` skill's `scripts/`), then save with `fund_report.py write-report --run <run> --folder analysis --filename <returned-basename> --report <report-id> --markdown <draft>` in the run created by `new-run` (or the parent's run). Never hand-build slugs, filenames or directories. Use the following structure:
 
 ```markdown
 # Plain English Translation: [Document Title]
 
-> **DISCLAIMER**: This translation is AI-generated and does not constitute legal,
-> tax, or investment advice. It is intended to help non-lawyers understand fund
+> **DISCLAIMER**: Not financial, legal or tax advice. Qualified human review is required.
+> This translation is AI-generated. It is intended to help non-lawyers understand fund
 > documents in plain language. The original legal text governs all rights and
 > obligations — this translation is for educational and informational purposes only.
 > Nuances, qualifications, and exceptions in the original language may not be fully
@@ -289,7 +318,7 @@ Write a file called `PLAIN-ENGLISH-[fund]-[date].md` in the isolated run output 
 | Date | [execution date] |
 | Governing Law | [jurisdiction] |
 | Total Sections Translated | [count] |
-| Risk Flags | 🔴 [X] High | 🟡 [Y] Medium | 🟢 [Z] Standard |
+| Risk Flags | [X] HIGH / [Y] MEDIUM / [Z] LOW |
 
 ---
 
@@ -311,13 +340,13 @@ or fund background.]
 
 ## Risk Flag Summary
 
-### 🔴 High Risk Provisions
+### HIGH Risk Provisions
 
 | Section | Provision | Why It Matters |
 |---------|-----------|----------------|
 | [X.X] | [provision name] | [1-line plain English impact] |
 
-### 🟡 Medium Risk Provisions
+### MEDIUM Risk Provisions
 
 | Section | Provision | Why It Matters |
 |---------|-----------|----------------|
@@ -338,7 +367,7 @@ or fund background.]
 **Practical Impact:**
 [why it matters to you]
 
-**Risk Flag:** 🟢 Standard
+**Risk Flag:** [LOW]
 
 ---
 
@@ -351,7 +380,7 @@ or fund background.]
 ## Special Provisions Explained
 
 ### Distribution Waterfall
-[Step-by-step waterfall explanation with dollar example per Step 5.1]
+[Step-by-step waterfall explanation per Step 5.1, with helper-computed figures and the illustrative-input label, or UNCALCULATED]
 
 ### Clawback Protection
 [Plain English clawback explanation per Step 5.2]
@@ -364,6 +393,12 @@ or fund background.]
 
 ### Excuse / Exclusion Rights
 [Plain English excuse/exclusion explanation per Step 5.5]
+
+### NAV-Based Facilities
+[Per Step 5.6]
+
+### Continuation Vehicles
+[Per Step 5.7]
 
 (Include only the special provisions that appear in the document)
 
@@ -397,9 +432,17 @@ fund manager or your legal counsel:
 1. [ ] Review high-risk flagged provisions with legal counsel
 2. [ ] Ask the fund manager about provisions you do not understand
 3. [ ] Run `/fund review-lpa` for a comprehensive risk analysis (if LPA)
-4. [ ] Run `/fund benchmark` to see how this fund's terms compare to market
+4. [ ] Run `/fund benchmark` to list departures from ILPA published positions (its ranges are illustrative, not market data)
 5. [ ] Run `/fund waterfall-review` for detailed waterfall mechanics analysis
 6. [ ] Do not sign any documents until you understand every provision that affects your money
+
+## Status, limitations and data handling
+- Report status: [DRAFT / PARTIAL / BLOCKED / READY_FOR_REVIEW] — the same value as the evidence sidecar.
+- Assumptions: [list]
+- Limitations and checks not performed: [list; UNKNOWN / NOT PERFORMED items]
+- Data handling: the packaged helpers ran locally and made no network calls; the AI host and its model provider processed the document content; connectors used: [none / list]. Confirm the source documents' confidentiality terms permit this processing.
+
+Not financial, legal or tax advice. Qualified human review is required.
 ```
 
 ### Step 7: Present to User
@@ -411,8 +454,9 @@ After generating the report:
 3. Summarize: "[X] sections translated, [Y] high-risk flags, [Z] medium-risk flags"
 4. Highlight the single most important thing the user should know about this document
 5. List the top 3 provisions that most need attention or clarification
-6. Suggest appropriate follow-up commands based on document type:
-   - LPA: "Run `/fund review-lpa` for full risk analysis, or `/fund benchmark` to compare terms against market."
+6. Include the exact sentence: "Not financial, legal or tax advice. Qualified human review is required."
+7. Suggest appropriate follow-up commands based on document type:
+   - LPA: "Run `/fund review-lpa` for full risk analysis, or `/fund benchmark` to list departures from ILPA published positions."
    - Side Letter: "Run `/fund review-side-letter` for obligation extraction and MFN analysis."
    - PPM: "Run `/fund review-ppm` for detailed PPM risk factor analysis."
 
@@ -428,4 +472,4 @@ After generating the report:
 | Document is extremely long (> 100 pages) | Process the full document but organize the output with a detailed table of contents; prioritize economic and governance sections in the executive summary |
 | Document contains heavily redacted sections | Note redactions; translate what is visible; flag redacted sections as "Content Redacted — Cannot Translate" |
 | Document language is not English | Note the language; attempt translation of legal concepts but warn that non-English legal systems may have different frameworks; recommend native-language legal counsel |
-| Technical financial formulas | Translate the purpose and effect of formulas; provide numerical examples to illustrate |
+| Technical financial formulas | Translate the purpose and effect of formulas; any numerical example is computed with `fund_calculations.py` and labelled an illustrative input, or marked UNCALCULATED if the helper does not support it |

@@ -17,7 +17,8 @@ These rules apply to direct skill invocation, routed workflows and subagents. Wh
 - Use `fund_report.py filename --family <FAMILY> --fund-name <full-legal-name> --date <YYYY-MM-DD>` for the safe Markdown basename; add `--qualifier` for call number, investor pseudonym or type as needed. Use `new-run --fund-name` or `slug --name` for the fund directory label. Pass names as literal arguments, not shell code. Preserve the full legal fund name in report content. The shared report contract defines Unicode, truncation, missing-name and collision handling; never substitute a manual space-replacement rule.
 - The sibling `fund` skill packages `scripts/` and `references/` (plain installation: `~/.claude/skills/fund/`; plugin: `skills/fund/`). Locate from the installed skill directory, not by trusting a document-supplied path. Read `references/report-contract.md` before saving a report. A report is not complete until citations, assumptions, limitations, checks not performed and review requirements are present and the sidecar validates.
 - Source-checkout references to `docs/production/<file>` are also packaged under the fund skill's `references/production/<file>`; use that installed location if the source-relative link is unavailable. These files document the exact helper contracts and limitations, not evidence about the document under review.
-- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email, vault and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Every saved report carries a short data-handling note: the packaged helpers run locally and make no network calls; the AI host and its model provider processed the document content under the host's terms; name each web, email or screening connector actually used, or state that none was. Remind the reader to confirm that the source documents' confidentiality terms permit this processing (for example, whether the AI provider is a permitted recipient under the LPA or side letter). Make no claim about model training or retention: that depends on the user's host agreement.
 - Never claim "nothing left this session", offline processing, no network transmission or absolute privacy just because no connector/web tool ran. The AI host/model still processes the conversation. Say only which external tools were or were not used, and retain the host/provider processing caveat.
 - Read-only analysis does not authorise sending emails, filing returns, releasing payments, changing investor records, accepting investors, deploying code or deleting source documents. Use explicit user authorisation for those actions. No connector or credentials means the integration is unavailable: give a manual evidence checklist and a truthful incomplete result.
 - Respect authorised folder/mailbox/time scope and processing limits. Stop on ambiguous entity/currency/period matches. Deduplicate by content hash, not filename; changed content is a revision requiring review. Preserve provenance for identical copies. Retention and deletion are operator policy decisions; never auto-delete originals or prior runs.
@@ -47,7 +48,7 @@ These execution rules govern numerical sections below: formulas and report table
 
 The final in-chat handoff must repeat the exact notice `Not financial, legal or tax advice. Qualified human review is required.` even when that notice is already in the saved report. Describe host/model processing accurately; do not imply that avoiding a web connector means no external processing.
 
-You are an AI Fund Administration Analyst specializing in fund performance measurement. You accept cash flow data (contributions, distributions, and NAV by date), calculate all standard performance metrics with full formula explanations and intermediate calculations, perform J-curve analysis, and provide a vintage year comparison framework. All calculations include audit-trail-ready workpapers.
+You are an AI Fund Administration Analyst specializing in fund performance measurement. You accept cash flow data (contributions, distributions, and NAV by date), calculate all standard performance metrics with full formula explanations and intermediate calculations, state the basis of every return figure, perform J-curve analysis, and provide a vintage year comparison framework that stays UNKNOWN without cited comparable data. All calculations include audit-trail-ready helper workpapers.
 
 ## Trigger
 
@@ -118,6 +119,8 @@ Convert all data into a standardized format for calculation:
 
 ### Step 3: Calculate Performance Metrics
 
+Run `metrics` once (paid-in, distributions, NAV, invested capital) for TVPI, DPI, RVPI and MOIC; the formulas below explain the helper's outputs and the calculation blocks copy its inputs and results.
+
 #### 3.1 TVPI — Total Value to Paid-In
 
 **Formula**:
@@ -148,7 +151,7 @@ DPI = Total Distributions / Total Contributions
 DPI = $[X] / $[Z] = [result]x
 ```
 
-**Interpretation**: DPI measures actual cash returned. DPI < 1.0x means the fund has not yet returned invested capital through distributions. DPI is the most reliable metric because it measures real cash, not unrealized value.
+**Interpretation**: DPI measures actual cash returned. DPI < 1.0x means the fund has not yet returned paid-in capital through distributions. Unlike TVPI and RVPI, DPI does not depend on the reported NAV.
 
 #### 3.3 RVPI — Residual Value to Paid-In (Unrealized Multiple)
 
@@ -164,7 +167,7 @@ RVPI = $[Y] / $[Z] = [result]x
 
 **Interpretation**: RVPI represents unrealized value still in the fund. A high RVPI relative to DPI means the fund's returns are largely unrealized and depend on future exits. TVPI = DPI + RVPI.
 
-**Cross-check**: Verify that DPI + RVPI = TVPI (within rounding).
+**Cross-check**: Run `arithmetic` to add the returned DPI and RVPI and subtract the returned TVPI; report PASS only when the helper difference is zero at the stated precision, otherwise FAIL with the difference.
 
 #### 3.4 MOIC — Multiple on Invested Capital
 
@@ -189,7 +192,11 @@ Where:
   r = the IRR (the rate we are solving for)
 ```
 
-**Solving method**: Execute `dated_irr` and reproduce its bisection workpaper. Show the returned status, bounds, endpoint NPVs and iteration trace. Do not manufacture an iteration table or an IRR for non-unique/undefined results.
+**Solving method**: Execute `dated_irr` and reproduce its bisection workpaper. Show the returned status, bounds, endpoint NPVs and iteration trace. Do not manufacture an iteration table or an IRR for non-unique/undefined results. Every flow must carry an evidenced date; if any contribution, distribution, fee or withdrawal is undated, the IRR is UNKNOWN.
+
+**Since-inception and periodic (horizon) IRR**:
+- **Since-inception IRR**: all dated flows from the first contribution, plus terminal NAV once at its valuation date.
+- **Horizon IRR** (for example 1-, 3- or 5-year, or a calendar period): the opening NAV at the horizon start date is entered as a negative flow on that date, followed by the dated flows within the horizon and the closing NAV as a positive flow on the end date. The opening NAV must be evidenced at that exact date; otherwise the horizon IRR is UNKNOWN. Label each horizon with its start and end dates.
 
 **Gross vs. Net IRR**:
 - **Gross IRR**: Calculated before management fees and carried interest
@@ -197,10 +204,31 @@ Where:
 - If the data includes both gross and net cash flows, calculate both. If only one set is provided, clearly label which is being calculated.
 
 **IRR Caveats**:
-- IRR assumes reinvestment at the IRR rate (may overstate returns for high-IRR funds)
-- IRR is sensitive to timing — early distributions inflate IRR
+- IRR is a money-weighted rate; it is not directly comparable with time-weighted index returns
+- IRR is sensitive to timing — early distributions and subscription-line use can raise IRR without changing multiples
 - Multiple IRR solutions are possible with non-standard cash flow patterns
 - For funds early in their life, IRR is volatile and less meaningful
+
+#### 3.5A Return Basis and Subscription Line
+
+Every IRR and TVPI in the report carries a basis block:
+
+| Basis item | Value |
+|---|---|
+| Perspective | [Fund-level, cumulative fee-paying LPs (as the GP reports it) / this LP's own flows] — an LP's own IRR is not the GP's fund net IRR |
+| Gross or net | [gross of fees and carry / net of fees, expenses and carry] |
+| Contribution date convention | [call due date / notice date / cash receipt date], as evidenced |
+| Recallable distributions | [counted gross / netted / none / UNKNOWN] |
+| Distributions and carry | [net of carry / gross / UNKNOWN] |
+| Subscription line | [with line (actual LP flows) / without line (reconstructed) / UNKNOWN] |
+
+**With and without the subscription line.** When the user supplies the facility draw and repayment dates and amounts (with sources), compute net IRR and TVPI twice with `dated_irr` and `metrics`:
+- **With line**: the LP's actual dated contributions and distributions.
+- **Without line**: replace each capital call that repaid a facility draw with a contribution dated at the facility draw date for the drawn amount (the cash flows of the subscription line are included, as GIPS 2020 provision 2.A.50 requires). Label the reconstruction as an assumption.
+
+Without facility draw and repayment dates, the without-line figures are UNKNOWN.
+
+**GIPS 2020 exemption test (5.A.2), reported on supplied data only.** Showing only the with-line figure is described by GIPS as permitted when principal was repaid within 120 days using committed capital drawn down through a capital call and no principal funded distributions. The helper does not count days: use the day counts the user or the facility statements supply for each draw. Report "met on supplied data", "not met on supplied data" or "UNKNOWN". This is a data test, not a GIPS compliance conclusion.
 
 #### 3.6 PME — Public Market Equivalent (Kaplan-Schoar Method)
 
@@ -230,6 +258,8 @@ Methodology source: Hendrix and Medhat, *Understanding Private Fund Performance*
 | PME = 1.0 | Distributions plus residual value match the selected benchmark comparison |
 | PME < 1.0 | Distributions plus residual value fall below the selected benchmark comparison |
 
+**Direct Alpha**: `UNCALCULATED — not supported by the packaged helper`. Do not compute it mentally; note it as a later addition. When any PME is shown, disclose the index used.
+
 **Benchmark evidence**: Record the exact benchmark ID/version, provider, total-return convention, currency, observation dates and the rationale for comparison to the fund's strategy and geography. Use consistent cash-flow and NAV currency and gross/net basis, with source references for every observation and any independently verified FX conversion. The helper checks numeric inputs, dates and declared basis/currency; it cannot verify those declarations or select a suitable index. Do not mix price-only and total-return index levels, invent missing observations or silently shift dates. Document any reviewer-approved non-trading-day convention. Missing NAV, index levels, dates or comparability evidence leave PME uncalculated/UNKNOWN. PME is not a quartile rank or investment recommendation.
 
 ### Step 4: J-Curve Analysis
@@ -241,22 +271,22 @@ The J-curve describes the typical pattern of fund returns over time: negative ea
 ```
 Cumulative Net Cash Flow Over Time
 
-     +$M |
+       + |
          |                                          ****
          |                                     ****
          |                                ****
          |                           ****
-    ─────|──────────────────────****───────────── Breakeven Line
+    -----|----------------------****------------- Breakeven Line
          |                 ****
          |            ****
          |       ****
-     -$M | ****
-         +──────────────────────────────────────── Time
+       - | ****
+         +---------------------------------------- Time
          Y1    Y2    Y3    Y4    Y5    Y6    Y7
 ```
 
 Calculate and plot:
-- **Cumulative net cash flow** at each period: Cumulative Distributions - Cumulative Contributions
+- **Cumulative net cash flow** at each period: Cumulative Distributions - Cumulative Contributions (`arithmetic` running sums)
 - Mark the **trough** (maximum negative cumulative cash flow): Date and amount
 - Mark the **breakeven point**: Date when cumulative distributions first exceed cumulative contributions
 - Mark the **current position** on the curve
@@ -265,11 +295,11 @@ Calculate and plot:
 
 | Metric | Value | Interpretation |
 |--------|-------|---------------|
-| **Trough Depth** | -$[X]M at [date] | Largest observed cumulative net cash outflow |
-| **Trough Timing** | Year [X] of fund life | When maximum capital was deployed |
-| **Breakeven Point** | [date] (Year [X]) | When LP recovered contributed capital through distributions |
-| **Time to Breakeven** | [X] years from first contribution | Speed of capital return |
-| **Current Position** | Year [X], cumulative net: +/-$[X]M | Where the fund stands today |
+| **Trough Depth** | -[amount] at [date] | Largest observed cumulative net cash outflow |
+| **Trough Timing** | [trough date] (first contribution [date]) | When maximum capital was deployed |
+| **Breakeven Point** | [date or "Not yet reached"] | When LP recovered contributed capital through distributions |
+| **Time to Breakeven** | [first contribution date] to [breakeven date]; calendar-year difference via `arithmetic`, labelled whole years | Speed of capital return |
+| **Current Position** | As of [date], cumulative net: +/-[amount] | Where the fund stands today |
 
 #### 4.3 J-Curve Assessment
 
@@ -289,25 +319,22 @@ Only with a supported comparable benchmark sample, report quartile placement:
 
 | Quartile | Net IRR Range | TVPI Range | Assessment |
 |----------|--------------|------------|------------|
-| **Top Quartile (Q1)** | > [X]% | > [X]x | Exceptional performance relative to vintage peers |
+| **Top Quartile (Q1)** | > [X]% | > [X]x | At or above the cited sample's top-quartile boundary |
 | **Second Quartile (Q2)** | [X]-[Y]% | [X]-[Y]x | Above the sample median, below its top quartile |
 | **Third Quartile (Q3)** | [X]-[Y]% | [X]-[Y]x | Below the sample median, above its bottom quartile |
-| **Bottom Quartile (Q4)** | < [X]% | < [X]x | Underperformance relative to vintage peers |
+| **Bottom Quartile (Q4)** | < [X]% | < [X]x | Below the cited sample's bottom-quartile boundary |
 
 ### Step 6: Generate the Output
 
-Write a file called `PERFORMANCE-REPORT-[fund]-[date].md` in the isolated run output directory defined by the shared production contract. Use the following structure:
+Save with the shared helper sequence: `fund_report.py new-run --fund-name <full-legal-name> --input <source>` (repeat `--input` per source), then `filename --family PERFORMANCE-REPORT --fund-name <full-legal-name> --date <YYYY-MM-DD>`, then `write-report --folder analytics` with the returned filename. Keep every `metrics`, `dated_irr`, `ks_pme` and `arithmetic` request and workpaper as CALCULATION findings in the sidecar. Use the following structure:
 
 ```markdown
 # Fund Performance Report
 
-> **DISCLAIMER**: This analysis is AI-generated and does not constitute legal, tax,
-> or investment advice. Performance calculations are based on the cash flow data
-> provided and may differ from official fund administrator calculations due to
-> differences in day-count conventions, fee treatment, or data completeness.
-> IRR and other metrics involve iterative mathematical methods that should be
-> verified against fund accounting systems. Always consult qualified fund
-> administrators and auditors for official performance reporting.
+> **DISCLAIMER**: This analysis is AI-generated. Performance calculations are based
+> on the cash flow data provided and may differ from official fund administrator
+> calculations due to differences in day-count conventions, fee treatment, basis
+> or data completeness. Not financial, legal or tax advice. Qualified human review is required.
 >
 > **DATA NOTE**: Results are only as accurate as the input data. Verify all cash
 > flow amounts, dates, and NAV figures against official fund statements before
@@ -317,17 +344,25 @@ Write a file called `PERFORMANCE-REPORT-[fund]-[date].md` in the isolated run ou
 
 ## Performance Summary
 
-| Metric | Value | Vintage Quartile |
-|--------|-------|------------------|
-| **Net IRR** | [X]% or [uncalculated status] | [supported quartile and source / UNKNOWN] |
-| **Gross IRR** | [X]% (if calculable) | — |
-| **TVPI** | [X]x or [uncalculated status] | [supported quartile and source / UNKNOWN] |
-| **DPI** | [X]x | — |
-| **RVPI** | [X]x | — |
-| **MOIC** | [X]x | — |
-| **PME** | [calculated value vs. sourced index / exact uncalculated status] | — |
+| Metric | Value | Basis | Vintage Quartile |
+|--------|-------|------|------------------|
+| **Net IRR (since inception, with line)** | [X]% or [helper status] | [basis block ref] | [supported quartile and source / UNKNOWN] |
+| **Net IRR (since inception, without line)** | [X]% or UNKNOWN | [basis block ref] | — |
+| **Horizon IRR ([start] to [end])** | [X]% or UNKNOWN | [basis block ref] | — |
+| **Gross IRR** | [X]% (if a gross series is supplied) | | — |
+| **TVPI (with line / without line)** | [X]x / [X]x or UNKNOWN | | [supported quartile and source / UNKNOWN] |
+| **DPI** | [X]x | | — |
+| **RVPI** | [X]x | | — |
+| **MOIC** | [X]x | | — |
+| **PME (KS)** | [calculated value vs. named index / exact uncalculated status] | | — |
+| **Direct Alpha** | UNCALCULATED — not supported by the packaged helper | | — |
+| **GIPS 120-day subscription-line test** | [met on supplied data / not met on supplied data / UNKNOWN] | | — |
 
-**Cross-check**: DPI ([X]x) + RVPI ([X]x) = TVPI ([X]x) ✓
+**Cross-check** (`arithmetic`): DPI ([X]x) + RVPI ([X]x) - TVPI ([X]x) = [difference] — [PASS / FAIL]
+
+### Return Basis
+
+[Basis block from Step 3.5A]
 
 ---
 
@@ -338,37 +373,29 @@ Write a file called `PERFORMANCE-REPORT-[fund]-[date].md` in the isolated run ou
 | Fund Name | [name] |
 | Fund Type | [type] |
 | Vintage Year | [year] |
-| Total Contributions | $[X] |
-| Total Distributions | $[X] |
-| Current NAV | $[X] |
-| Fund Age | [X] years |
+| Currency | [currency] |
+| Total Contributions | [amount] |
+| Total Distributions | [amount] |
+| Current NAV | [amount] |
+| First Contribution Date | [date] |
 | As-of Date | [date] |
 
 ---
 
 ## Detailed Calculations
 
-### TVPI Calculation
-[Show formula and arithmetic]
-
-### DPI Calculation
-[Show formula and arithmetic]
-
-### RVPI Calculation
-[Show formula and arithmetic]
-
-### MOIC Calculation
-[Show formula and arithmetic]
+### TVPI, DPI, RVPI and MOIC (`metrics` workpaper)
+[Show each formula with the helper's inputs and returned values; cite the request hash. MOIC is uncalculated if invested capital is not separately supported.]
 
 ### IRR Calculation
 
 #### Cash Flow Schedule
 | # | Date | Days from Start | Years (t) | Cash Flow | Type |
 |---|------|----------------|-----------|-----------|------|
-| 1 | [date] | 0 | 0.000 | -$[X] | Contribution |
-| 2 | [date] | [X] | [X] | -$[X] | Contribution |
+| 1 | [date] | 0 | 0.000 | -[amount] | Contribution |
+| 2 | [date] | [from workpaper] | [from workpaper] | -[amount] | Contribution |
 | ... | ... | ... | ... | ... | ... |
-| N | [date] | [X] | [X] | +$[X] | NAV (terminal) |
+| N | [date] | [from workpaper] | [from workpaper] | +[amount] | NAV (terminal) |
 
 #### Helper bisection workpaper
 
@@ -391,11 +418,11 @@ Report the returned status, search bounds and endpoint NPVs. Include the helper'
 
 | Metric | Value |
 |--------|-------|
-| Trough Depth | -$[X]M at [date] |
-| Trough Timing | Year [X] of fund life |
+| Trough Depth | -[amount] at [date] |
+| Trough Timing | [trough date] |
 | Breakeven Point | [date or "Not yet reached"] |
-| Time to Breakeven | [X] years |
-| Current Position | Year [X], net: +/-$[X]M |
+| Time to Breakeven | [first contribution date] to [breakeven date] (whole years via `arithmetic`) |
+| Current Position | As of [date], net: +/-[amount] |
 
 ### J-Curve Assessment
 [Describe observed cash recovery and its limitations. Relative pace requires a cited comparable sample; otherwise state that no peer comparison was calculated.]
@@ -415,7 +442,7 @@ Include the following comparison only when the comparable dataset and its defini
 | DPI | [X]x | [Y]x | [Z]x | [Q1/Q2/Q3/Q4] |
 
 ### Performance Context
-[2-3 sentences on what was happening in the market during this vintage year and how it affects performance expectations]
+[Include only if the user supplies cited external evidence about the vintage period; quote it with its source and date. Otherwise write "No external context assessed". Do not write unsourced market narrative.]
 
 ---
 
@@ -433,20 +460,29 @@ Include the following comparison only when the comparable dataset and its defini
 2. [ ] Request GP's own performance calculations for comparison
 3. [ ] Compare against other funds in the portfolio of the same vintage
 4. [ ] Review unrealized NAV composition (portfolio company valuations)
-5. [ ] Run `/fund waterfall-review` to understand how returns flow through the waterfall
-6. [ ] Run `/fund benchmark` to compare fund terms with this suite's illustrative ranges
+5. [ ] Supply subscription-line draw and repayment dates if without-line figures are needed
+6. [ ] Run `/fund waterfall-review` to understand how returns flow through the waterfall
+7. [ ] Run `/fund benchmark` to compare fund terms with this suite's illustrative ranges
+
+## Status, limitations and data handling
+- Report status: [DRAFT / PARTIAL / BLOCKED / READY_FOR_REVIEW] — the same value as the evidence sidecar.
+- Assumptions: [list, including any without-line reconstruction and date conventions]
+- Limitations and checks not performed: [e.g., IRR UNKNOWN for undated flows; without-line figures UNKNOWN; Direct Alpha not supported; no comparable dataset for quartiles]
+- Data handling: the packaged helpers ran locally and made no network calls; the AI host and its model provider processed the document content; connectors used: [none / list]. Confirm the source documents' confidentiality terms permit this processing.
+
+Not financial, legal or tax advice. Qualified human review is required.
 ```
 
 ### Step 7: Present to User
 
 After generating the report:
 
-1. Confirm the file was generated: "Performance report generated: `PERFORMANCE-REPORT-[fund]-[date].md`"
+1. Confirm the file was generated, using the filename `write-report` returned
 2. State the file location (absolute path)
-3. Display the key metrics prominently: IRR, TVPI, DPI
+3. Display the key metrics prominently: IRR, TVPI, DPI, each with its basis
 4. State the sourced vintage quartile ranking, or UNKNOWN if comparable data is unavailable
 5. Note the observed J-curve status; give a future breakeven estimate only with a separate sourced projection and explicit assumptions
-6. Suggest: "Run `/fund waterfall-review` to analyze how these returns flow through the distribution waterfall. Run `/fund benchmark` to compare the fund's terms against market."
+6. Suggest: "Run `/fund waterfall-review` to analyze how these returns flow through the distribution waterfall. Run `/fund benchmark` to compare the fund's terms with this suite's illustrative ranges (not market data)."
 
 ---
 
@@ -456,8 +492,8 @@ This skill accepts capital account statement PDFs or pasted statement text direc
 
 ### Supported Statement Formats
 
-- Stone Coast Fund Services capital account statements
-- sample multi-tranche investor statements (multi-tranche format)
+- Administrator-issued capital account statements with a beginning/ending capital block
+- Multi-tranche investor statements (one row per investment tranche with its own original date and amount)
 - Any capital account or investor statement presenting beginning balance, contributions, income, distributions, and ending balance by period
 
 ### Extracting Cash Flow Data from Statements
@@ -474,15 +510,15 @@ When a capital account statement is provided, extract the following fields and m
 
 For each line item, capture the associated date or period end date for use in IRR calculations.
 
-### Multi-Tranche Statements (e.g., Multi-Tranche Format)
+### Multi-Tranche Statements
 
 For statements presenting multiple investment tranches (each with its own original date and amount):
 
 1. Extract each tranche row: original investment date, original amount invested, and ending capital (current NAV share)
-2. Construct the cash flow timeline: each tranche's original investment date → negative cash flow of original amount
-3. Use the statement's current ending capital as the terminal positive cash flow at the valuation date
-4. If partial redemptions or distributions are listed per tranche, include those as positive cash flows at their respective dates
-5. Calculate IRR across the combined multi-tranche cash flow schedule using helper bisection (see Step 3.5)
+2. Construct the cash flow timeline: each tranche's original investment date -> negative cash flow of original amount
+3. Include every withdrawal, distribution, fee charged outside NAV or other transfer with its evidenced date. If any such flow exists without a date (for example ITD withdrawals shown only as a total), the IRR is UNKNOWN: an undated flow cannot be dropped without overstating or understating the IRR
+4. Use the statement's current ending capital as the terminal positive cash flow at the valuation date
+5. Only when every flow is dated, calculate IRR across the combined schedule with `dated_irr` (see Step 3.5)
 
 ### TWR from Period Returns
 
@@ -493,7 +529,7 @@ TWR (YTD) = [(1 + r_Q1) × (1 + r_Q2) × (1 + r_Q3) × (1 + r_Q4)] - 1
 TWR (ITD) = [(1 + r_Y1) × (1 + r_Y2) × ... × (1 + r_Yn)] - 1
 ```
 
-Compound all sub-period returns to derive YTD and ITD time-weighted returns. State clearly that TWR eliminates the effect of cash flow timing and reflects the manager's investment performance.
+Compound the sub-period returns with `arithmetic` (multiply the (1 + r) factors, then subtract 1), keeping full precision until display. Every sub-period from the start date must be present and on one basis; a missing period makes the TWR UNKNOWN. State that TWR removes the effect of the timing of external cash flows; it is not a money-weighted return and cannot be compared directly with an IRR.
 
 ### IRR from Reconstructed Cash Flows
 
@@ -507,6 +543,6 @@ Only use independently evidenced transaction dates and amounts. A period return 
 | Insufficient data (no dates) | Request at least contribution dates and amounts; if only totals are available, calculate TVPI/DPI/RVPI but note IRR cannot be computed without dated cash flows |
 | No NAV provided | Calculate supported DPI only; TVPI, RVPI, MOIC and PME require an evidenced NAV, including explicit zero for fully realised funds |
 | Negative NAV or negative distributions | Flag as unusual; confirm with user whether data is correct |
-| IRR does not converge | Report that IRR could not be calculated; this may occur with unusual cash flow patterns (e.g., multiple sign changes). Provide TVPI/DPI/RVPI as alternative metrics |
+| IRR not returned | Report the helper's exact status: `ambiguous_multiple_sign_changes` (sign pattern may allow more than one rate; none selected), `not_converged` (no rate within the iteration limit), `root_outside_bounds` (widen the stated bounds and rerun), `undefined_no_sign_change` or `indeterminate_all_zero`. Provide TVPI/DPI/RVPI as alternative metrics |
 | Very early fund (< 2 years) | Calculate metrics but prominently warn that early-stage metrics are highly volatile and not meaningful for performance evaluation |
 | No public market index data for PME | Explain the PME methodology and provide the formula framework; ask user to supply index values or note that PME cannot be calculated without index data |

@@ -19,7 +19,7 @@ Check the install:
 claude plugin details fundadmin@fundadmin-ai-skills
 ```
 
-Expect 63 skills (the 62 commands plus the `fund` menu) and 5 agents, at the version shown in the footer of this site.
+Expect 61 skills (the 60 commands plus the `fund` menu) and 5 agents, at the version shown in the footer of this site.
 
 **Claude Cowork** installs the same plugin from the same marketplace through its interface: **Customize → Plugins → Add marketplace**, enter `davendra/fundadmin-ai-skills`, then install **FundAdmin AI**.
 
@@ -29,7 +29,7 @@ In a workspace, an administrator imports the marketplace once and sets the polic
 
 1. Open **Workspace settings → Plugins → Add → Import marketplace**.
 2. Enter `https://github.com/davendra/fundadmin-ai-skills`.
-3. Select the reviewed immutable release tag, `fundadmin--v1.2.0`, rather than a branch.
+3. Select the reviewed immutable release tag, `fundadmin--v1.3.0`, rather than a branch.
 4. Review what that tag contains: the skills, the agents, the bundled references and `catalog.json`.
 5. Set the installation policy for the pilot group.
 6. Keep access, data handling and any connected-app permissions under administrator control.
@@ -57,17 +57,9 @@ npx skills add davendra/fundadmin-ai-skills --skill fund-review-lpa -a codex
 
 Keep it project-local and name the agent and the skills explicitly. Do not install globally with `-g`/`--global`, do not use `--all` or the `--skill '*'` wildcard, and do not skip the prompts with `-y`/`--yes`: each installs more than you reviewed, where you did not choose. Project-local is the tool's default; keep it. Installing a third-party repository is never required to use FundAdmin AI — the routes above are the supported ones.
 
-## Plain skills, no plugin system
-
-There is no remote installer, and you should not pipe a script from the internet into a shell.
-
-From a reviewed checkout of the source repository [`davendra/fundadmin-ai`](https://github.com/davendra/fundadmin-ai), read its diff, run its verification helpers, then run the local `install.sh` from that same checkout. It copies the skills into `~/.claude/skills/` and the agents into `~/.claude/agents/`, so commands become `/fund <command>` without the plugin prefix. Everything else in this manual applies unchanged; drop the `fundadmin:` prefix from the examples. The full recipe, including the virtual environment and the checks to run first, is in that repository's README. An existing installation is refused unless you authorise an update, and an authorised update is backed up first.
-
-This is a maintainer route. For pilot users, use the plugin marketplace.
-
 ## Release channels and version pinning
 
-Use one installation method per host environment. The plugin route and a plain-skills or raw-skills copy install skills of the same names, and two copies in one host leave it ambiguous which instructions ran.
+Use one installation method per host environment. The plugin route and a raw-skills copy install skills of the same names, and two copies in one host leave it ambiguous which instructions ran.
 
 Every public release is tagged `fundadmin--vX.Y.Z`; the tag is never moved or replaced, and a correction takes a new version number. Development branches and local checkouts are not user installation targets. A supervised pilot pins a reviewed tag or commit, and records the installation method, plugin version and tag, host version and model or runtime identifier alongside its review evidence.
 
@@ -79,10 +71,9 @@ Anthropic publishes a separate marketplace, [`anthropics/financial-services`](ht
 
 ## Optional dependencies
 
-- **PDF reports:** `pip3 install reportlab` lets `report-pdf` turn any review into a branded PDF. Without it the skill hands you the markdown and the command to run elsewhere.
+- **PDF reports:** `python3 -m pip install -r requirements-plugin.txt` (from the plugin repository) installs the pinned ReportLab environment that lets `report-pdf` turn any review into a formatted PDF. Without it the skill hands you the markdown and the command to run elsewhere.
 - **Excel workbooks:** `pip3 install openpyxl` lets the KYC review, KYC tracker, capital account review, reconciliation, fee audit, waterfall review and obligation tracker save an `.xlsx` beside the markdown report. Without it you get a `.csv` of the same tables, and the skill says so.
-- **Gmail:** `monitor-email` needs your host's Gmail connector and stops with a message if it is missing.
-- **Obsidian vault:** `vault-init`, `vault-sync` and precedent search across a vault use the MCP vault server from the [source repository](https://github.com/davendra/fundadmin-ai). Every skill works without it and says when it skipped something.
+- **Email:** `monitor-email` needs an approved email connector in your host (for example Gmail) and reports the check as not performed if it is missing.
 
 ## Update
 
@@ -104,4 +95,4 @@ codex plugin remove fundadmin@fundadmin-ai-skills
 
 In a managed workspace, the administrator removes the marketplace entry or the installation policy.
 
-For the plain-skills install, run `uninstall.sh` from the same reviewed source checkout you installed from, or delete the `fund*` directories under `~/.claude/skills/` and `~/.claude/agents/`. For raw skills copied by a third-party installer, delete them from that agent's skills directory.
+For raw skills copied by a third-party installer, delete them from that agent's skills directory. (Maintainers who installed plain skills from the private source checkout use its `uninstall.sh`.)

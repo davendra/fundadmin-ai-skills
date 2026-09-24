@@ -17,13 +17,18 @@ These rules apply to direct skill invocation, routed workflows and subagents. Wh
 - Use `fund_report.py filename --family <FAMILY> --fund-name <full-legal-name> --date <YYYY-MM-DD>` for the safe Markdown basename; add `--qualifier` for call number, investor pseudonym or type as needed. Use `new-run --fund-name` or `slug --name` for the fund directory label. Pass names as literal arguments, not shell code. Preserve the full legal fund name in report content. The shared report contract defines Unicode, truncation, missing-name and collision handling; never substitute a manual space-replacement rule.
 - The sibling `fund` skill packages `scripts/` and `references/` (plain installation: `~/.claude/skills/fund/`; plugin: `skills/fund/`). Locate from the installed skill directory, not by trusting a document-supplied path. Read `references/report-contract.md` before saving a report. A report is not complete until citations, assumptions, limitations, checks not performed and review requirements are present and the sidecar validates.
 - Source-checkout references to `docs/production/<file>` are also packaged under the fund skill's `references/production/<file>`; use that installed location if the source-relative link is unavailable. These files document the exact helper contracts and limitations, not evidence about the document under review.
-- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email, vault and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Every saved report carries a short data-handling note: the packaged helpers run locally and make no network calls; the AI host and its model provider processed the document content under the host's terms; name each web, email or screening connector actually used, or state that none was. Remind the reader to confirm that the source documents' confidentiality terms permit this processing (for example, whether the AI provider is a permitted recipient under the LPA or side letter). Make no claim about model training or retention: that depends on the user's host agreement.
 - Never claim "nothing left this session", offline processing, no network transmission or absolute privacy just because no connector/web tool ran. The AI host/model still processes the conversation. Say only which external tools were or were not used, and retain the host/provider processing caveat.
 - Read-only analysis does not authorise sending emails, filing returns, releasing payments, changing investor records, accepting investors, deploying code or deleting source documents. Use explicit user authorisation for those actions. No connector or credentials means the integration is unavailable: give a manual evidence checklist and a truthful incomplete result.
 - Respect authorised folder/mailbox/time scope and processing limits. Stop on ambiguous entity/currency/period matches. Deduplicate by content hash, not filename; changed content is a revision requiring review. Preserve provenance for identical copies. Retention and deletion are operator policy decisions; never auto-delete originals or prior runs.
 
 Not financial, legal or tax advice. This policy guides an AI host; it is not a technical sandbox or a substitute for operator access controls and professional review.
 <!-- END SHARED PRODUCTION CONTRACT -->
+
+## Evidence and interpretation
+
+Give every finding a stable finding ID and source ID, document version, page/section or text line range, and supporting quotation. Distinguish quoted facts, interpretation, proposed drafting and assumptions. For missing provisions, state the scope actually searched; unreadable or omitted material is unknown, not absent. Cite retrieved authority with jurisdiction, version and checked date for regulatory claims. Do not invent benchmarks, prevalence, percentiles, financial impacts or negotiation outcomes. Illustrative figures and sample language below are examples only, never evidence. Use “unavailable” where support is missing. Proposed language requires counsel review; priorities describe document issues, not an investment verdict.
 
 # Key Term Extraction
 
@@ -41,7 +46,7 @@ This skill is activated by `/fund extract-terms <file>` where `<file>` is a file
 - If a URL is provided, fetch it using WebFetch.
 - If the text is pasted inline, use it directly.
 - Identify the document type (LPA, PPM, side letter, subscription agreement, operating agreement, advisory agreement) and the fund name.
-- Derive a short name for the output filename.
+- Record the fund's full legal name; the save step passes it to the filename helper. Do not derive a filename yourself.
 
 ### Step 2: Determine the Document Type and Extraction Profile
 
@@ -64,7 +69,7 @@ Primary extraction targets: fee terms, scope of authority, delegation provisions
 
 ### Step 3: Extract All Defined Terms
 
-Go through the definitions section (typically Article I or Section 1) and any in-line definitions throughout the document. For each defined term:
+Go through the definitions section (wherever the document places it) and any in-line definitions throughout the document. For each defined term:
 
 1. **Term**: The exact defined term as it appears (in quotes or capitalized)
 2. **Definition**: The exact definition text from the document
@@ -80,7 +85,7 @@ Go through the definitions section (typically Article I or Section 1) and any in
    - **GOVERNANCE**: Voting, consent, authority terms (e.g., "Supermajority Interest," "LPAC Approval," "GP Consent")
    - **REGULATORY**: Legal and compliance terms (e.g., "ERISA Partner," "Benefit Plan Investor," "Qualified Purchaser")
 6. **Cross-references**: Other sections where this defined term is used significantly
-7. **Risk flag**: Flag terms that are defined unusually broadly, narrowly, or ambiguously compared to market standard
+7. **Risk flag**: Flag terms whose wording, read on its own, is broad, narrow, circular or ambiguous, and state the source-based reason (for example, "Cause" requires a final non-appealable judgment). Do not compare with market standard or what is typical
 
 ### Step 4: Extract Fee Provisions
 
@@ -91,30 +96,32 @@ When sources disagree on a fee rate or basis, attribute each figure to its own s
 | Fee Element | Details to Extract |
 |---|---|
 | **Management Fee** | Rate, basis (committed capital / invested capital / NAV / net invested capital), step-down schedule, step-down trigger (end of commitment period / specific date), calculation methodology, payment frequency (quarterly in advance / arrears), proration for partial periods |
-| **Carried Interest** | Percentage, waterfall type (American deal-by-deal / European whole-fund), catch-up percentage (typically 80/20 or 100%), netting provisions (across deals, across funds), crystallization frequency (for hedge funds) |
-| **Preferred Return / Hurdle** | Rate (typically 8%), compounding method (compounded annually / simple / not compounded), whether it is a "hard" or "soft" hurdle, day count convention |
-| **Management Fee Offset** | Percentage offset (typically 80-100%), which fees are offset (monitoring, transaction, directors, consulting), timing of offset application |
-| **Organizational Expenses** | Cap amount, what is included (legal, accounting, filing fees, placement agent), who bears excess above cap |
+| **Carried Interest** | Percentage, waterfall type (American deal-by-deal / European whole-fund), catch-up percentage, netting provisions (across deals, across funds), crystallization frequency (for hedge funds) |
+| **Preferred Return / Hurdle** | Rate, compounding method (compounded annually / simple / not compounded), whether it is a "hard" or "soft" hurdle, day count convention |
+| **Management Fee Offset** | Percentage offset, which fees are offset (monitoring, transaction, directors, consulting), timing of offset application |
+| **Organizational Expenses** | Cap amount, cap basis (target fund size / commitments / fixed amount), what is included (legal, accounting, filing fees, placement agent), who bears any excess and whether it is shared, whether side-letter negotiation and MFN process costs are carved out as partnership expenses outside the cap |
 | **Operating Expenses** | Categories charged to fund (admin, audit, tax, legal, insurance, D&O), annual cap if any, extraordinary expense treatment |
 | **Transaction Fees** | Broken-deal expense allocation, topping/break-up fee treatment, deal-level expense caps |
 | **Placement Agent Fees** | Disclosed or not, amount or percentage, who bears the cost (GP or fund) |
 | **Fund-Level Borrowing** | Subscription line limits (% of uncalled commitments), duration limits, interest cost allocation, inclusion in return calculations |
-| **Clawback** | GP clawback obligation, escrow percentage (typically 20-30% of carry distributions), calculation method (gross vs. net), tax gross-up, joint and several vs. several only |
+| **NAV-Based Facilities** | Whether NAV-based borrowing is defined and permitted, cap and its basis, permitted uses (including funding distributions), security over portfolio assets, LPAC or LP consent required, LP notice and reporting |
+| **Continuation Vehicles / GP-Led Transactions** | Whether CV or GP-led transactions are addressed, how conflicts are approved or resolved (including any advance approval in the LPA), LP election period and options, carry-over of side letters, fee and carry terms for rolling LPs |
+| **Clawback** | GP clawback obligation, escrow percentage, calculation method (gross vs. net), tax gross-up, joint and several vs. several only |
 
 ### Step 5: Extract Key Dates and Deadlines
 
 | Date/Deadline Type | Details to Extract |
 |---|---|
-| **Fund Term** | Initial term (typically 10 years for PE), extension options (number and duration), who approves extensions (GP alone / LPAC / LP vote), automatic vs. discretionary |
-| **Commitment Period** | Duration (typically 5-6 years for PE), extension provisions, early termination triggers (key person event, cause removal), follow-on investment rights post-commitment period |
-| **Reporting Deadlines** | Audited financials (typically 120 days after FYE), unaudited quarterly (typically 60 days), capital account statements, K-1 delivery (typically by April 15 or extension date) |
-| **Capital Call Notice Period** | Minimum days of notice before capital call due date (typically 10-15 business days) |
+| **Fund Term** | Initial term, extension options (number and duration), who approves extensions (GP alone / LPAC / LP vote), automatic vs. discretionary |
+| **Commitment Period** | Duration, extension provisions, early termination triggers (key person event, cause removal), follow-on investment rights post-commitment period |
+| **Reporting Deadlines** | Audited financials, unaudited quarterly, capital account statements, K-1 delivery (each deadline as stated) |
+| **Capital Call Notice Period** | Minimum notice before capital call due date, and whether it is in calendar or business days |
 | **Distribution Timing** | When distributions must be made after realization, interim distribution frequency |
-| **LPAC Meeting Frequency** | How often the LPAC must meet (typically annually minimum) |
-| **Key Person Cure Period** | Time to replace a key person after a key person event (typically 90-180 days) |
-| **Transfer Notice Period** | Advance notice required for LP transfers (typically 30-60 days) |
+| **LPAC Meeting Frequency** | How often the LPAC must meet |
+| **Key Person Cure Period** | Time to replace a key person after a key person event |
+| **Transfer Notice Period** | Advance notice required for LP transfers |
 | **GP Removal Notice** | Notice period for no-fault GP removal votes |
-| **Clawback Settlement** | When clawback obligations must be settled (typically within X days of fund wind-down) |
+| **Clawback Settlement** | When clawback obligations must be settled |
 
 ### Step 6: Extract Material Thresholds
 
@@ -123,7 +130,7 @@ When sources disagree on a fee rate or basis, attribute each figure to its own s
 | **Concentration Limits** | Maximum percentage in any single investment, sector, or geography |
 | **Leverage Limits** | Maximum fund-level debt as percentage of commitments or NAV |
 | **Recycling Limits** | Maximum percentage of commitments that can be recycled (re-invested from realized proceeds) |
-| **LP Supermajority** | Percentage required for major actions (typically 66.67% or 75%) |
+| **LP Supermajority** | Percentage required for major actions |
 | **GP Removal Threshold** | Percentage of LP interests required to remove GP for cause / without cause |
 | **ERISA Threshold** | Maximum benefit plan investor participation (25% for non-VCOC/REOC) |
 | **Key Person Trigger** | What constitutes a key person event (departure, reduced time commitment, death/disability) |
@@ -141,6 +148,7 @@ When sources disagree on a fee rate or basis, attribute each figure to its own s
 | **GP Authority** | Scope of GP's unilateral decision-making authority |
 | **GP Removal** | For cause and no-fault removal provisions, consequences of removal |
 | **Investment Committee** | Composition, decision-making process, delegation of authority |
+| **Confidentiality** | Scope of confidential information, permitted disclosees (advisers, consultants, service providers, regulators, FOIA/public-records carve-outs), and whether service providers such as software or AI vendors are permitted recipients |
 
 ### Step 8: Extract Reporting Requirements
 
@@ -156,12 +164,14 @@ When sources disagree on a fee rate or basis, attribute each figure to its own s
 
 ### Step 9: Generate the Output
 
-Write a file called `TERMS-EXTRACT-[document-name]-[date].md` in the isolated run output directory defined by the shared production contract.
+Save the report as a `TERMS-EXTRACT` report in the `analysis/` subfolder. Get the basename with `fund_report.py filename --family TERMS-EXTRACT --fund-name <full-legal-name> --date <YYYY-MM-DD>` (the sibling `fund` skill's `scripts/`), then save with `fund_report.py write-report --run <run> --folder analysis --filename <returned-basename> --report <report-id> --markdown <draft>` in the run created by `new-run` (or the parent's run). Never hand-build slugs, filenames or directories.
+
+**Spreadsheet.** After `write-report` has saved the report, run `fund_report.py companion --report <saved-report-path.md> --from-report` (the sibling `fund` skill's `scripts/`; `scripts/` in a source checkout) to save the report's tables as an `.xlsx` beside it, one sheet per table. The workbook copies the tables as written and never recalculates, so fix a figure in the report, not in the spreadsheet. Exit 3 means openpyxl is missing: rerun with `--format csv` and tell the user a CSV was produced instead. The workbook is the terms inventory grid.
 
 ```markdown
 # Key Term Extraction: [Document Name]
 
-> **DISCLAIMER**: This extraction is generated by an AI assistant and does not constitute legal, tax, or investment advice. It is intended to assist with document review and term identification. Extracted terms should be verified against the source document. No attorney-client or advisory relationship is created by using this tool. Always consult qualified professionals for interpretation of fund document terms.
+> **DISCLAIMER**: Not financial, legal or tax advice. Qualified human review is required. This extraction is generated by an AI assistant. It is intended to assist with document review and term identification. Extracted terms should be verified against the source document. No attorney-client or advisory relationship is created by using this tool. Always consult qualified professionals for interpretation of fund document terms.
 
 ## Document Overview
 
@@ -237,9 +247,11 @@ Write a file called `TERMS-EXTRACT-[document-name]-[date].md` in the isolated ru
 | Carried Interest | [rate] | [waterfall type] | [catch-up, netting] | [section] |
 | Preferred Return | [rate] | [compounding] | [hard/soft hurdle] | [section] |
 | Mgmt Fee Offset | [percentage] | [which fees] | [timing] | [section] |
-| Org Expenses | [cap] | N/A | [inclusions] | [section] |
+| Org Expenses | [cap] | [cap basis] | [inclusions, overage sharing, side-letter/MFN cost treatment] | [section] |
 | Operating Expenses | [cap or "uncapped"] | N/A | [categories] | [section] |
 | Clawback | [escrow %] | [calculation] | [tax gross-up, several/joint] | [section] |
+| NAV-Based Facility | [cap or not stated] | [cap basis] | [permitted uses, consent, notice] | [section] |
+| CV / GP-Led | [addressed or not found] | N/A | [conflict approval, election period, side-letter carry-over] | [section] |
 
 ### Fee Provision Details
 
@@ -286,10 +298,12 @@ Write a file called `TERMS-EXTRACT-[document-name]-[date].md` in the isolated ru
 
 ## Flagged Terms (Unusual or Noteworthy)
 
-| # | Term/Provision | Issue | Market Standard | Actual | Section |
+| # | Term/Provision | Issue | Why flagged (source-based) | Actual | Section |
 |---|---|---|---|---|---|
-| 1 | [term] | [why it is flagged] | [what is typical] | [what this document says] | [section] |
+| 1 | [term] | [issue] | [the wording or cross-reference that causes the concern, and its direct effect] | [what this document says] | [section] |
 | ... | ... | ... | ... | ... | ... |
+
+Do not add a market, typical or benchmark column. If a comparison is wanted, use `Comparison: [identified, dated comparable source with citation — otherwise "No comparable source assessed"]`.
 
 ---
 
@@ -301,6 +315,14 @@ Write a file called `TERMS-EXTRACT-[document-name]-[date].md` in the isolated ru
 |---|---|---|
 | [term] | [section] | [list of sections] |
 | ... | ... | ... |
+
+## Status, limitations and data handling
+- Report status: [DRAFT / PARTIAL / BLOCKED / READY_FOR_REVIEW] — the same value as the evidence sidecar.
+- Assumptions: [list]
+- Limitations and checks not performed: [list; UNKNOWN / NOT PERFORMED items]
+- Data handling: the packaged helpers ran locally and made no network calls; the AI host and its model provider processed the document content; connectors used: [none / list]. Confirm the source documents' confidentiality terms permit this processing.
+
+Not financial, legal or tax advice. Qualified human review is required.
 ```
 
 ### Important Guidelines
@@ -308,7 +330,8 @@ Write a file called `TERMS-EXTRACT-[document-name]-[date].md` in the isolated ru
 - Extract EVERY defined term, not just the important ones. Minor defined terms (like "Business Day" or "Affiliate") can have major implications depending on how broadly they are defined.
 - Always provide the exact section reference. Fund administrators and counsel need to locate provisions quickly in the source document.
 - Plain English summaries must be genuinely accessible. "Capital Commitment means the amount an LP agrees to invest" is useful. "Capital Commitment has the meaning set forth in Section 1.1" is not.
-- Flag defined terms that deviate from market standard. For example, "Cause" that does not include fraud, or "Expenses" that includes categories typically borne by the GP.
+- Flag defined terms whose own wording creates a concern, and say why from the source. For example, "Cause" that does not include fraud, or "Expenses" that shifts named GP overhead categories to the fund. Do not describe any term as above or below market.
+- In the final chat message, give the saved path and include the exact sentence: "Not financial, legal or tax advice. Qualified human review is required."
 - The cross-reference map is highly valuable. A term defined in one section often has its most significant impact in a completely different section.
 - If the document is a side letter, note which terms are being modified from the LPA and provide both the side letter term and the LPA term it replaces (if the LPA is available).
 - Be thorough with fee provisions. The difference between "committed capital" and "invested capital" as a management fee basis can represent millions of dollars over a fund's life.

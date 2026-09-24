@@ -2,7 +2,7 @@
 
 ## "Unknown command" or the skills do not appear
 
-Use the plugin prefix: `/fundadmin:fund`, not the bare form (that is for the plain-skills install). Restart the session after installing. `claude plugin details fundadmin@fundadmin-ai-skills` should list 63 skills and 5 agents.
+Use the plugin prefix: `/fundadmin:fund`, not the bare form. Restart the session after installing. `claude plugin details fundadmin@fundadmin-ai-skills` should list 61 skills (60 commands plus the `fund` menu) and 5 agents.
 
 ## The PDF was not generated
 
@@ -14,7 +14,7 @@ That is expected: five agents work through the whole agreement, in order. How lo
 
 ## The review flagged something that is fine
 
-Every finding names the clause it came from. Read the clause. The skills describe documents and compare them with common market terms; they do not know your fund's negotiating history. Treat every output as a draft for a professional to review.
+Every finding names the clause it came from. Read the clause. The skills describe documents and, where a skill says so, compare terms with this suite's illustrative reference ranges, which are not market data; they do not know your fund's negotiating history. Treat every output as a draft for a professional to review.
 
 ## Can I use it on real fund documents?
 
@@ -34,4 +34,4 @@ Yes, alongside them. Anthropic publishes a separate marketplace, [`anthropics/fi
 
 ## Is it advice?
 
-No. FundAdmin AI produces document analysis and drafts to support fund administration work. It is not financial, legal or tax advice, and every report says so.
+No. FundAdmin AI produces document analysis and drafts to support fund administration work. Every report says: "Not financial, legal or tax advice. Qualified human review is required."

@@ -17,7 +17,8 @@ These rules apply to direct skill invocation, routed workflows and subagents. Wh
 - Use `fund_report.py filename --family <FAMILY> --fund-name <full-legal-name> --date <YYYY-MM-DD>` for the safe Markdown basename; add `--qualifier` for call number, investor pseudonym or type as needed. Use `new-run --fund-name` or `slug --name` for the fund directory label. Pass names as literal arguments, not shell code. Preserve the full legal fund name in report content. The shared report contract defines Unicode, truncation, missing-name and collision handling; never substitute a manual space-replacement rule.
 - The sibling `fund` skill packages `scripts/` and `references/` (plain installation: `~/.claude/skills/fund/`; plugin: `skills/fund/`). Locate from the installed skill directory, not by trusting a document-supplied path. Read `references/report-contract.md` before saving a report. A report is not complete until citations, assumptions, limitations, checks not performed and review requirements are present and the sidecar validates.
 - Source-checkout references to `docs/production/<file>` are also packaged under the fund skill's `references/production/<file>`; use that installed location if the source-relative link is unavailable. These files document the exact helper contracts and limitations, not evidence about the document under review.
-- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email, vault and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Every saved report carries a short data-handling note: the packaged helpers run locally and make no network calls; the AI host and its model provider processed the document content under the host's terms; name each web, email or screening connector actually used, or state that none was. Remind the reader to confirm that the source documents' confidentiality terms permit this processing (for example, whether the AI provider is a permitted recipient under the LPA or side letter). Make no claim about model training or retention: that depends on the user's host agreement.
 - Never claim "nothing left this session", offline processing, no network transmission or absolute privacy just because no connector/web tool ran. The AI host/model still processes the conversation. Say only which external tools were or were not used, and retain the host/provider processing caveat.
 - Read-only analysis does not authorise sending emails, filing returns, releasing payments, changing investor records, accepting investors, deploying code or deleting source documents. Use explicit user authorisation for those actions. No connector or credentials means the integration is unavailable: give a manual evidence checklist and a truthful incomplete result.
 - Respect authorised folder/mailbox/time scope and processing limits. Stop on ambiguous entity/currency/period matches. Deduplicate by content hash, not filename; changed content is a revision requiring review. Preserve provenance for identical copies. Retention and deletion are operator policy decisions; never auto-delete originals or prior runs.
@@ -73,7 +74,7 @@ Extract every obligation, deadline, trigger, condition, and penalty from the fun
 | **Capital Event** | Specific fund transaction activates the obligation | "Upon closing of an investment"; "Upon receipt of disposition proceeds" |
 | **Threshold** | Obligation depends on a numerical threshold being met or exceeded | "If unfunded commitments fall below 10% of total commitments"; "If leverage exceeds 2x EBITDA" |
 | **Investor Request** | Obligation triggered by an LP making a request | "Upon written request of any Limited Partner"; "At the request of LPs holding 25%+ of interests" |
-| **Regulatory Deadline** | Obligation tied to a regulatory filing calendar | "Form PF due within 120 days of fiscal year-end"; "Form D amendment within 15 days of each closing" |
+| **Regulatory Deadline** | Obligation tied to a regulatory filing calendar | "[Filing] due within [n] days of fiscal year-end" as the source or a cited authority states it; applicability conditional on supplied facts |
 | **Key Person Event** | Triggered by departure or incapacity of a key person | "Upon the occurrence of a Key Person Event"; "If [Named Person] ceases to devote substantially all business time" |
 | **LPAC Vote** | Triggered by a vote of the LP Advisory Committee | "Subject to LPAC approval"; "Unless the Advisory Committee consents" |
 | **Continuous** | Ongoing throughout the fund term or a defined period | "At all times during the Investment Period"; "Throughout the term of the Partnership" |
@@ -81,39 +82,39 @@ Extract every obligation, deadline, trigger, condition, and penalty from the fun
 
 ## Fund Lifecycle Timeline
 
-Map all obligations to the fund's lifecycle phases. Each phase has characteristic obligations:
+Map all obligations to the fund's lifecycle phases. The phase lists below are prompts for what to search for, not evidence that an obligation exists or applies. Take every duration, notice period and deadline from the source; where the source is silent, record "not stated". Regulatory filings (Form D, Form PF, FATCA/CRS reporting, ERISA plan-asset testing) enter the map only when the parent's SUPPLIED EXTERNAL FACTS establish that the framework applies (for example, benefit-plan investors present, an SEC-registered adviser meeting the Form PF thresholds) or the LPA itself imposes the duty; otherwise list them as "applicability UNKNOWN" outside the rated inventory.
 
 ```
 PHASE 1: FORMATION & FUNDRAISING
-|  Duration: 6-18 months typically
+|  Duration: [from source, or not stated]
 |  Key Activities: Fund formation, initial closing, subsequent closings, final closing
 |  Characteristic Obligations:
-|    - Form D filing (within 15 days of first sale)
+|    - Form D filing (if the supplied offering route requires it)
 |    - Subscription agreement execution
 |    - KYC/AML verification
 |    - Side letter negotiation and execution
-|    - ERISA 25% test at each closing
+|    - ERISA 25% test at each closing (only if benefit-plan investors are supplied or the LPA imposes it)
 |    - Equalization interest calculations at subsequent closings
 |    - State blue sky filings
 
 PHASE 2: INVESTMENT PERIOD (COMMITMENT PERIOD)
-|  Duration: 3-6 years (fund-type dependent)
+|  Duration: [from source]
 |  Key Activities: Capital deployment, portfolio construction
 |  Characteristic Obligations:
-|    - Capital calls for investments (10-15 business days notice typical)
+|    - Capital calls for investments (notice period as stated in the source)
 |    - Capital calls for management fees and expenses
 |    - Quarterly reporting and financial statements
 |    - Annual audited financial statements
 |    - Annual meeting (if required)
-|    - K-1 delivery (target: March 15; extended: September 15)
+|    - K-1 delivery (deadline as stated in the source, or not stated)
 |    - Ongoing LPAC consent for conflicts
 |    - Key person event monitoring
-|    - ERISA 25% ongoing monitoring
-|    - Form PF annual/quarterly filing
-|    - FATCA/CRS reporting
+|    - ERISA 25% ongoing monitoring (conditional on supplied facts)
+|    - Form PF filing (conditional on supplied adviser status)
+|    - FATCA/CRS reporting (conditional on supplied facts)
 
 PHASE 3: HARVEST PERIOD (POST-INVESTMENT PERIOD)
-|  Duration: 4-7 years (balance of fund term)
+|  Duration: [balance of fund term per source]
 |  Key Activities: Portfolio management, exits, distributions
 |  Characteristic Obligations:
 |    - Capital calls limited to follow-on investments, fees, expenses (narrower purpose)
@@ -127,7 +128,7 @@ PHASE 3: HARVEST PERIOD (POST-INVESTMENT PERIOD)
 |    - Valuation of remaining portfolio
 
 PHASE 4: WIND-DOWN & DISSOLUTION
-|  Duration: 1-3 years
+|  Duration: [from source, or not stated]
 |  Key Activities: Final dispositions, final distributions, dissolution
 |  Characteristic Obligations:
 |    - Final portfolio liquidation
@@ -138,8 +139,8 @@ PHASE 4: WIND-DOWN & DISSOLUTION
 |    - Final K-1 delivery
 |    - Tax reserve determination
 |    - Partnership dissolution filings
-|    - Final Form PF filing
-|    - Books and records retention (typically 7 years)
+|    - Final Form PF filing (conditional on supplied adviser status)
+|    - Books and records retention (period as stated in the source)
 ```
 
 ## Analysis Process
@@ -174,7 +175,7 @@ For each obligation, determine:
 2. **When must it be completed?** — Specific deadline, timeframe from trigger, or "ongoing"
 3. **What is the cure period?** — Time allowed to remedy a failure before consequences apply
 4. **What is the notice period?** — How much advance notice is required before the obligation arises (e.g., 10 business days for capital calls)
-5. **Business days or calendar days?** — This matters significantly for capital call notice periods (10 business days = 14 calendar days)
+5. **Business days or calendar days?** — Record which the source uses. Do not convert business days to calendar days: business-day and holiday counting is `UNCALCULATED — not supported by the packaged helper`.
 6. **Fund lifecycle phase** — Which phase does this obligation fall within?
 7. **Recurring or one-time?** — If recurring, what is the frequency?
 
@@ -184,7 +185,7 @@ For each obligation, determine what happens upon breach or failure:
 | Consequence Type | Description | Severity |
 |---|---|---|
 | **LP Default** | LP loses certain rights, may be subject to default remedies | Critical |
-| **Forfeiture** | Defaulting LP's interest reduced (typically 25-50% haircut) | Critical |
+| **Forfeiture** | Defaulting LP's interest reduced (record the percentage the source states) | Critical |
 | **Forced Sale** | GP can force sale of defaulting LP's interest at discount | High |
 | **GP Removal** | LPs can remove GP for cause | Critical |
 | **Investment Period Suspension** | Investment period suspends upon key person event | High |
@@ -201,20 +202,20 @@ For each obligation, determine what happens upon breach or failure:
 Specifically hunt for these patterns:
 
 **Investment Period Extension Traps**:
-- Can GP unilaterally extend the investment period? (Market: requires LP/LPAC consent)
-- What is the maximum extension? (Market: 1-2 years maximum)
-- Does management fee continue at full rate during extension? (Market: should step down)
+- Can GP unilaterally extend the investment period, or is LP/LPAC consent required?
+- What is the maximum extension?
+- Does management fee continue at full rate during extension, or step down?
 - What constitutes "completion of investments in process"? (Often undefined — GP discretion)
 
 **Fund Term Extension Traps**:
-- How many extensions are permitted? (Market: 2 x 1-year extensions)
+- How many extensions are permitted, and of what length?
 - Which extensions require LP consent vs. GP discretion?
 - Does carried interest continue to accrue during extensions?
 - Can GP extend indefinitely to avoid crystallizing losses?
 
 **Commitment Period Effective Extension via Recycling**:
 - Can recycled capital be re-drawn after the commitment period ends?
-- Is there a cap on recycling (market: 100-125% of total commitments)?
+- Is there a cap on recycling, and what is its basis?
 - Does recycling effectively extend the period during which management fees are calculated on committed capital?
 
 **Management Fee Continuation Traps**:
@@ -223,10 +224,10 @@ Specifically hunt for these patterns:
 - Are organizational expenses amortized over the management fee period, extending its effective cost?
 
 ### Step 5: Financial Exposure Calculation
-Calculate the total financial exposure by category for a representative LP commitment:
+Calculate exposure only from figures stated in the source and, for LP-level amounts, the LP's own commitment where the user supplied it. Never assume a representative commitment, fund size, deployment pace or return. Run every figure through the packaged `fund_calculations.py` helper (`arithmetic`, `fees` or `rollforward`, as documented in `docs/production/calculations.md`) and show the operation, inputs and output. Where an input is missing, the line reads "Not quantified — [missing input]". Items the helper does not support (for example deal-by-deal clawback, preferred-return accrual) read `UNCALCULATED — not supported by the packaged helper`.
 
 ```
-REPRESENTATIVE LP COMMITMENT: $[amount]
+LP COMMITMENT: $[amount as supplied by the user, or "Not supplied — LP-level amounts not quantified"]
 
 A. GUARANTEED LP OBLIGATIONS (must pay regardless):
    Management Fee (full fund term): $___
@@ -250,7 +251,7 @@ C. CONTINGENT CLAWBACK EXPOSURE:
 
 D. DEFAULT EXPOSURE (consequences if LP fails to fund):
    Interest on Late Contributions: $___
-   Forfeiture Amount (e.g., 25-50% of defaulting LP's interest): $___
+   Forfeiture Amount (percentage stated in the source x the LP's interest): $___
    Cross-Default Provisions (triggers default in other GP-managed funds): $___
    Subtotal D: $___
 
@@ -285,16 +286,24 @@ Governing Law: [jurisdiction]
 
 ### Obligations Matrix
 
-| # | Section | Obligated Party | Type | Obligation Description | Trigger | Deadline | Cure Period | Consequence of Breach |
-|---|---|---|---|---|---|---|---|---|
-| 1 | 3.2 | LPs | CC | Fund capital call for investments | GP notice | 10 business days from notice | 5 business days | Default: forfeiture of 50% of interest + interest at prime + 4% |
-| 2 | 6.1 | GP (Fund) | RPT | Deliver quarterly unaudited financial statements | Calendar | 45 days after quarter-end | None stated | No stated consequence — flag for review |
-| 3 | 6.3 | GP (Fund) | RPT | Deliver audited annual financial statements | Calendar | 120 days after fiscal year-end | None stated | No stated consequence |
-| 4 | 6.5 | GP (Fund) | RPT | Deliver Schedule K-1 | Calendar | "As soon as practicable" | N/A | No specific deadline — flag as inadequate |
-| 5 | 8.1 | GP | NOTC | Notify LPs of Key Person Event | Key Person Event | 10 business days of event | N/A | Investment period automatically suspends |
-| 6 | 9.2 | GP | CONS | Obtain LPAC consent for conflict transactions | Capital Event | Before closing transaction | N/A | Transaction voidable if LPAC consent not obtained |
-| 7 | 3.5 | Defaulting LP | CC | Cure capital call default | LP Default | 5 business days from default notice | — | Forfeiture, forced sale, cross-default |
-| 8 | 7.4 | GP | DIST | Distribute disposition proceeds | Capital Event | 90 days of receipt | N/A | No stated consequence |
+Rate every applicable obligation 0, 50 or 100 using the rubric in the Role section, with a one-line rationale. The rating concerns the clarity of actor, trigger and deadline and the safeguards around the duty, never a count of GP versus LP duties. Obligations whose applicability is UNKNOWN (for example, conditional regulatory filings) are listed separately, not rated.
+
+| # | Finding / source ID | Section | Obligated Party | Type | Obligation Description | Trigger | Deadline | Cure Period | Consequence of Breach | Rating (0/50/100) | Rationale |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | OB-01 / S1 | 3.2 | LPs | CC | Fund capital call for investments | GP notice | 10 business days from notice | 5 business days | Default: forfeiture of 50% of interest + interest at prime + 4% | 50 | Mechanics clear; remedy severe with limited LP safeguards |
+| 2 | OB-02 / S1 | 6.1 | GP (Fund) | RPT | Deliver quarterly unaudited financial statements | Calendar | 45 days after quarter-end | None stated | No stated consequence | 50 | Deadline clear; no remedy |
+| 3 | OB-03 / S1 | 6.5 | GP (Fund) | RPT | Deliver Schedule K-1 | Calendar | "As soon as practicable" | N/A | No stated consequence | 0 | No deadline |
+| 4 | OB-04 / S1 | 9.2 | GP | CONS | Obtain LPAC consent for conflict transactions | Capital Event | Before closing transaction | N/A | Transaction voidable if LPAC consent not obtained | 100 | Clear trigger and consequence |
+
+(Illustrative rows only, not evidence.)
+
+```
+OBLIGATIONS DIMENSION ARITHMETIC
+Rated items: [count]
+Sum of ratings: [sum]
+Mean: [sum] / [count] = [unrounded mean] (dimension input), or unavailable with the unresolved required items
+Listed but not rated (applicability UNKNOWN): [n] — [items and missing facts]
+```
 
 ### Critical Deadlines Calendar
 
@@ -302,10 +311,10 @@ Present obligations chronologically mapped to fund lifecycle:
 
 ```
 FORMATION & FUNDRAISING:
-  - GP: File Form D within 15 days of initial closing — Section 4.8
+  - GP: File Form D per the supplied offering route (conditional) — Section 4.8
   - LPs: Submit KYC/AML documentation before closing — Section 4.2
   - GP: Calculate equalization interest at each subsequent closing — Section 3.3
-  - GP: Verify ERISA 25% test at each closing — Section 4.5(e)
+  - GP: ERISA 25% test at each closing, where the LPA imposes it — Section 4.5(e)
 
 INVESTMENT PERIOD (RECURRING):
   - GP: Issue capital call notices with minimum 10 business days notice — Section 3.2
@@ -315,7 +324,7 @@ INVESTMENT PERIOD (RECURRING):
   - GP: Deliver K-1s — target March 15, extended September 15 — Section 6.5
   - GP: Hold annual meeting of LPs — Section 9.5
   - GP: Deliver annual insurance certificates — Section 11.5
-  - GP: File Form PF within 120 days of FY-end (or quarterly if applicable) — Regulatory
+  - GP: Form PF filing — only if supplied adviser status makes it applicable; otherwise applicability UNKNOWN
 
 KEY PERSON EVENT TIMELINE:
   - Day 0: Key Person Event occurs
@@ -349,13 +358,13 @@ INVESTMENT PERIOD EXTENSION:
   Maximum Extension: [duration]
   Fee Impact During Extension: [full rate / stepped down / specify]
   Practical Impact: [description of how extension affects LP economics]
-  Assessment: [Market Standard / GP-Favorable / Aggressive]
+  Rating: [0 / 50 / 100] — [rationale from the clause's own terms]
 
 FUND TERM EXTENSION:
   Extension Mechanism: [GP discretion / LP consent]
   Maximum Extensions: [number x duration]
   Fee Impact: [management fee continues / terminates / reduced]
-  Assessment: [Market Standard / GP-Favorable / Aggressive]
+  Rating: [0 / 50 / 100] — [rationale from the clause's own terms]
 
 RECYCLING PROVISIONS:
   Recycling Permitted: [Yes/No]
@@ -363,7 +372,7 @@ RECYCLING PROVISIONS:
   Recycling Period: [during IP only / entire fund term]
   Fee Impact: [recycled capital included in fee base? Yes/No]
   Effective Commitment Period Extension: [description]
-  Assessment: [Market Standard / GP-Favorable / Aggressive]
+  Rating: [0 / 50 / 100] — [rationale from the clause's own terms]
 
 TRAPS IDENTIFIED:
   1. [Description of trap, section reference, and practical impact]
@@ -373,7 +382,8 @@ TRAPS IDENTIFIED:
 ### Financial Exposure Summary
 
 ```
-REPRESENTATIVE LP COMMITMENT: $25,000,000
+LP COMMITMENT: $[as supplied by the user, or "Not supplied — LP-level amounts not quantified"]
+Every figure below: fund_calculations.py operation, inputs and output, or "Not quantified — [missing input]".
 
 GUARANTEED FINANCIAL OBLIGATIONS:
   Management Fee (total fund life estimate): $[amount]
@@ -408,50 +418,30 @@ DEFAULT RISK:
 TOTAL MAXIMUM FINANCIAL EXPOSURE: $[amount]
 ```
 
-### Obligation Balance Scorecard
-Rate the balance of obligations between GP and LPs:
-
-```
-                              GP/Fund      LPs
-Capital Obligations:            [n]        [n]
-Reporting Obligations:          [n]        [n]
-Notice Requirements:            [n]        [n]
-Consent/Approval Rights:        [n]        [n]
-Filing Obligations:             [n]        [n]
-Restrictive Obligations:        [n]        [n]
-Cure Period Protections:        [n]        [n]
-Default Remedies Available:     [n]        [n]
-
-Balance Assessment: [Balanced / Slightly favors GP / Heavily favors GP]
-```
-
 ### Summary Statistics
 ```
 Total Obligations Identified: [n]
-  - GP/Fund Obligations: [n]
-  - LP Obligations: [n]
-  - Mutual Obligations: [n]
+  - Rated: [n] (sum [x], mean [x]) / Listed, applicability UNKNOWN: [n]
 Critical Deadlines (next 12 months): [n]
 Fund Extension Traps Found: [n]
-Total Guaranteed Financial Exposure: $[amount]
-Total Maximum Financial Exposure: $[amount]
-Management Fee Run-Rate: $[amount]/year
-Unfunded Commitment Remaining: $[amount]
+Total Guaranteed Financial Exposure: $[amount or Not quantified]
+Total Maximum Financial Exposure: $[amount or Not quantified]
+Management Fee Run-Rate: $[amount or Not quantified]/year
+Unfunded Commitment Remaining: $[amount or Not quantified]
 Obligations with No Stated Consequence: [n] (flag for review)
 ```
 
 ## Disclaimer
 
 ```
-DISCLAIMER: This obligations analysis is generated by an AI assistant and
-does not constitute financial, legal, or investment advice. Deadline
-calculations are based on the fund document text as interpreted by the AI
-and may not account for business day calendars, holiday schedules, timezone
-differences, or mailing time requirements that could affect actual
-deadlines. Financial exposure calculations are estimates based on assumed
-fund economics and representative commitment sizes, and may not capture all
-potential liabilities or capital requirements. Fund lifecycle timelines are
-illustrative and actual fund operations may differ materially. All findings
+DISCLAIMER: This obligations analysis is generated by an AI assistant.
+Not financial, legal or tax advice. Qualified human review is required.
+Deadlines are taken from the fund document text as interpreted by the AI;
+business-day calendars, holiday schedules, timezones and mailing time are
+not calculated. Financial exposure figures appear only where computed from
+source figures and a supplied LP commitment; otherwise they are marked not
+quantified. Fund lifecycle timelines are prompts for review, and actual
+fund operations may differ materially. All findings
 should be reviewed by qualified legal counsel experienced in fund
 operations, and by fund administrators responsible for compliance
 monitoring. Calendar reminders and operational timelines should be verified

@@ -56,6 +56,6 @@ Later skills build on earlier output: `report-pdf` turns a review into a PDF, `c
 
 ## Next
 
-- [All 62 commands](/commands/), grouped by category
+- [All 60 commands](/commands/), grouped by category
 - [The 5 agents](/agents) and how the score works
 - [FAQ](/guide/faq) when something does not look right

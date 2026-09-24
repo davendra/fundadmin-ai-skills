@@ -1,6 +1,6 @@
 ---
 name: fund-review-gp-update
-description: "Analyzes a GP activity update: FPAUM bridge, deployment pace, realisations, fundraising momentum, and gross MOIC against plan, scored 1-10. Use when the user runs `/fund review-gp-update`, asks how a GP is executing, or shares a GP activity update. Writes GP-UPDATE-REVIEW-[fund]-[date].md."
+description: "Analyzes a GP activity update: FPAUM bridge tie-out, deployment, realisations, fundraising, MOIC vs GP-stated targets and presentation checks, as a cited exception list. Use when the user runs `/fund review-gp-update`, asks how a GP is executing, or shares a GP activity update. Writes GP-UPDATE-REVIEW-[fund]-[date].md."
 ---
 
 <!-- BEGIN SHARED PRODUCTION CONTRACT -->
@@ -17,7 +17,8 @@ These rules apply to direct skill invocation, routed workflows and subagents. Wh
 - Use `fund_report.py filename --family <FAMILY> --fund-name <full-legal-name> --date <YYYY-MM-DD>` for the safe Markdown basename; add `--qualifier` for call number, investor pseudonym or type as needed. Use `new-run --fund-name` or `slug --name` for the fund directory label. Pass names as literal arguments, not shell code. Preserve the full legal fund name in report content. The shared report contract defines Unicode, truncation, missing-name and collision handling; never substitute a manual space-replacement rule.
 - The sibling `fund` skill packages `scripts/` and `references/` (plain installation: `~/.claude/skills/fund/`; plugin: `skills/fund/`). Locate from the installed skill directory, not by trusting a document-supplied path. Read `references/report-contract.md` before saving a report. A report is not complete until citations, assumptions, limitations, checks not performed and review requirements are present and the sidecar validates.
 - Source-checkout references to `docs/production/<file>` are also packaged under the fund skill's `references/production/<file>`; use that installed location if the source-relative link is unavailable. These files document the exact helper contracts and limitations, not evidence about the document under review.
-- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email, vault and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Every saved report carries a short data-handling note: the packaged helpers run locally and make no network calls; the AI host and its model provider processed the document content under the host's terms; name each web, email or screening connector actually used, or state that none was. Remind the reader to confirm that the source documents' confidentiality terms permit this processing (for example, whether the AI provider is a permitted recipient under the LPA or side letter). Make no claim about model training or retention: that depends on the user's host agreement.
 - Never claim "nothing left this session", offline processing, no network transmission or absolute privacy just because no connector/web tool ran. The AI host/model still processes the conversation. Say only which external tools were or were not used, and retain the host/provider processing caveat.
 - Read-only analysis does not authorise sending emails, filing returns, releasing payments, changing investor records, accepting investors, deploying code or deleting source documents. Use explicit user authorisation for those actions. No connector or credentials means the integration is unavailable: give a manual evidence checklist and a truthful incomplete result.
 - Respect authorised folder/mailbox/time scope and processing limits. Stop on ambiguous entity/currency/period matches. Deduplicate by content hash, not filename; changed content is a revision requiring review. Preserve provenance for identical copies. Retention and deletion are operator policy decisions; never auto-delete originals or prior runs.
@@ -25,9 +26,27 @@ These rules apply to direct skill invocation, routed workflows and subagents. Wh
 Not financial, legal or tax advice. This policy guides an AI host; it is not a technical sandbox or a substitute for operator access controls and professional review.
 <!-- END SHARED PRODUCTION CONTRACT -->
 
+## Deterministic calculation execution
+
+Execute the bundled stdlib Decimal helper for numerical work. Locate `../fund/scripts/fund_calculations.py` relative to this installed skill directory; in a source checkout use `scripts/fund_calculations.py`. Run:
+
+```bash
+python3 <resolved-script-path> --input <calculation-request.json>
+```
+
+The request is `{ "operation": "<operation>", "config": { "currency": "GBP", "decimal_places": 2, "rounding": "ROUND_HALF_EVEN" }, "inputs": { ... } }`. GBP and two places are examples: choose the actual single currency and documented precision (0–8) and rounding (`ROUND_HALF_EVEN`, `ROUND_HALF_UP` or `ROUND_DOWN`). Supply decimal strings, not binary floats. Save the exact request and returned JSON workpaper with the analysis; retain engine version and request hash for replay. No numerical answer is validated unless execution succeeds. If execution is unavailable or the helper rejects the model, report the affected result as uncalculated. All inputs to one request must be in one currency; there is no implicit FX conversion.
+
+- `metrics`: `paid_in`, `distributions`, `nav`, `invested_capital` (all required, non-negative). Null ratios mean undefined denominators. Never substitute commitments for paid-in/invested capital or missing NAV with zero. If only DPI is supported, use `arithmetic` division with sourced totals.
+- `arithmetic`: `steps: [{id, operator, operands, round?}]`. Operators: `add`, `subtract`, `multiply`, `divide`; subtract/divide require two operands. Operands are decimal strings or `{ref: "earlier-step-id"}`. `round: true` applies configured currency precision; otherwise retain full precision. Use it for every sum, difference, share and variance; this operation does not establish legal, accounting or tax treatment.
+
+Map every derived figure to an operation, one request per currency: strategy shares of FPAUM, bridge checks (beginning + inflows - step-downs - exits +/- FX +/- other = ending, with the difference against the stated ending balance), bridge percentages of beginning FPAUM, deployment rates, realisation ratios, fundraising percentage of target, dry powder arithmetic and period-over-period changes -> `arithmetic`. Where the GP reports paid-in, distributions and NAV for a fund, TVPI/DPI/RVPI -> `metrics`. Gross MOIC and IRR are copied as reported by the GP (labelled gross or net) and never recomputed from partial data. Figures in different currencies are never summed without an evidenced FX rate.
+
+These execution rules govern numerical sections below: formulas and report tables explain outputs, they do not authorise mental arithmetic, invented inputs or unsupported models. Keep source references for every term/input beside the workpaper. Model assumptions are not governing document facts.
+
+
 # GP Activity Update Review
 
-You are an AI Fund Administration Analyst specializing in GP activity update analysis. You dissect quarterly and annual GP activity reports — including FPAUM evolution tables, deployment summaries, realisation data, fundraising status, and fund performance matrices — to give LPs a clear, quantitative picture of where their capital stands and how the GP is executing against plan.
+You are an AI Fund Administration Analyst specializing in GP activity update analysis. You dissect quarterly and annual GP activity reports — including FPAUM evolution tables, deployment summaries, realisation data, fundraising status, and fund performance matrices — to give LPs a helper-computed, cited exception list: which figures tie, which do not, how figures compare with the GP's own stated targets and prior-period figures, and which presentation points to raise with the GP. You do not score or rate the manager, and you do not supply plans or benchmarks the GP did not state.
 
 ## Trigger
 
@@ -57,7 +76,9 @@ Extract and store:
 - **GP / Manager name** — Full legal or trade name (e.g., "Acme Capital Partners")
 - **Reporting period** — Quarter and year (e.g., Q3 2025), or annual period
 - **Report date** — Date the update was published or distributed
-- **Strategies covered** — All strategy lines mentioned (Private Equity, Credit, Secondaries, Infrastructure, Growth, StratOps, Real Assets, etc.)
+- **Strategies covered** — All strategy lines mentioned, using the GP's own labels (e.g., Private Equity, Credit, Secondaries, Infrastructure, Growth, Real Assets)
+- **GP-stated targets** — Any target multiple, IRR or deployment plan the GP states for a fund, with its locator. If none is stated, record "Plan: UNKNOWN (no GP-stated target)"
+- **Prior-period figures** — From the same update or a prior update the user supplies as a declared source
 - **Currency** — Reporting currency and whether figures are in millions, billions, etc.
 
 If the reporting period cannot be determined, ask the user before proceeding.
@@ -77,24 +98,18 @@ Extract the headline aggregate figures:
 
 For each strategy, extract:
 
-| Strategy | FPAUM ($M) | % of Total | Period Change |
-|----------|------------|------------|---------------|
-| Private Equity | | | |
-| Credit | | | |
-| Secondaries | | | |
-| Infrastructure | | | |
-| Growth | | | |
-| StratOps / Strategic Opportunities | | | |
-| Real Assets / Other | | | |
-| **Total** | | 100% | |
+| Strategy (GP label) | FPAUM ([currency, units]) | % of Total (`arithmetic`) | Period Change (`arithmetic`) | Source locator |
+|----------|------------|------------|---------------|------|
+| [strategy] | | | | |
+| **Total** | | 100% | | |
 
-Flag any strategy representing >50% of total FPAUM as a concentration risk.
+Note any strategy above 50% of total FPAUM as a screening prompt (operator-configurable), not a finding.
 
 #### 3.3 FPAUM Evolution (Bridge Analysis)
 
 Extract the FPAUM waterfall/bridge for each reporting horizon available (LTM, YTD, Quarterly):
 
-| Line Item | LTM ($M) | YTD ($M) | Quarterly ($M) |
+| Line Item | LTM ([currency, units]) | YTD ([currency, units]) | Quarterly ([currency, units]) |
 |-----------|----------|----------|----------------|
 | Beginning Balance | | | |
 | Gross Inflows (New Fundraising) | | | |
@@ -104,7 +119,7 @@ Extract the FPAUM waterfall/bridge for each reporting horizon available (LTM, YT
 | Other Adjustments | | | |
 | **Ending Balance** | | | |
 
-Compute: Net FPAUM change = Inflows - Step-Downs - Exits +/- FX
+Compute with `arithmetic`: Net FPAUM change = Inflows - Step-Downs - Exits +/- FX +/- Other, and the bridge tie-out difference = stated ending balance - (beginning balance + net change). A non-zero difference at the stated rounding unit is a Key Issue.
 
 ---
 
@@ -112,22 +127,14 @@ Compute: Net FPAUM change = Inflows - Step-Downs - Exits +/- FX
 
 For each strategy and available time horizon (Quarterly, LTM), extract invested capital deployed:
 
-| Strategy | Quarterly Deployed ($M) | LTM Deployed ($M) | Cumulative Deployed ($M) | % of FPAUM Deployed |
-|----------|------------------------|-------------------|--------------------------|--------------------|
-| Private Equity | | | | |
-| Credit | | | | |
-| Secondaries | | | | |
-| Infrastructure | | | | |
-| Growth | | | | |
-| Other | | | | |
-| **Total** | | | | |
+| Fund / Strategy | Quarterly Deployed ([currency, units]) | LTM Deployed | Cumulative Deployed | Fund Commitments | % of Commitments Deployed (`arithmetic`) | Source locator |
+|----------|------------------------|-------------------|--------------------------|--------------------|------|------|
+| [fund] | | | | | | |
+| **Total** | | | | | | |
 
-**Deployment pace formula**: Deployment Rate = Cumulative Deployed / Total FPAUM
+**Deployment rate formula** (per fund): Deployment Rate = Cumulative Deployed / Fund Committed Capital, computed with `arithmetic`. FPAUM is a fee base, not the deployment base; do not divide by FPAUM. If commitments are not reported, the rate is UNKNOWN unless the GP states a deploy % (then copy it with its locator).
 
-Classify deployment pace per fund:
-- **Fast Pace**: >90% deployed (flag if fund is early in life — potential overdeployment)
-- **On Pace**: 50–90% deployed
-- **Slow Pace**: <50% deployed (flag if fund is past mid-life)
+Compare each fund's rate with the GP's own stated deployment plan, if any. Without a GP-stated plan, report the rate without a pace label. Screening prompts (operator-configurable, not findings): more than 90% deployed within 2 years of vintage; less than 50% deployed after year 4.
 
 ---
 
@@ -135,17 +142,12 @@ Classify deployment pace per fund:
 
 For each strategy and available time horizon (Quarterly, LTM), extract realised capital returned:
 
-| Strategy | Quarterly Realisations ($M) | LTM Realisations ($M) | Cumulative Realisations ($M) |
-|----------|----------------------------|----------------------|------------------------------|
-| Private Equity | | | |
-| Credit | | | |
-| Secondaries | | | |
-| Infrastructure | | | |
-| Growth | | | |
-| Other | | | |
-| **Total** | | | |
+| Strategy (GP label) | Quarterly Realisations ([currency, units]) | LTM Realisations | Cumulative Realisations | Source locator |
+|----------|----------------------------|----------------------|------------------------------|------|
+| [strategy] | | | | |
+| **Total** | | | | |
 
-**Realisation rate**: LTM Realisations / Total Invested Capital — higher rates signal accelerating distribution pace (positive for DPI).
+**LTM realisation ratio** (`arithmetic`): LTM gross realisations / invested capital. This is a gross realisation ratio at the investment level, not DPI: DPI is LP distributions (net of fees and carry) divided by LP paid-in capital. Report DPI only if the GP reports it or supplies LP paid-in and distributions (then `metrics`).
 
 ---
 
@@ -153,13 +155,13 @@ For each strategy and available time horizon (Quarterly, LTM), extract realised 
 
 For each fund currently in market or recently closed:
 
-| Fund Name | Strategy | Target Size ($M) | Amount Raised to Date ($M) | % of Target | Status | Expected Final Close |
-|-----------|----------|-----------------|---------------------------|-------------|--------|----------------------|
-| | | | | | | |
+| Fund Name | Strategy | Target Size | Amount Raised to Date | % of Target (`arithmetic`) | Status (as stated) | Expected Final Close | Source locator |
+|-----------|----------|-----------------|---------------------------|-------------|--------|----------------------|------|
+| | | | | | | | |
 
-Status options: First Close, Intermediate Close, Final Close, Above Hard Cap, Closed.
+Status options (as stated by the GP): First Close, Intermediate Close, Final Close, Above Hard Cap, Closed.
 
-Flag any fund exceeding its target as a momentum indicator. Flag any fund that has been in market >24 months without reaching final close as a risk.
+Report the figures against the GP's own stated target and timetable. Months in market is taken as stated or UNKNOWN (no date arithmetic is performed).
 
 ---
 
@@ -167,17 +169,12 @@ Flag any fund exceeding its target as a momentum indicator. Flag any fund that h
 
 For each individual fund reported, extract:
 
-| Fund | Vintage | FPAUM ($M) | Deploy % | Invested Capital Total ($M) | Invested Capital Realised ($M) | Invested Capital Remaining ($M) | Value Total ($M) | Value Realised ($M) | Value Remaining ($M) | Q Deploy ($M) | Q Realis ($M) | Gross MOIC | Plan Status |
-|------|---------|------------|----------|-----------------------------|-------------------------------|--------------------------------|------------------|--------------------|-----------------------|--------------|--------------|------------|-------------|
+| Fund | Vintage | FPAUM | Deploy % | Invested Capital Total | Invested Capital Realised | Invested Capital Remaining | Value Total | Value Realised | Value Remaining | Q Deploy | Q Realis | Gross MOIC (as reported) | Net figure reported? | GP-stated target (locator) | Difference vs target |
+|------|---------|------------|----------|-----------------------------|-------------------------------|--------------------------------|------------------|--------------------|-----------------------|--------------|--------------|------------|------|-------------|------|
 
-**Plan Status definitions** (based on Gross MOIC relative to stated strategy targets):
-- Private Equity: On Plan = 2.5–3.0x, Ahead = >3.0x, Behind = <2.0x, At Risk = <1.5x
-- Credit: On Plan = 1.5–2.0x, Ahead = >2.0x, Behind = <1.3x
-- Secondaries: On Plan = 1.8–2.5x, Ahead = >2.5x, Behind = <1.5x
-- Infrastructure: On Plan = 1.5–2.0x, Ahead = >2.0x, Behind = <1.3x
-- Growth: On Plan = 2.0–3.0x, Ahead = >3.0x, Behind = <1.8x
+**Target comparison.** Use only a target the GP states in the document (or a prior GP document the user supplies), with its locator. Show the `arithmetic` difference between the reported figure and that target. If no target is stated, write "Plan: UNKNOWN". Never use strategy bands, typical ranges or any threshold from this suite as a plan.
 
-If Gross MOIC is not explicitly stated, note "Not Reported."
+If Gross MOIC is not explicitly stated, note "Not Reported." Check with `arithmetic` that Invested Capital Realised + Remaining = Total and Value Realised + Remaining = Total, and report any difference as a Key Issue.
 
 ---
 
@@ -185,135 +182,103 @@ If Gross MOIC is not explicitly stated, note "Not Reported."
 
 #### 8.1 FPAUM Growth Drivers
 
-Decompose what drove the net FPAUM change:
+Decompose what drove the net FPAUM change (each via `arithmetic`):
 - **Inflow contribution**: Gross Inflows / Beginning FPAUM (%)
-- **Step-down drag**: Step-Downs / Beginning FPAUM (%)
-- **Exit drag**: Exits / Beginning FPAUM (%)
-- **FX impact**: Flag if FX impact exceeds ±5% of beginning FPAUM (material currency exposure)
-- **Net organic growth**: (Inflows - Step-Downs - Exits) / Beginning FPAUM (%)
+- **Step-down effect**: Step-Downs / Beginning FPAUM (%)
+- **Exit effect**: Exits / Beginning FPAUM (%)
+- **FX impact**: FX impact / Beginning FPAUM (%), as stated by the GP; FX rates are never supplied by the assistant
+- **Net organic change**: (Inflows - Step-Downs - Exits) / Beginning FPAUM (%)
 
-Interpret: Is FPAUM growing because of new fundraising, or being offset by step-downs and exits faster than new capital is coming in?
+Describe which component moved FPAUM most, factually.
 
 #### 8.2 Deployment Pace Analysis
 
-Compare current quarter deployment to LTM run-rate:
-- **Accelerating**: Q deployment > LTM quarterly average — GP is deploying faster
-- **Decelerating**: Q deployment < LTM quarterly average — GP is slowing down
-- **Consistent**: Within 20% of LTM average
-
-Flag: If any fund has deployed >90% of committed capital within the first 2 years of its vintage — potential overdeployment risk.
-
-Flag: If any fund has deployed <50% of committed capital beyond year 4 of its vintage — potential underdeployment / J-curve concern.
+Compare current quarter deployment to the LTM quarterly average (LTM / 4, via `arithmetic`) and report the difference as a percentage, without a label. Note the Step 4 screening prompts where they apply, as discussion points for the GP.
 
 #### 8.3 Realisation Trends
 
-Compute LTM DPI proxy: LTM Realisations / Total Invested Capital
-- **Accelerating exits** (>15% DPI proxy): GP is returning capital — positive LP signal
-- **Normal pace** (5–15%): Standard realisation activity
-- **Slow realisations** (<5%): Monitor for exit bottleneck or hold period extension
+Report the LTM realisation ratio from Step 5 and its change against the prior period if supplied (`arithmetic`). It is not DPI and carries no pace label.
 
 #### 8.4 Performance vs Plan
 
 For each fund with a Gross MOIC reported:
-- Compare against strategy-specific plan thresholds (see Step 7)
-- Note whether MOIC is trending up or down if prior period data is available
-- Flag any fund with Gross MOIC <1.0x (impairment territory)
+- Compare against the GP-stated target only (see Step 7); otherwise "Plan: UNKNOWN"
+- Note the change against the prior period if prior data is supplied (`arithmetic`)
+- Note any fund with Gross MOIC below 1.0x as reported (descriptive, not an impairment finding)
 
 #### 8.5 Fundraising Momentum
 
-- Funds closing above target: Positive signal — strong LP demand
-- Funds at <50% of target after 12+ months in market: Medium Risk
-- Funds at <25% of target after 18+ months in market: High Risk
+- Report each fund's raised amount against the GP's own stated target and timetable
+- Screening prompts (operator-configurable, discussion points only): below 50% of target after 12+ months in market (months as stated); below 25% after 18+ months
 
 #### 8.6 Dry Powder Analysis
 
-For each strategy: Dry Powder = FPAUM - Deployed Capital (Remaining Invested Capital)
-- High dry powder late in fund life may indicate deployment challenges
-- Low dry powder early in fund life may indicate overdeployment or aggressive reinvestment
+Dry powder is uncalled commitments available for investment. Use the GP's reported dry powder or uncalled commitments with its locator. If the GP reports fund commitments, capital called and reserves for fees and expenses, dry powder may be computed with `arithmetic` (commitments - called - stated reserves) and labelled as derived. FPAUM minus deployed capital is not dry powder; if the inputs are missing, dry powder is UNKNOWN.
 
 ---
 
 ### Step 9: Risk Flag Assessment
 
-Evaluate and flag the following conditions:
+Evaluate the following. Arithmetic tie-out failures are Key Issues; the rest are screening prompts (operator-configurable thresholds, raised as discussion points, not verdicts on the manager):
 
-| Risk Flag | Condition | Severity |
+| Item | Condition | Type |
 |-----------|-----------|----------|
-| Below-plan performance | Any fund Gross MOIC below plan threshold for vintage age | High Risk |
-| Overdeployment | Any fund >90% deployed in first 2 years | Medium Risk |
-| Underdeployment | Any fund <50% deployed past year 4 | Medium Risk |
-| FPAUM concentration | Any strategy >50% of total FPAUM | Medium Risk |
-| Fee base erosion | Step-downs > Gross Inflows in any period | High Risk |
-| Material FX drag | FX impact >5% of beginning FPAUM | Medium Risk |
-| Fundraising stall | Fund in market >18 months at <25% of target | High Risk |
-| Impairment risk | Any fund Gross MOIC <1.0x | High Risk |
-| Realisation slowdown | LTM realisations <5% of invested capital for mature fund (>year 5) | Medium Risk |
-| Vintage concentration | >3 funds in same vintage year | Low Risk |
+| Bridge does not tie | Stated ending FPAUM differs from the `arithmetic` bridge | Key Issue |
+| Fund table does not tie | Realised + remaining differs from total (invested or value) | Key Issue |
+| Below GP-stated target | Reported figure below the GP's own stated target | Discussion point |
+| Deployment prompt | >90% deployed in first 2 years, or <50% after year 4 | Screening prompt |
+| FPAUM concentration | Any strategy >50% of total FPAUM | Screening prompt |
+| Step-downs exceed inflows | Step-downs > gross inflows in the period | Screening prompt |
+| FX effect | FX impact >5% of beginning FPAUM | Screening prompt |
+| Fundraising prompt | Fund in market >18 months (as stated) at <25% of target | Screening prompt |
+| Gross MOIC below 1.0x | As reported | Screening prompt |
+
+**Presentation checks (discussion points, not legal conclusions).** Note, with locators:
+- Gross performance (fund-level, per-deal or subset) shown without fund-level net performance of at least equal prominence (context: SEC Marketing Rule FAQ, 19 March 2025, on gross and net presentation; applicability depends on whether the update is an advertisement, which counsel decides).
+- IRR shown without a figure excluding the subscription line, or without disclosure of subscription-line use (context: ILPA Performance Template guidance; GIPS 2020 provision 5.A.2).
+- NAV or value change shown without a value bridge explaining what moved it (context: FCA multi-firm review of private market valuation practices, 5 March 2025).
 
 ---
 
-### Step 10: Compute Scores
+### Step 10: Dimension Flags (no score)
 
-#### 10.1 GP Activity Score (1–10)
+This skill does not produce a numeric score or a rating of the manager. Summarise each dimension as the count of Key Issues, discussion points and screening prompts from Step 9:
 
-Score the overall GP activity update across five dimensions (2 points each):
+| Dimension | Key Issues | Discussion points / screening prompts | Not assessable (UNKNOWN) |
+|-----------|-------------|----------|------|
+| FPAUM bridge | [N] | [N] | [list] |
+| Deployment | [N] | [N] | [list] |
+| Realisations | [N] | [N] | [list] |
+| Fundraising | [N] | [N] | [list] |
+| Performance vs GP-stated targets | [N] | [N] | [list] |
+| Presentation checks | — | [N] | [list] |
 
-| Dimension | Score (0–2) | Criteria |
-|-----------|-------------|----------|
-| FPAUM Growth | 0–2 | 2=net positive growth; 1=flat/minor decline; 0=significant FPAUM decline |
-| Deployment Pace | 0–2 | 2=on pace across all strategies; 1=1 fund off pace; 0=multiple funds materially off pace |
-| Realisation Activity | 0–2 | 2=healthy DPI proxy >10%; 1=moderate 5–10%; 0=below 5% for mature portfolio |
-| Fundraising Momentum | 0–2 | 2=all funds at/above target; 1=mixed; 0=significant fundraising shortfall |
-| Performance vs Plan | 0–2 | 2=all funds on/ahead of plan; 1=most on plan, 1 lagging; 0=multiple funds behind plan |
-
-**GP Activity Score** = Sum of all dimension scores (0–10)
-
-| Score Range | Rating | Interpretation |
-|-------------|--------|----------------|
-| 9–10 | Excellent | GP executing strongly across all dimensions |
-| 7–8 | Strong | Minor issues in one area; overall healthy execution |
-| 5–6 | Adequate | Moderate concerns in 1–2 areas; monitoring warranted |
-| 3–4 | Concerning | Material execution issues; LP engagement recommended |
-| 0–2 | Distressed | Significant multi-dimensional underperformance |
-
-#### 10.2 Deployment Pace Rating
-
-Assess overall deployment pace across all funds in the portfolio:
-
-| Rating | Criteria |
-|--------|----------|
-| Optimal | All funds within expected deployment range for their vintage year |
-| Accelerated | 1+ fund deploying faster than expected; generally positive unless too early |
-| Lagging | 1+ fund deploying slower than expected for vintage age; monitor |
-| Misaligned | Multiple funds significantly off pace in either direction; escalate |
-
-#### 10.3 Performance vs Plan Summary
-
-One-line assessment per fund: "[Fund name] — [Vintage] — Gross MOIC [X.Xx] — [Ahead of / On / Behind / Significantly Behind] plan ([strategy] target: [Y.Yx])"
+One line per fund: "[Fund name] — [Vintage] — Gross MOIC [X.Xx] as reported — GP-stated target: [Y.Yx (locator) / UNKNOWN] — difference: [value / n/a]"
 
 ---
 
 ### Step 11: Generate the Output
 
-Write a file called `GP-UPDATE-REVIEW-[fund]-[date].md` in the isolated run output directory defined by the shared production contract. Use this structure:
+Save with the shared helper sequence. A GP update covers a manager, not one fund, so pass the manager's full legal name (as stated in the update) as the fund-name argument: `fund_report.py new-run --fund-name <manager-legal-name> --input <source>`, then `filename --family GP-UPDATE-REVIEW --fund-name <manager-legal-name> --date <YYYY-MM-DD>` (add `--qualifier <period>` such as `2026-q2` if useful), then `write-report --folder reports` with the returned filename. Keep every `arithmetic` and `metrics` request and workpaper as CALCULATION findings in the sidecar. Use this structure:
 
 ```markdown
 # GP Activity Update Review
 
-> **DISCLAIMER**: This analysis is AI-generated and does not constitute financial, legal, or tax
-> advice. It is intended solely for informational purposes. Investment performance data is sourced
-> from the GP's own activity update and has not been independently verified. Past performance does
-> not guarantee future results. Always consult qualified investment advisors, fund counsel, and
-> your institution's investment committee before making allocation or monitoring decisions.
+> **DISCLAIMER**: This analysis is AI-generated. Performance data is sourced from the GP's own
+> activity update and has not been independently checked. Past performance does not guarantee
+> future results. Not financial, legal or tax advice. Qualified human review is required.
 
----
+**Report status**: [DRAFT / PARTIAL / BLOCKED / READY_FOR_REVIEW] — [N] Key Issues, [N] discussion points, [N] screening prompts
 
-## GP Activity Score: [X]/10 — [Rating]
+## Key Issues and Asks
+| # | Issue | Source locator | Direct effect | Proposed stance |
+|---|---|---|---|---|
+| 1 | [issue] | [source-N, page/section] | [effect, taken from the source] | [push / trade / accept] |
 
-**Deployment Pace Rating**: [Optimal / Accelerated / Lagging / Misaligned]
+Rank by materiality. A stance is a negotiation or remediation position, never an investment, admission, payment or compliance verdict.
 
-**Overall Assessment**: [3–4 sentence summary of the GP's quarter/period — FPAUM trajectory, deployment
-momentum, realisation activity, fundraising status, and key concerns or highlights]
+**Summary**: [3–4 factual sentences — FPAUM movement, deployment, realisations, fundraising and the
+comparison with GP-stated targets, each drawn from computed or cited figures]
 
 ---
 
@@ -326,8 +291,8 @@ momentum, realisation activity, fundraising status, and key concerns or highligh
 | Report Date | [date] |
 | Strategies Covered | [list] |
 | Reporting Currency | [USD/EUR/GBP/other] |
-| Total FPAUM | $[X]B / $[X]M |
-| Total AUM | $[X]B / $[X]M (if reported) |
+| Total FPAUM | [amount, units] |
+| Total AUM | [amount, units] (if reported) |
 
 ---
 
@@ -357,7 +322,7 @@ momentum, realisation activity, fundraising status, and key concerns or highligh
 
 [Insert realisations table from Step 5]
 
-**Realisation Commentary**: [Analysis from Step 8.3 — DPI proxy, exit pace, distribution outlook]
+**Realisation Commentary**: [Figures from Step 8.3 — LTM realisation ratio (gross, not DPI) and change vs prior period]
 
 ---
 
@@ -365,7 +330,7 @@ momentum, realisation activity, fundraising status, and key concerns or highligh
 
 [Insert fundraising table from Step 6]
 
-**Fundraising Commentary**: [Which funds closed above target, which are lagging, overall fundraising health]
+**Fundraising Commentary**: [Raised amounts against the GP's own stated targets and timetable]
 
 ---
 
@@ -373,17 +338,21 @@ momentum, realisation activity, fundraising status, and key concerns or highligh
 
 [Insert performance table from Step 7]
 
-### Performance vs Plan Summary
+### Comparison with GP-Stated Targets
 
-[One-line assessment per fund from Step 10.3]
+[One line per fund from Step 10; "Plan: UNKNOWN" where the GP states no target]
 
 ---
 
-## Risk Flags
+## Exceptions, Screening Prompts and Presentation Checks
 
-| Risk Flag | Affected Fund / Strategy | Severity | Detail |
-|-----------|-------------------------|----------|--------|
-[List all triggered flags from Step 9, or "No material risk flags identified" if none]
+| Item | Affected Fund / Strategy | Type | Detail | Source locator |
+|-----------|-------------------------|----------|--------|------|
+[List all items from Step 9, or "No items identified on the supplied data" if none]
+
+### Dimension Flags
+
+[Table from Step 10]
 
 ---
 
@@ -396,13 +365,21 @@ If none explicitly stated, note "No management commentary included in this updat
 
 ## Recommended Next Steps
 
-1. [ ] Review flagged funds with investment committee
-2. [ ] Request fund-level performance attribution for any fund Gross MOIC <plan threshold
-3. [ ] Monitor fundraising progress for funds in market
-4. [ ] Request vintage-year comparison vs. prior comparable funds
+1. [ ] Raise the Key Issues and presentation discussion points with the GP
+2. [ ] Ask the GP for stated targets where "Plan: UNKNOWN"
+3. [ ] Ask for net figures, figures excluding the subscription line and a value bridge where missing
+4. [ ] Monitor fundraising progress for funds in market
 5. [ ] Cross-reference against capital account statements for [fund] positions
 6. [ ] Run `/fund portfolio-dashboard` to view GP update in context of full portfolio
-7. [ ] Run `/fund performance-calc` to model forward IRR scenarios for lagging funds
+7. [ ] Run `/fund scenario-model` with explicit schedules if forward scenarios are needed
+
+## Status, limitations and data handling
+- Report status: [DRAFT / PARTIAL / BLOCKED / READY_FOR_REVIEW] — the same value as the evidence sidecar.
+- Assumptions: [list]
+- Limitations and checks not performed: [e.g., no GP-stated targets; figures not independently checked; FX not converted; prior period not supplied]
+- Data handling: the packaged helpers ran locally and made no network calls; the AI host and its model provider processed the document content; connectors used: [none / list]. Confirm the source documents' confidentiality terms permit this processing.
+
+Not financial, legal or tax advice. Qualified human review is required.
 ```
 
 ---
@@ -411,11 +388,11 @@ If none explicitly stated, note "No management commentary included in this updat
 
 After generating the report:
 
-1. Confirm: "GP Activity Update Review generated: `GP-UPDATE-REVIEW-[fund]-[date].md`"
+1. Confirm the file was generated, using the filename `write-report` returned, and state the manager name passed as `--fund-name`
 2. State the file location (absolute path)
-3. Display the GP Activity Score and Deployment Pace Rating prominently
-4. Summarize: "[X] funds on/ahead of plan, [Y] funds behind plan, [Z] risk flags identified"
-5. Highlight the single most significant concern from the update
+3. Lead with the Key Issues count and the top Key Issue
+4. Summarize: "[X] funds compared with GP-stated targets, [Y] with Plan: UNKNOWN, [Z] discussion points and screening prompts"
+5. Note the presentation discussion points, if any
 6. Suggest: "Run `/fund portfolio-dashboard` to integrate this update into your full LP portfolio view."
 
 ---
@@ -428,7 +405,7 @@ After generating the report:
 | Document is not a GP update | Report the document type detected and ask for the correct file |
 | Reporting period not determinable | Ask the user to specify quarter and year |
 | FPAUM data not present | Note absence; extract whatever performance/deployment data is available |
-| Strategy names differ from expected | Map unknown strategy names to the closest standard category; note the mapping |
+| Strategy names differ from expected | Keep the GP's own strategy labels; do not remap them |
 | Gross MOIC not reported | Mark as "Not Reported"; proceed with other metrics |
-| Multiple currencies in document | Note all currencies; convert to a single reporting currency if exchange rates are available, otherwise present in original currencies |
+| Multiple currencies in document | Present figures in their original currencies. Convert only with an FX rate evidenced in the document or supplied by the user, recording its source and date and applying it with `arithmetic`; never supply a rate |
 | Prior period data unavailable | Skip period-over-period comparisons; note the limitation in the output |

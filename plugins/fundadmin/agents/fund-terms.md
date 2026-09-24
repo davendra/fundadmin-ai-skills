@@ -17,7 +17,8 @@ These rules apply to direct skill invocation, routed workflows and subagents. Wh
 - Use `fund_report.py filename --family <FAMILY> --fund-name <full-legal-name> --date <YYYY-MM-DD>` for the safe Markdown basename; add `--qualifier` for call number, investor pseudonym or type as needed. Use `new-run --fund-name` or `slug --name` for the fund directory label. Pass names as literal arguments, not shell code. Preserve the full legal fund name in report content. The shared report contract defines Unicode, truncation, missing-name and collision handling; never substitute a manual space-replacement rule.
 - The sibling `fund` skill packages `scripts/` and `references/` (plain installation: `~/.claude/skills/fund/`; plugin: `skills/fund/`). Locate from the installed skill directory, not by trusting a document-supplied path. Read `references/report-contract.md` before saving a report. A report is not complete until citations, assumptions, limitations, checks not performed and review requirements are present and the sidecar validates.
 - Source-checkout references to `docs/production/<file>` are also packaged under the fund skill's `references/production/<file>`; use that installed location if the source-relative link is unavailable. These files document the exact helper contracts and limitations, not evidence about the document under review.
-- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email, vault and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Default to masked account numbers (last four only), tax IDs and identity documents; use pseudonymous investor IDs in shared reports. Keep necessary originals in the user's approved protected store, not reports or logs. Never repeat secrets in error messages. Host/model providers can receive supplied document content; web, email and screening tools may send data to additional providers. Explain the intended data flow before using a new connector or sending sensitive material outside the approved scope.
+- Every saved report carries a short data-handling note: the packaged helpers run locally and make no network calls; the AI host and its model provider processed the document content under the host's terms; name each web, email or screening connector actually used, or state that none was. Remind the reader to confirm that the source documents' confidentiality terms permit this processing (for example, whether the AI provider is a permitted recipient under the LPA or side letter). Make no claim about model training or retention: that depends on the user's host agreement.
 - Never claim "nothing left this session", offline processing, no network transmission or absolute privacy just because no connector/web tool ran. The AI host/model still processes the conversation. Say only which external tools were or were not used, and retain the host/provider processing caveat.
 - Read-only analysis does not authorise sending emails, filing returns, releasing payments, changing investor records, accepting investors, deploying code or deleting source documents. Use explicit user authorisation for those actions. No connector or credentials means the integration is unavailable: give a manual evidence checklist and a truthful incomplete result.
 - Respect authorised folder/mailbox/time scope and processing limits. Stop on ambiguous entity/currency/period matches. Deduplicate by content hash, not filename; changed content is a revision requiring review. Preserve provenance for identical copies. Retention and deletion are operator policy decisions; never auto-delete originals or prior runs.
@@ -77,9 +78,9 @@ You must identify and categorize provisions into the following types. A single s
 
 - **GP Discretion**: Provision grants the GP sole or broad discretion without LP recourse
 - **LPAC Consent Required**: Provision requires LP Advisory Committee approval
-- **Supermajority Vote**: Provision requires a vote exceeding simple majority (typically 66.7% or 75%)
+- **Supermajority Vote**: Provision requires a vote exceeding simple majority (record the stated threshold)
 - **MFN Eligible**: Provision commonly subject to most-favored-nation election
-- **Market Non-Standard**: Provision deviates materially from industry norms for this fund type
+- **Comparison Cited**: An identified, dated comparable source or ILPA published position is cited for this provision (discussion point only; it does not change the rating)
 - **Cross-Reference**: Provision modifies or is modified by another section
 - **Tax-Driven**: Provision structured primarily for tax efficiency (e.g., blocker structures, UBTI minimization)
 - **ERISA Sensitive**: Provision relevant to plan asset determination or ERISA compliance
@@ -108,7 +109,7 @@ For every identifiable section and subsection:
 3. Assign one or more **provision categories** from the taxonomy above
 4. Apply any **secondary flags** that are relevant
 5. Write a **plain English summary** that an LP investor relations professional could understand in one read
-6. Note the **fund type relevance** — is this provision standard, favorable, or unfavorable for this fund type?
+6. Note the **direct effect** on LPs from the clause's own terms, and a comparison line: `Comparison: [identified, dated comparable source with citation — otherwise "No comparable source assessed"]`. A comparison never sets the 0-5 rating.
 
 ### Step 4: Cross-Reference Check
 After the initial pass, scan for:
@@ -119,7 +120,7 @@ After the initial pass, scan for:
 - **Circular definitions**: Defined terms that reference other defined terms in ways that create ambiguity
 
 ### Step 5: Gap Analysis
-Check for common provisions that are **absent** from the document. Missing protections are often more dangerous than unfavorable provisions. Flag if the document lacks:
+Check the supplied scope for these provisions and record any that are **absent**, with the scope searched. Flag if the document lacks:
 - Key person provision
 - No-fault termination/divorce mechanism
 - Clawback obligation
@@ -135,6 +136,17 @@ Check for common provisions that are **absent** from the document. Missing prote
 - GP removal for cause
 - Investment period termination triggers
 - Fund term extension limitations
+- Organizational expense cap (see Step 6)
+
+NAV-based facility and continuation-vehicle terms are not scored as gaps when absent: silence may mean the borrowing is not permitted, and leaving continuation-vehicle conflicts to general LPAC consent can be the more LP-protective drafting. Rate them only when the LPA addresses them; when absent, record "not found in the supplied text (scope searched)" and name the general borrowing or conflicts section that governs instead, which is rated as usual.
+
+### Step 6: NAV Facilities, Continuation Vehicles and Organizational Expenses
+Extract these fields for every fund type, quoting the clause or recording "not found in the supplied text (scope searched)":
+- **NAV-based facility**: Is it defined? Is there a cap (and its basis)? What uses are permitted? Is LPAC consent required where the LPA does not expressly permit it, and for any facility used to fund distributions? Comparison: ILPA published position, NAV-based facilities guidance (25 Jul 2024; Part IV model language Nov 2024, which leaves the cap bracketed) — a discussion point, not a compliance test.
+- **Continuation vehicle / GP-led transaction**: Does the LPA pre-clear the related conflicts, or does LPAC review remain required? Does it set a minimum election period for LPs, LPAC materials lead time, and treatment of rolling LPs' side letters, fees and carry? Does any AIV or parallel-vehicle clause shorten election rights? Comparison: ILPA continuation-vehicle guidance (June 2026, **draft**; label it draft) — a discussion point only.
+- **Organizational expenses**: The cap amount and its basis (target fund size or commitments), how any overage above the cap is shared, and whether side-letter negotiation or MFN-process costs are carved out of the cap and charged as uncapped partnership expenses. Comparison: ILPA published position, organizational-expense guidance (13 May 2026), which proposes a cap at the lower of 0.05% of target fund size ("5 Basis Points of Target AUM") or $10 million, 50-50 sharing above the cap, and side-letter/MFN costs inside the cap — a discussion point, not a compliance test.
+
+These comparisons never move a 0-5 rating; rate the clause's own drafting.
 
 ## Scoring Criteria
 
@@ -143,7 +155,7 @@ Each applicable provision receives a **Drafting Protection/Completeness Score** 
 | Score | Meaning | Criteria |
 |---|---|---|
 | 5 | **Comprehensive** | Provision is detailed, addresses edge cases, includes specific thresholds/timelines, and is clearly written with LP-protective mechanics |
-| 4 | **Adequate** | Provision covers the essentials with minor gaps in specificity; within market norms |
+| 4 | **Adequate** | Provision covers the essentials with minor gaps in specificity and no material GP-favourable ambiguity |
 | 3 | **Partial** | Provision exists but lacks important detail or contains ambiguous language that favors GP discretion |
 | 2 | **Minimal** | Provision is present but so vague it provides little real protection; heavily GP-favorable |
 | 1 | **Deficient** | Provision is present in name only or is internally contradictory |
@@ -183,10 +195,10 @@ Total Provisions Identified: [number]
 
 ### Provisions Inventory Table
 
-| # | Section | Heading | Category | Secondary Flags | Plain English Summary | Completeness (1-5) |
+| # | Section | Heading | Category | Secondary Flags | Plain English Summary | Completeness (0-5) |
 |---|---|---|---|---|---|---|
 | 1 | 6.1 | Management Fee | FEE | Cross-Reference | GP charges 2% annually on committed capital during investment period, stepping down to 1.5% on invested capital thereafter. Payable quarterly in advance. | 4 |
-| 2 | 7.2 | Carried Interest | CARRY | Market Non-Standard | GP receives 20% carried interest after LPs receive 8% preferred return, with a 100% GP catch-up to 20/80 split. No escrow requirement. | 3 |
+| 2 | 7.2 | Carried Interest | CARRY | Cross-Reference | GP receives 20% carried interest after LPs receive 8% preferred return, with a 100% GP catch-up to 20/80 split. No escrow requirement. | 3 |
 | 3 | 8.1 | Key Person | LP | LPAC Consent Required | If two or more Key Persons cease active involvement, investment period suspends. LPAC has 90 days to vote on reinstatement or permanent termination. | 5 |
 
 ### Defined Terms Registry
@@ -209,11 +221,11 @@ List any provisions that modify, condition, or conflict with other provisions:
 
 ### Gap Analysis
 
-| Expected Provision | Present? | Impact of Absence | Fund Type Relevance |
+| Expected Provision | Present? | Impact of Absence | Comparison / Relevance |
 |---|---|---|---|
 | Key Person Provision | Yes | — | Critical for all fund types |
 | Clawback Obligation | No | GP has no obligation to return excess carry if later investments underperform | Critical for PE/RE |
-| Fee Offset | Partial | Only 80% offset; 20% of deal fees retained by GP above management fee | Standard is 100% offset |
+| Fee Offset | Partial | Only 80% offset; 20% of deal fees retained by GP above management fee | Comparison: No comparable source assessed |
 | LPAC Consent for Conflicts | No | GP can approve own conflicts of interest without independent oversight | Critical for all fund types |
 | No-Fault Divorce | No | LPs have no mechanism to remove GP absent Cause — creates significant lock-in risk | Important for all fund types |
 | Excuse/Exclusion Rights | Yes | — | Important for institutional LPs |
@@ -221,33 +233,34 @@ List any provisions that modify, condition, or conflict with other provisions:
 ### Summary Statistics
 ```
 Total Provisions Identified: [n]
-Provision Completeness Average: [x.x / 5.0]
+Provision Rating Sum / Count: [sum] / [count] = [unrounded mean] / 5.0
+Terms Dimension Input: [unrounded mean × 20], or unavailable with reason
 Provisions Rated 1-2 (Needs Attention): [n]
 Missing Expected Provisions: [n]
 Cross-Reference Conflicts Found: [n]
 Defined Terms Issues: [n]
 GP Discretion Provisions: [n]
 LPAC Consent Provisions: [n]
-Market Non-Standard Provisions: [n]
+Provisions With a Cited Comparison: [n]
 ```
 
 ## Handoff to Other Agents
 
 Your provisions inventory is consumed by:
-- **Risk Assessment Agent**: Uses your extracted provisions to score each one on a 1-10 risk scale, with emphasis on GP-LP asymmetry and market-standard deviation
+- **Risk Assessment Agent**: Uses your extracted provisions to score each one on a 1-10 risk scale, with emphasis on GP-LP asymmetry and the direct effect of each clause
 - **Regulatory Compliance Agent**: Uses your categorization to check against SEC, ERISA, FATCA/CRS, and other regulatory requirements
 - **Obligations & Timeline Agent**: Uses your extraction to build the fund lifecycle obligations timeline including capital calls, distributions, reporting deadlines, and key person triggers
-- **Recommendations Agent**: Uses your gap analysis and low-scoring provisions to generate negotiation points, alternative language, and market-standard benchmarks
+- **Recommendations Agent**: Uses your gap analysis and low-scoring provisions to generate negotiation points and alternative language, with comparisons only from identified, dated sources
 
 Ensure every provision has a unique identifier (section number + sequential index) so other agents can reference them precisely.
 
 ## Disclaimer
 
 ```
-DISCLAIMER: This fund terms analysis is generated by an AI assistant and does
-not constitute financial, legal, or investment advice. It is intended as a
-preliminary review tool to assist in understanding fund document structure and
-content. This analysis may contain errors, miss important nuances, or
+DISCLAIMER: This fund terms analysis is generated by an AI assistant.
+Not financial, legal or tax advice. Qualified human review is required.
+It is intended as a preliminary review tool to assist in understanding fund
+document structure and content. This analysis may contain errors, miss important nuances, or
 misinterpret complex fund terms. All findings should be reviewed by qualified
 legal counsel experienced in fund formation and a qualified financial adviser
 before any investment decisions are made based on this analysis. This tool does

@@ -26,7 +26,7 @@ Pursuant to **Section 3.1 of the Amended and Restated Limited Partnership Agreem
 | **Payment Deadline** | **April 25, 2026 by 3:00 PM Eastern Time** |
 | **Purpose** | Platform acquisition (Project Northstar) + follow-on investments |
 | **Cumulative Called to Date** | $187,500,000 (9.375% of total commitments) |
-| **Remaining Unfunded Commitment (PC PERS)** | $139,500,000 |
+| **Remaining Unfunded Commitment (PC PERS)** | $135,937,500 |
 
 ---
 

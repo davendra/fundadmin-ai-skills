@@ -4,7 +4,7 @@
 </p>
 
 <p align="center">
-<a href="https://github.com/davendra/fundadmin-ai-skills/releases"><img alt="version: 1.3.0" src="https://img.shields.io/badge/version-1.3.0-1a365d?style=flat-square&labelColor=0E1B2E"></a> <a href="https://github.com/davendra/fundadmin-ai-skills/blob/main/LICENSE"><img alt="license: MIT" src="https://img.shields.io/badge/license-MIT-0d9488?style=flat-square&labelColor=0E1B2E"></a> <a href="#all-60-commands"><img alt="skills: 60" src="https://img.shields.io/badge/skills-60-1a365d?style=flat-square&labelColor=0E1B2E"></a> <a href="#the-5-agents"><img alt="agents: 5" src="https://img.shields.io/badge/agents-5-1a365d?style=flat-square&labelColor=0E1B2E"></a> <a href="https://github.com/davendra/fundadmin-ai-skills/actions/workflows/validate.yml"><img alt="Validate plugin" src="https://github.com/davendra/fundadmin-ai-skills/actions/workflows/validate.yml/badge.svg"></a>
+<a href="https://github.com/davendra/fundadmin-ai-skills/releases"><img alt="version: 1.3.1" src="https://img.shields.io/badge/version-1.3.1-1a365d?style=flat-square&labelColor=0E1B2E"></a> <a href="https://github.com/davendra/fundadmin-ai-skills/blob/main/LICENSE"><img alt="license: MIT" src="https://img.shields.io/badge/license-MIT-0d9488?style=flat-square&labelColor=0E1B2E"></a> <a href="#all-60-commands"><img alt="skills: 60" src="https://img.shields.io/badge/skills-60-1a365d?style=flat-square&labelColor=0E1B2E"></a> <a href="#the-5-agents"><img alt="agents: 5" src="https://img.shields.io/badge/agents-5-1a365d?style=flat-square&labelColor=0E1B2E"></a> <a href="https://github.com/davendra/fundadmin-ai-skills/actions/workflows/validate.yml"><img alt="Validate plugin" src="https://github.com/davendra/fundadmin-ai-skills/actions/workflows/validate.yml/badge.svg"></a>
 <br>
 <a href="#claude-code"><img alt="Claude Code: plugin" src="https://img.shields.io/badge/Claude%20Code-plugin-0d9488?style=flat-square&labelColor=0E1B2E"></a> <a href="#claude-cowork"><img alt="Claude Cowork: plugin" src="https://img.shields.io/badge/Claude%20Cowork-plugin-0d9488?style=flat-square&labelColor=0E1B2E"></a> <a href="#codex"><img alt="Codex: plugin" src="https://img.shields.io/badge/Codex-plugin-0d9488?style=flat-square&labelColor=0E1B2E"></a> <img alt="maturity: supervised pilot RC" src="https://img.shields.io/badge/maturity-supervised%20pilot%20RC-5B6472?style=flat-square&labelColor=0E1B2E"> <a href="AGENTS.md"><img alt="for AI agents: AGENTS.md" src="https://img.shields.io/badge/for%20AI%20agents-AGENTS.md-5B6472?style=flat-square&labelColor=0E1B2E"></a>
 </p>
@@ -24,7 +24,7 @@
 
 **Supervised-pilot release candidate: 60 fund administration skills plus the fund menu for Claude Code, Cowork and Codex. Review documents, prepare drafts and evidence-linked calculations for human review. Python 3.9+ is required for report helpers; external checks depend on authorised tools and evidence. Not certified for production operations or automated investment, admission, clearance, filing or payment decisions.**
 
-Version **1.3.0 is a supervised-pilot release candidate**, not certified production software. The plugin supplies review/draft workflows and local helpers to your AI host. Host/model access and permissions are required; optional connectors may need separate credentials. Reports use isolated directories under an approved output root, never beside input files.
+Version **1.3.1 is a supervised-pilot release candidate**, not certified production software. The plugin supplies review/draft workflows and local helpers to your AI host. Host/model access and permissions are required; optional connectors may need separate credentials. Reports use isolated directories under an approved output root, never beside input files.
 
 Check that the installed version matches this release before use: `claude plugin details fundadmin@fundadmin-ai-skills` shows it.
 
@@ -62,7 +62,7 @@ In a workspace, an administrator imports the marketplace once and sets the polic
 
 1. Open **Workspace settings → Plugins → Add → Import marketplace**.
 2. Enter `https://github.com/davendra/fundadmin-ai-skills`.
-3. Select the reviewed immutable release tag, `fundadmin--v1.3.0`, rather than a branch.
+3. Select the reviewed immutable release tag, `fundadmin--v1.3.1`, rather than a branch.
 4. Review what that tag contains: the skills, the agents, the bundled references and `catalog.json`.
 5. Set the installation policy for the pilot group.
 6. Keep access, data handling and any connected-app permissions under administrator control.

@@ -18,8 +18,17 @@ python3 scripts/fund_report.py companion --report <run>/reports/<id>/CAPITAL-ACC
 The helper refuses the companion when the report or its sidecar is missing, or
 when the report's SHA-256 no longer matches its sidecar (it was edited after it
 was written). The companion gets its own sidecar, `<name>.xlsx.json`, recording
-the run, the report filename, both hashes and `human_review_required: true`. The
-report's own sidecar is never rewritten.
+the run, the report filename, both hashes, the source (`spec` with its SHA-256,
+or `report tables`) and `human_review_required: true`. The report's own sidecar
+is never rewritten.
+
+A spec can name the report it was built from: `provenance.report_filename` and
+`provenance.report_sha256` (as `fund_kyc.py xlsx-spec --report` writes). The
+companion is refused when that hash or filename does not match the report being
+accompanied, so a revised report cannot be paired with a workbook built for an
+earlier revision; rebuild the spec from the revised report. A `fund_kyc.py` spec
+must carry this binding. Any other spec without it is accepted with a warning on
+stderr to confirm it was built from this revision.
 
 Or, for a report whose tables are the whole story, build the sheets from the
 report itself instead of a spec:

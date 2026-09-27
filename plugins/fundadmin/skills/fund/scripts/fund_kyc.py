@@ -566,10 +566,78 @@ def _overdue(e):
     return 'UNKNOWN' if value is None else 'OVERDUE' if value else 'NO'
 
 
-def xlsx_spec(evaluations, title=None):
-    """Table spec for scripts/fund_xlsx.py: one investor in detail, or a tracker for several."""
+def _not_listed_state(e):
+    """Cell for a document the grid did not require of this investor.
+
+    It is N/A only with a basis: a firm grid, a fully evaluated rating and a
+    document list for the applicant type. Anything less leaves applicability
+    UNKNOWN, which the tracker reports as INCOMPLETE, never as a bare N/A.
+    """
+    grid = e.get('grid') or {}
+    if not grid.get('name'):
+        return 'INCOMPLETE: applicability UNKNOWN (no rules grid)'
+    if grid.get('example'):
+        return 'INCOMPLETE: applicability UNKNOWN (example grid, not firm policy)'
+    if any(f.get('outcome') == 'NOT EVALUATED' for f in e.get('risk_factors', [])):
+        return 'INCOMPLETE: applicability UNKNOWN (risk rating not fully evaluated)'
+    if any(r.startswith('Rules grid lists no required documents') for r in e.get('reasons', [])):
+        return 'INCOMPLETE: applicability UNKNOWN (grid lists no documents for this type)'
+    return f"N/A WITH BASIS ({grid['name']}: not required for {e['applicant_type']}, {e['risk_rating']} risk)"
+
+
+def _report_items(items):
+    """Open items the report lists beyond the helper's reasons (e.g. register findings)."""
+    required(isinstance(items, list), 'INVALID_OPEN_ITEMS')
+    clean = []
+    for item in items:
+        required(isinstance(item, dict) and set(item) == {'subject', 'item', 'source'}, 'INVALID_OPEN_ITEMS')
+        required(all(isinstance(item[k], str) and item[k].strip() and len(item[k]) <= 2000 for k in item), 'INVALID_OPEN_ITEMS')
+        # A pseudonym (an investor without an evaluation still has one) or the fund; never a name.
+        required(REF.fullmatch(item['subject'].strip()) is not None, 'OPEN_ITEM_SUBJECT_NOT_PSEUDONYM')
+        clean.append({k: item[k].strip() for k in item})
+    return clean
+
+
+def _report_sheets(report_path, taken):
+    """The report's own Markdown tables, so the workbook carries everything the report lists."""
+    import fund_xlsx  # same directory, shipped together
+    markdown = Path(report_path).read_text(encoding='utf-8')
+    try:
+        sheets = fund_xlsx.spec_from_markdown(markdown, 'report')['sheets']
+    except ValueError:
+        return [], []
+    room = fund_xlsx.MAX_SHEETS - len(taken)
+    notes = [] if len(sheets) <= room else [
+        f'The report has {len(sheets)} tables; the first {room} are copied as Report sheets.']
+    used = {name.lower() for name in taken}
+    result = []
+    for sheet in sheets[:room]:
+        base = ('Report ' + sheet['name'])[:31].strip()
+        name, n = base, 2
+        while name.lower() in used:
+            name, n = f'{base[:27].strip()} {n}', n + 1
+        used.add(name.lower())
+        result.append(dict(sheet, name=name))
+    return result, notes
+
+
+def xlsx_spec(evaluations, title=None, report_path=None, open_items=None):
+    """Table spec for scripts/fund_xlsx.py: one investor in detail, or a tracker for several.
+
+    With report_path the spec is bound to that exact report (its SHA-256 goes in
+    the provenance, which fund_report.py companion checks) and the report's own
+    tables are appended, so the workbook carries every item the report lists.
+    open_items adds the report's open items that are not helper reasons.
+    """
     required(isinstance(evaluations, list) and evaluations, 'NO_EVALUATIONS')
+    subjects = [e['subject_ref'] for e in evaluations]
+    extra = _report_items([] if open_items is None else open_items)
     notes = ['Dispositions route work to a person; none is an admission, rejection or clearance.']
+    item_columns = [_col('subject', 'Subject'), _col('origin', 'Origin'), _col('reason', 'Reason'), _col('source', 'Source'),
+                    _col('owner', 'Owner'), _col('target_date', 'Target date', 'date')]
+    # Owner and target date are left blank for the team to fill in; the helper never assigns them.
+    report_rows = [{'subject': i['subject'], 'origin': 'report', 'reason': i['item'], 'source': i['source'],
+                    'owner': None, 'target_date': None} for i in extra]
     if len(evaluations) == 1:
         e = evaluations[0]
         sheets = [
@@ -592,33 +660,45 @@ def xlsx_spec(evaluations, title=None):
             {'name': 'Risk factors', 'columns': [_col('id', 'Factor'), _col('text', 'Description'), _col('outcome', 'Outcome'), _col('points', 'Points', 'integer'), _col('evidence', 'Evidence')],
              'rows': [{k: f[k] for k in ('id', 'text', 'outcome', 'points', 'evidence')} for f in e['risk_factors']]},
         ]
+        if report_rows:
+            sheets.append({'name': 'Report open items', 'columns': item_columns, 'rows': report_rows})
         title = title or f"KYC review — {e['subject_ref']} — {e['as_of']}"
     else:
         doc_types = sorted({d['document'] for e in evaluations for d in e['documents']})
         columns = [_col('subject', 'Subject'), _col('applicant_type', 'Type'), _col('disposition', 'Disposition'),
                    _col('risk', 'Risk'), _col('screening', 'Screening'), _col('refresh_due', 'Refresh due'),
-                   _col('refresh_overdue', 'Refresh overdue'), _col('completeness', 'Completeness'), _col('open_items', 'Open items', 'integer')]
-        doc_types = doc_types[:51]  # fund_xlsx allows 60 columns; 9 are fixed
+                   _col('refresh_overdue', 'Refresh overdue'), _col('completeness', 'Completeness'),
+                   _col('open_items', 'Open items', 'integer'), _col('report_items', 'Report-listed items', 'integer')]
+        doc_types = doc_types[:50]  # fund_xlsx allows 60 columns; 10 are fixed
         columns += [_col(f'doc_{i}', d.replace('_', ' ').capitalize()) for i, d in enumerate(doc_types)]
         rows = []
         for e in evaluations:
             states = {d['document']: d['state'] for d in e['documents']}
             row = {'subject': e['subject_ref'], 'applicant_type': e['applicant_type'], 'disposition': e['disposition'],
                    'risk': e['risk_rating'], 'screening': e['screening']['status'], 'refresh_due': e['refresh_due'] or 'UNKNOWN',
-                   'refresh_overdue': _overdue(e), 'completeness': _completeness(e), 'open_items': len(e['reasons'])}
-            row.update({f'doc_{i}': states.get(d, 'N/A') for i, d in enumerate(doc_types)})
+                   'refresh_overdue': _overdue(e), 'completeness': _completeness(e), 'open_items': len(e['reasons']),
+                   'report_items': sum(1 for i in extra if i['subject'] == e['subject_ref'])}
+            absent = _not_listed_state(e)
+            row.update({f'doc_{i}': states.get(d, absent) for i, d in enumerate(doc_types)})
             rows.append(row)
-        # Owner and target date are left blank for the team to fill in; the helper never assigns them.
-        outstanding = [{'subject': e['subject_ref'], 'reason': r, 'owner': None, 'target_date': None}
-                       for e in evaluations for r in e['reasons']]
+        outstanding = [{'subject': e['subject_ref'], 'origin': 'helper', 'reason': r, 'source': 'fund_kyc.py evaluate',
+                        'owner': None, 'target_date': None}
+                       for e in evaluations for r in e['reasons']] + report_rows
         sheets = [
             {'name': 'Investors', 'columns': columns, 'rows': rows},
-            {'name': 'Open items', 'columns': [_col('subject', 'Subject'), _col('reason', 'Reason'), _col('owner', 'Owner'),
-                                               _col('target_date', 'Target date', 'date')], 'rows': outstanding},
+            {'name': 'Open items', 'columns': item_columns, 'rows': outstanding},
         ]
         title = title or f'KYC tracker — {len(evaluations)} investors'
-    return {'schema_version': '1', 'title': title[:200], 'sheets': sheets, 'notes': notes,
-            'provenance': {'helper': 'fund_kyc.py', 'grid': str(evaluations[0]['grid']['name'])}}
+    provenance = {'helper': 'fund_kyc.py', 'grid': str(evaluations[0]['grid']['name'])}
+    if report_path is not None:
+        import hashlib
+        report_path = Path(report_path)
+        provenance.update(report_filename=report_path.name,
+                          report_sha256=hashlib.sha256(report_path.read_bytes()).hexdigest())
+        copied, more = _report_sheets(report_path, [s['name'] for s in sheets])
+        sheets += copied
+        notes += more + ['Sheets named "Report ..." are the report\'s own tables, copied as written.']
+    return {'schema_version': '1', 'title': title[:200], 'sheets': sheets, 'notes': notes, 'provenance': provenance}
 
 
 # ---------------------------------------------------------------- CLI
@@ -637,6 +717,8 @@ def main(argv=None):
     spec = commands.add_parser('xlsx-spec', help='Table spec for fund_xlsx.py from one or more evaluate outputs')
     spec.add_argument('--evaluation', action='append', required=True)
     spec.add_argument('--title')
+    spec.add_argument('--report', help='The saved report this workbook accompanies; binds the spec to it and copies its tables')
+    spec.add_argument('--open-items', help='JSON list of {subject, item, source}: open items the report lists beyond helper reasons')
     args = parser.parse_args(argv)
     try:
         if args.command == 'validate-record':
@@ -650,7 +732,9 @@ def main(argv=None):
                               load_json(args.screening) if args.screening else None)
             print(json.dumps(result, indent=2, ensure_ascii=False))
         else:
-            print(json.dumps(xlsx_spec([load_json(p) for p in args.evaluation], args.title), indent=2, ensure_ascii=False))
+            print(json.dumps(xlsx_spec([load_json(p) for p in args.evaluation], args.title, args.report,
+                                       load_json(args.open_items) if args.open_items else None),
+                             indent=2, ensure_ascii=False))
     except (OSError, ValueError, TypeError, KeyError, RecursionError) as exc:
         # Fixed codes only: parser messages can echo personal data from the documents.
         code = str(exc) if isinstance(exc, ValueError) and re.fullmatch(r'[A-Z_]+', str(exc)) else type(exc).__name__.upper()

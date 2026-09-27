@@ -61,7 +61,13 @@ content-preserving report layout.
 
 - Letter pages, embedded ReportLab Vera fonts, navy headings and numbered footers.
 - Table cells wrap; headers repeat after page breaks. More than five columns or
-  a cell longer than 1,200 characters uses labelled records to avoid clipping.
+  a cell longer than 1,200 characters uses labelled records to avoid clipping:
+  one record per row, each value preceded by its bold column name, records
+  separated by a thin rule. No pipe-joined header line is printed; a header-only
+  wide table still lists its column names.
+- Thematic breaks (`---`, `***`, `___`, also spaced as `- - -`) are drawn as a
+  thin horizontal rule rather than printed; inside a code fence they stay
+  literal text.
 - Long paragraphs and records split across pages. Malformed table rows remain
   literal text instead of being discarded.
 - Headings (three sizes), pipe tables, bullet and task lists, block quotes and a

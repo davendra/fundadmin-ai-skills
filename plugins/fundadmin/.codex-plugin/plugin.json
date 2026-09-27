@@ -1,6 +1,6 @@
 {
   "name": "fundadmin",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "Supervised-pilot release candidate: 60 fund administration skills plus the fund menu for Claude Code, Cowork and Codex. Review documents, prepare drafts and evidence-linked calculations for human review. Python 3.9+ is required for report helpers; external checks depend on authorised tools and evidence. Not certified for production operations or automated investment, admission, clearance, filing or payment decisions.",
   "author": {
     "name": "Davendra Patel",

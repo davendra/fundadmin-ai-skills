@@ -70,11 +70,27 @@ an alert for the tracker and does not change the disposition. `expiring` lists
 received documents and tax forms that expire within `expiry_warning_days`
 (default 60).
 
-`fund_kyc.py xlsx-spec --evaluation e.json [--evaluation e2.json ...]` turns one
-evaluation into a review workbook spec, or several into a tracker, for
-`fund_xlsx.py` / `fund_report.py companion` ([xlsx.md](xlsx.md)). The tracker's
-Investors sheet has refresh-overdue and completeness columns; its Open items
-sheet has blank Owner and Target date columns for the team to fill in.
+`fund_kyc.py xlsx-spec --evaluation e.json [--evaluation e2.json ...] --report
+<saved report> [--open-items items.json]` turns one evaluation into a review
+workbook spec, or several into a tracker, for `fund_report.py companion`
+([xlsx.md](xlsx.md)). The tracker's Investors sheet has refresh-overdue,
+completeness and report-listed-item columns. A document the grid did not require
+of an investor reads `N/A WITH BASIS (<grid>: not required for <type>, <rating>
+risk)` only under a firm grid whose rating was fully evaluated; with the example
+grid, no grid, a NOT EVALUATED risk factor or no document list for the type it
+reads `INCOMPLETE: applicability UNKNOWN (...)`, never a bare N/A. The Open items
+sheet lists every helper reason (origin `helper`) and every item in
+`--open-items` (origin `report`: findings the report lists that the record
+schema has no field for, such as a register's overdue ownership update), each
+`{subject, item, source}` whose subject is a pseudonymous reference (an investor
+without an evaluation included) or `fund`, never a name, and has blank Owner and
+Target date columns for the team to fill in.
+
+`--report` stamps the report's filename and SHA-256 into the spec's provenance
+and appends the report's own tables as `Report ...` sheets, so the workbook
+carries every item the report lists. `fund_report.py companion` refuses a
+`fund_kyc.py` spec without that binding, or one bound to a different report or
+revision: after any revision, rebuild the spec from the revised report.
 
 One reader record and one evaluation per investor per run. `aml-screen`
 produces and validates the screening evidence file; `kyc-review` owns the

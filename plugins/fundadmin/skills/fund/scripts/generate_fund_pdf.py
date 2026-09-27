@@ -1590,6 +1590,31 @@ def block_paragraph(line, body, heading_styles, quote, bullet):
     return inline_paragraph(line, body)
 
 
+# CommonMark thematic break: three or more -, * or _ (optionally spaced), up to three leading spaces.
+HORIZONTAL_RULE = re.compile(r"^ {0,3}([-*_])(?:[ \t]*\1){2,}[ \t]*$")
+
+
+def labelled_records(headers, rows, body):
+    """A table too wide for columns, as one record per row with each value labelled.
+
+    Every column name is repeated as a label inside each record, so no header
+    line is printed; a header-only table still lists its column names.
+    """
+    story = [Spacer(1, 4)]
+    if not rows:
+        rows = [[""] * len(headers)]
+    for number, row in enumerate(rows):
+        if number:
+            story.append(HRFlowable(width="100%", thickness=.3, color=COLORS["light_border"],
+                                    spaceBefore=2, spaceAfter=4))
+        for label, value in zip(headers, row):
+            label_markup = inline_markup(label, body)
+            value_markup = inline_markup(value, body)
+            story.append(Paragraph(f"<b>{label_markup}:</b> {value_markup}".rstrip(), body))
+    story.append(Spacer(1, 8))
+    return story
+
+
 def markdown_story(markdown, body, heading):
     """Render source blocks in order.
 
@@ -1630,7 +1655,13 @@ def markdown_story(markdown, body, heading):
             story.append(literal_paragraph(line, body))
             index += 1
             continue
-        if not fence and index + 1 < len(lines) and "|" in line:
+        if not fence and HORIZONTAL_RULE.match(line):
+            # A thematic break is layout, not content: draw it instead of printing "---".
+            story.append(HRFlowable(width="100%", thickness=.5, color=COLORS["light_border"],
+                                    spaceBefore=4, spaceAfter=6))
+            index += 1
+            continue
+        if not fence and index + 1 < len(lines) and "|" in line and "|" in lines[index + 1]:
             separators = cells(lines[index + 1])
             headers = cells(line)
             if len(headers) == len(separators) and all(
@@ -1644,11 +1675,7 @@ def markdown_story(markdown, body, heading):
                     rows.append(row)
                     index += 1
                 if len(headers) > 5 or any(len(cell) > 1200 for row in rows for cell in row):
-                    story.append(inline_paragraph(" | ".join(headers), heading))
-                    for row in rows[1:]:
-                        for label, value in zip(headers, row):
-                            story.append(inline_paragraph(f"{label}: {value}", body))
-                        story.append(Spacer(1, 8))
+                    story.extend(labelled_records(headers, rows[1:], body))
                 else:
                     table = Table([[inline_paragraph(cell, body) for cell in row] for row in rows],
                                   colWidths=[6.5 * inch / len(headers)] * len(headers),

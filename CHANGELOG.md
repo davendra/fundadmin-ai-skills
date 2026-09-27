@@ -3,13 +3,42 @@
 All notable changes to the published plugin. The private source repository
 (`davendra/fundadmin-ai`, maintainers only) keeps the full project changelog.
 
+## 1.3.1 — 2026-09-26
+
+- **Host-evaluation evidence:** see `docs/production/verification.md` for this
+  release's status. Evidence is recorded there, not here, because this file is
+  part of the candidate the evidence is bound to.
+- Shipped sample documents fixed. Answer keys no longer appear inside the
+  documents (no `[ISSUE: ...]` notes, red-flag comments or fraud-indicator
+  banners); each planted issue is visible in its own document instead: the
+  ERISA subscription states its 24.9% benefit-plan participation, and capital
+  call 1 shows the account on file next to the new bank details. Clean controls
+  are genuinely clean: their fee lines, uses of funds and per-investor columns
+  now add up.
+- PDF reports render wide tables as labelled records with thin separators
+  instead of a run of column names joined by `|`, and Markdown horizontal rules
+  (`---`, `***`) are drawn as rules instead of printed as text.
+- The KYC tracker workbook is bound to its report: `fund_kyc.py xlsx-spec
+  --report` records the report's hash and copies its tables, documents the grid
+  does not decide show INCOMPLETE rather than a bare N/A, report-listed open
+  items reach the workbook, and `fund_report.py companion` refuses a KYC spec
+  that is not bound to that exact report revision.
+- `fund_report.py validate` and `write-report` now say which field broke which
+  rule, for example `findings[0].id (finding id) contains uppercase letters; it
+  must match ^[a-z0-9][a-z0-9-]{0,79}$`, instead of a bare "invalid input". The
+  message names the field and never repeats a value from the report.
+- Eval suite fixes. The capital-rounding allocation check no longer reads a
+  percentage column (`33.3333%`) as an investor's amount. Evidence runs now
+  grant each case only the gated tools its `allowed_tools` lists (one
+  invocation per case) instead of Bash, Write and Edit for every case.
+
 ## 1.3.0 — 2026-09-23
 
-- **Host-evaluation evidence: PENDING.** The saved installed-plugin eval cases
-  have not yet been run against this candidate, so host behaviour is unverified
-  until an evidence record is added to `docs/production/verification.md`. If
-  this release is published before then, it is published without host-evaluation
-  evidence, as 1.2.0 was.
+- **Host-evaluation evidence** was recorded in
+  `docs/production/verification.md` after publication (24 September 2026):
+  all 18 saved installed-plugin cases passed on the pinned Claude Code 2.1.278
+  against the published candidate, one after a disclosed retry. When this
+  entry was written the evidence was still pending.
 - Obsidian support is retired. The `vault-init` and `vault-sync` skills are
   removed (60 skills now), and the menu, `ingest`, `search-precedent` and
   `counsel-handoff` no longer offer vault steps: every review is saved in its

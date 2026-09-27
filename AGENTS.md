@@ -5,7 +5,7 @@ Instructions for AI coding agents (Claude Code, Codex, Cursor and others) workin
 
 ## What this repository is
 
-The `fundadmin` plugin distribution: 60 fund administration skills, one menu skill (`fund`) and 5 LPA-review subagents, packaged for Claude Code, Claude Cowork and Codex. Version 1.3.0, MIT: a **supervised-pilot release candidate**, not certified production operation. All skills provide review/draft support with human review required. External operational qualification is not tested by local checks. It is **generated** from a private source repository (maintainers only).
+The `fundadmin` plugin distribution: 60 fund administration skills, one menu skill (`fund`) and 5 LPA-review subagents, packaged for Claude Code, Claude Cowork and Codex. Version 1.3.1, MIT: a **supervised-pilot release candidate**, not certified production operation. All skills provide review/draft support with human review required. External operational qualification is not tested by local checks. It is **generated** from a private source repository (maintainers only).
 
 ## If a user asks you to install it
 
@@ -15,7 +15,7 @@ The plugin marketplace is the supported route and installs this published releas
 |---|---|
 | Claude Code | `claude plugin marketplace add davendra/fundadmin-ai-skills` then `claude plugin install fundadmin@fundadmin-ai-skills`; tell the user to restart the session |
 | Claude Cowork | Tell the user: Customize → Plugins → Add marketplace → `davendra/fundadmin-ai-skills` → install FundAdmin AI (it is a UI step; you cannot do it for them) |
-| Codex / ChatGPT workspace | Tell the user their workspace administrator does it: Workspace settings → Plugins → Add → Import marketplace → `https://github.com/davendra/fundadmin-ai-skills` → select the reviewed release tag `fundadmin--v1.3.0` → review its contents → set the installation policy for the pilot group. Access, data handling and connected-app permissions stay under administrator control. |
+| Codex / ChatGPT workspace | Tell the user their workspace administrator does it: Workspace settings → Plugins → Add → Import marketplace → `https://github.com/davendra/fundadmin-ai-skills` → select the reviewed release tag `fundadmin--v1.3.1` → review its contents → set the installation policy for the pilot group. Access, data handling and connected-app permissions stay under administrator control. |
 | Codex CLI, outside a managed workspace | `codex plugin marketplace add davendra/fundadmin-ai-skills` then `codex plugin add fundadmin@fundadmin-ai-skills` |
 
 For a supervised pilot, pin a reviewed release tag rather than a branch, use one installation method per environment, and record the installation method, plugin version and tag, host version and resolved model identifier. See [installation and release channels](docs/production/installation-and-release-channels.md).

@@ -5,8 +5,8 @@ from: "Capital Calls <capitalcalls@obrelund.example>"
 to: "Pacific Coast PERS Investment Office <investments@pcpers.example>"
 cc: "James Thorn <j.thorn@obrelund.example>"
 subject: "Obrelund Capital Partners Fund III — Capital Call Notice #3"
-date: "April 11, 2026"
-message_id: "<OBRELUND3-CC-20260411-003@obrelund.example>"
+date: "September 14, 2026"
+message_id: "<OBRELUND3-CC-20260914-003@obrelund.example>"
 ---
 
 Dear Pacific Coast PERS Investment Team,
@@ -22,11 +22,11 @@ Pursuant to **Section 3.1 of the Amended and Restated Limited Partnership Agreem
 | **Fund** | Obrelund Capital Partners Fund III, LP |
 | **Call Number** | 3 of estimated 8 |
 | **Total Call Amount** | $45,000,000 |
-| **LP Pro Rata Share (PC PERS)** | $3,375,000 |
-| **Payment Deadline** | **April 25, 2026 by 3:00 PM Eastern Time** |
+| **LP Pro Rata Share (PC PERS)** | $11,739,130 ($150,000,000 of $575,000,000 commitments) |
+| **Payment Deadline** | **September 28, 2026 by 3:00 PM Eastern Time** (10 Business Days from this notice) |
 | **Purpose** | Platform acquisition (Project Northstar) + follow-on investments |
-| **Cumulative Called to Date** | $187,500,000 (9.375% of total commitments) |
-| **Remaining Unfunded Commitment (PC PERS)** | $135,937,500 |
+| **Cumulative Called to Date (incl. this call)** | $395,000,000 (68.70% of total commitments) |
+| **Remaining Unfunded Commitment (PC PERS)** | $46,956,522 |
 
 ---
 
@@ -39,9 +39,9 @@ Please remit payment to the following account:
 | **Bank Name** | Hesperin Bank, N.A. |
 | **ABA/Routing** | 991000002 |
 | **Account Name** | Obrelund Capital Partners Fund III, LP |
-| **Account Number** | 4072819630 |
+| **Account Number** | 6610-4422-9900 |
 | **SWIFT Code** | CITIZZ02 |
-| **Reference** | OBRELUND3-CC-003-PCPERS |
+| **Reference** | OBRL-III-CC-003 / Pacific Coast PERS |
 
 > **Important:** Please do not alter wire instructions. If you receive any communication requesting changes to bank details, contact James Thorn at +1 (415) 555-0182 immediately before processing.
 
@@ -73,11 +73,11 @@ j.thorn@obrelund.example
 ## Attachment Metadata
 
 ```
-Filename:    Obrelund3_CapCall_Notice_003_20260411.pdf
+Filename:    Obrelund3_CapCall_Notice_003_20260914.pdf
 File size:   145 KB
 Pages:       8
-Signed by:   Marcus J. Vennigrath (GP Principal)
-Date signed: April 11, 2026
+Signed by:   Jonathan R. Whitmore (Managing Partner)
+Date signed: September 14, 2026
 SHA-256:     a3f9c2e1d84b7056f12398ae4c7d2b91e0f53a6178cd4902b5e31f8290a6c7d4
 ```
 

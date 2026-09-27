@@ -44,7 +44,7 @@ Maintain distinct fields:
 - Risk assessment: supplied supported rating or UNASSESSED; EDD actions and officer disposition.
 - Preliminary operational readiness: HOLD, ESCALATE or PRELIMINARY READY FOR HUMAN REVIEW.
 
-Use the supplied-evidence adapter described in the guidance when records are available. Do not invent historical checks, automatically clear a potential match after a newer no-match record, or count a completed questionnaire as screening.
+Use the supplied-evidence adapter described in the guidance when records are available. Do not invent historical checks, automatically clear a potential match after a newer no-match record, or count a completed questionnaire as screening. Never fill missing scope metadata (list scope, jurisdiction, identity link, freshness limits) with placeholders to make an evidence file validate; the helper treats them as missing and the check stays INCOMPLETE, with identity linkage or freshness NOT ASSESSED.
 
 ## Per-investor records and the tracker workbook
 

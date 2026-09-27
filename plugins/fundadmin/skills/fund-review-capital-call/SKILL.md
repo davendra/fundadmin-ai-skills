@@ -36,7 +36,7 @@ python3 <resolved-script-path> --input <calculation-request.json>
 
 The request is `{ "operation": "<operation>", "config": { "currency": "GBP", "decimal_places": 2, "rounding": "ROUND_HALF_EVEN" }, "inputs": { ... } }`. GBP and two places are examples: choose the actual single currency and documented precision (0–8) and rounding (`ROUND_HALF_EVEN`, `ROUND_HALF_UP` or `ROUND_DOWN`). Supply decimal strings, not binary floats. Save the exact request and returned JSON workpaper with the analysis; retain engine version and request hash for replay. No numerical answer is validated unless execution succeeds. If execution is unavailable or the helper rejects the model, report the affected result as uncalculated.
 
-- `allocate`: `total`, `participants: [{id, weight, reported_amount?}]`. Supply only eligible participants and source-supported weights; run separate pools for exclusions. Total and reported amounts must be exact configured currency units. Uses largest remainders with stable ID tie-breaks; retain raw allocations and residuals. Compare against returned `amount`, never the unrounded proportion. `comparison_status` is `pass`, `fail` or `unverifiable` (missing/null reported amount); tolerance is zero currency units. Separate any contractual alternative allocation method for professional review; do not hide differences within a percentage or blanket cash allowance.
+- `allocate`: `total`, `participants: [{id, weight, reported_amount?}]`. Supply only eligible participants and source-supported weights; run separate pools for exclusions. Total and reported amounts must be exact configured currency units. Uses largest remainders with stable ID tie-breaks; retain raw allocations and residuals. Compare against returned `amount`, never the unrounded proportion. `comparison_status` is `pass`, `fail` or `unverifiable` (missing/null reported amount); tolerance is zero currency units. When the notice states a different derivation (for example a cumulative true-up), replicate that stated method with the helper as described under Pro-Rata Accuracy; do not hide differences within a percentage or blanket cash allowance.
 - `capital_call_status`: `scores: {calculation_accuracy, completeness, lpa_compliance, wire_quality}`, `high_risk_findings`, `wire_changed`, `required_unknowns`, `failed_checks`. Scores are decimal strings from 1 to 10 or null if unassessable. Supply all unresolved findings/unknowns/failures as lists of labels, and `wire_changed` as true, false or null (unknown). The helper returns a descriptive score and separate `status` (`blocked` or `human_review_required`), blockers and `payment_approved: false`. Do not drop blockers to improve a score or status.
 - `fees`: `opening_offset`, `offset_policy` (`carry_forward` or `expire`), `periods: [{start, end, basis, annual_rate, day_count, offset_generated, offset_rate}]`. Dates are ISO, end exclusive; split every rate/basis change. Day count is `ACT/365F`, `ACT/360` or `ACT/ACT`. Rates are fractions, e.g. `"0.02"`. No assumed quarterly division or offset entitlement.
 - `arithmetic`: `steps: [{id, operator, operands, round?}]`. Operators: `add`, `subtract`, `multiply`, `divide`; subtract/divide require two operands. Operands are decimal strings or `{ref: "earlier-step-id"}`. `round: true` applies configured currency precision; otherwise retain full precision. Use explicit sourced formulas for notice reconciliation, per-unit scaling and withholding arithmetic; this operation does not establish legal or tax treatment.
@@ -102,7 +102,7 @@ Parse the notice and extract every field listed below. Mark any missing field as
 **Multi-Investor Notice Handling** (if 10+ LPs in the notice)
 If the capital call covers 10 or more distinct investors:
 - Create an Investor Summary Table with columns: LP ID, Pool, Eligible Weight, Pool Share %, This Call Amount, Helper Rounded Amount, Difference (call currency), Result
-- Compare each reported amount with the helper's rounded allocation; any non-zero difference fails the allocation check
+- Compare each reported amount with the helper's rounded allocation; any non-zero difference fails the allocation check unless it is a stated-method rounding difference (Step 2, Pro-Rata Accuracy)
 - Verify each eligible pool sums to its own total, then reconcile the pool totals to the notice
 - Reconcile commitments against the source-supported roster; a pool containing excluded investors is not the denominator for eligible investors
 
@@ -158,6 +158,7 @@ Perform each validation independently. State PASS, FAIL, WARN or UNKNOWN; an uns
 - PASS requires exact equality in the configured currency units and reconciliation to the pool total. GBP 100 split equally between IDs A, B and C produces 33.34, 33.33 and 33.33; these amounts pass. Retain the stable source IDs so tie allocation does not depend on row order.
 - Aggregate a participant's rounded pool amounts with `arithmetic` before comparing a combined notice line. Do not allocate pooled fees and investments together when eligibility differs.
 - Report any non-zero currency-unit difference as FAIL and assess its risk separately. Do not use a 0.01% or fixed $1 allowance. A missing reported amount is UNKNOWN (`unverifiable` in the workpaper).
+- **Stated-method rounding difference (the one exception).** A difference from the direct allocation is a method difference, not a FAIL, only when all three hold: (1) the notice states how the amount was derived, for example an organisational-expense true-up computed as each LP's share of the cumulative total less the amount previously called; (2) replicating that stated method with the helper (`allocate` on each stated component, then `arithmetic` for the difference) reproduces every reported amount exactly and reconciles to the line total; and (3) each participant's difference from the direct `allocate` result is at most one configured currency unit, and the differences net to zero. Record it as an informational method note with both workpapers, PASS the stated-method check, and keep it out of `high_risk_findings`, `failed_checks` and every risk flag; it does not lower any dimension score. If any condition fails (no stated method, the stated method does not reproduce the amounts exactly, a difference above one unit, or differences that do not net to zero), it is an unexplained difference and FAILs as above. This is not a tolerance: an unexplained one-unit difference still fails. The same applies to amounts implied for an earlier call that differ from a direct allocation only by the stated method's rounding.
 - If a share percentage is printed, compare the eligible-weight ratio at the notice's stated percentage precision using an explicit `arithmetic` workpaper and rounding rule. If that precision or rule is unavailable, mark the percentage check UNKNOWN; do not substitute it for the cash allocation check.
 
 **Line Item Validation**
@@ -207,7 +208,7 @@ Assign a risk level (High Risk, Medium Risk, Low Risk) to each finding. Use the 
 - Wire instructions differ from prior call notices (flag all changed fields individually)
 - Missing wire instruction fields (any of: bank name, account number, routing/SWIFT, beneficiary, reference)
 - Management fee rate or expense amount outside LPA-permitted ranges
-- Any FAIL from `allocate` (a non-zero currency-unit difference from the helper's rounded amount); the reviewer assesses materiality separately
+- Any unexplained FAIL from `allocate` (a non-zero currency-unit difference from the helper's rounded amount that is not a stated-method rounding difference); the reviewer assesses materiality separately
 - Distribution source misclassification risk (fee labeled as expense, or vice versa)
 
 **Medium Risk**
@@ -246,7 +247,9 @@ For example, scores 10, 10, 10 and 4 produce 9.1, but the high-risk wire finding
 - 7–8: Minor issues only (Low Risk findings)
 - 5–6: One or more Medium Risk findings
 - 3–4: One High Risk finding
-- 1–2: Multiple High Risk findings or any `allocate` FAIL
+- 1–2: Multiple High Risk findings or any unexplained `allocate` FAIL
+
+A stated-method rounding difference (Step 2) is an informational note: it is not a finding for the helper's lists and does not lower any dimension score.
 
 ---
 
@@ -344,6 +347,8 @@ Changed or unverified details: [none identified / list] — routed to `/fund wir
 | LP Call Amount | [expected] | [actual] | [PASS / FAIL / UNKNOWN] |
 | All LP Amounts Sum to Total | [total] | [sum] | [PASS / FAIL / UNKNOWN] |
 | Difference from Helper Rounded Allocation | 0 currency units | [actual difference] | [PASS / FAIL / UNKNOWN] |
+| Stated Method Replicated (if the notice states one) | [helper result of the stated method] | [reported] | [PASS / FAIL / N/A] |
+| Method Difference from Direct Allocation | at most 1 currency unit per LP, netting to 0 | [per-LP differences] | [NOTE (informational) / FAIL / N/A] |
 
 [Explanation of any deviations or adjusted pro-rata methodology]
 

@@ -10,6 +10,7 @@ import argparse
 import hashlib
 import json
 import math
+import re
 import sys
 from datetime import datetime, timedelta, timezone
 
@@ -18,6 +19,17 @@ CHECKS = {"sanctions", "pep", "adverse_media"}
 RESULTS = {"NO MATCH", "POTENTIAL MATCH", "CONFIRMED MATCH", "NOT PERFORMED", "INCOMPLETE"}
 KEY_FIELDS = ("subject_ref", "check", "jurisdiction", "source")
 REQUIRED_TEXT = ("provider", "source_version", "evidence_ref", "identity_fingerprint")
+MAX_POLICY_DAYS = 3660
+# Scope values that say the real value is missing. They are accepted as input so
+# a file still validates, but a requirement built on them proves nothing: the
+# check is INCOMPLETE, never NO MATCH REPORTED. Matched on word tokens, so
+# "synthetic-list" or "EU" are unaffected.
+PLACEHOLDER_WORDS = {"unknown", "placeholder", "unspecified", "tbd", "tbc", "todo", "unavailable",
+                     "undefined", "redacted", "dummy"}
+PLACEHOLDER_VALUES = {"na", "n a", "none", "null", "nil", "any", "all", "default", "x", "xx", "xxx",
+                      "missing", "not applicable", "same"}
+NEGATED_WORDS = {"supplied", "provided", "available", "specified", "known", "given", "stated",
+                 "applicable", "set", "assessed"}
 
 
 def _unique_object(pairs):
@@ -66,6 +78,30 @@ def _time(value):
     if result.tzinfo is None:
         raise ValueError("TIMEZONE_REQUIRED")
     return result.astimezone(timezone.utc)
+
+
+def _placeholder(value):
+    """True for text that stands in for a missing scope value (see PLACEHOLDER_WORDS)."""
+    if not isinstance(value, str):
+        return False
+    words = [w for w in re.split(r"[^a-z0-9]+", value.lower()) if w]
+    if not words or " ".join(words) in PLACEHOLDER_VALUES:
+        return True
+    if any(w in PLACEHOLDER_WORDS for w in words):
+        return True
+    return any(a in ("not", "no", "un") and b in NEGATED_WORDS for a, b in zip(words, words[1:]))
+
+
+def _scope_issues(requirement):
+    """Placeholder scope metadata is treated as missing, never as a satisfied requirement."""
+    issues = []
+    if any(_placeholder(requirement.get(field)) for field in ("subject_ref", "jurisdiction", "source")):
+        issues.append("PLACEHOLDER_SCOPE")
+    if _placeholder(requirement.get("identity_fingerprint")):
+        issues.append("IDENTITY_LINK_NOT_ASSESSED")
+    if any(requirement.get(field) == MAX_POLICY_DAYS for field in ("max_age_days", "max_source_age_days")):
+        issues.append("FRESHNESS_NOT_ASSESSED")
+    return issues
 
 
 def _key(item):
@@ -125,7 +161,7 @@ def validate_evidence(payload):
         if key is None or item["check"] not in CHECKS or not _text(item.get("identity_fingerprint")):
             raise ValueError("INVALID_REQUIREMENT")
         for field in ("max_age_days", "max_source_age_days"):
-            if type(item.get(field)) is not int or not 0 <= item[field] <= 3660:
+            if type(item.get(field)) is not int or not 0 <= item[field] <= MAX_POLICY_DAYS:
                 raise ValueError("INVALID_FRESHNESS_POLICY")
         if key in required:
             raise ValueError("DUPLICATE_REQUIREMENT")
@@ -149,7 +185,7 @@ def validate_evidence(payload):
     checks = []
     for key, requirement in required.items():
         supplied = grouped[key]
-        check_issues = []
+        check_issues = _scope_issues(requirement)
         statuses = []
         references = []
         for record in supplied:

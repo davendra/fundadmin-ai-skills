@@ -28,7 +28,7 @@ As part of an internal treasury restructuring, the Fund is moving its receiving 
 | **Account Name** | Kirrowyn Macro Partners Ltd |
 | **Account Number** | CAY-4471-8820-0039 |
 | **SWIFT Code** | BUTTZZ11 |
-| **Reference** | SMP-LP-WIRE-2026 |
+| **Reference** | KRWN-LP-WIRE-2026 |
 
 ---
 

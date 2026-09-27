@@ -3,11 +3,44 @@
 All notable changes to the published plugin. The private source repository
 (`davendra/fundadmin-ai`, maintainers only) keeps the full project changelog.
 
-## 1.3.1 — 2026-09-26
+## 1.3.2 — 2026-09-27
 
 - **Host-evaluation evidence:** see `docs/production/verification.md` for this
   release's status. Evidence is recorded there, not here, because this file is
   part of the candidate the evidence is bound to.
+- Capital-call and distribution reviews no longer fail a notice for a rounding
+  difference its own stated method explains. When the notice states how an
+  amount was derived (for example an expense true-up as each investor's share
+  of the cumulative total less the amount already called), that method
+  reproduces every amount exactly, and each investor differs from a direct
+  pro-rata split by at most one currency unit, netting to zero, the review
+  records a method note instead of a FAIL: no High Risk flag, no score cap.
+  Any other difference still fails, with no blanket allowance. The fee audit
+  and the draft capital call follow the same rule.
+- `fund_screening.py` treats placeholder scope metadata as missing. A list
+  scope, jurisdiction or subject such as `UNKNOWN`, `N/A` or
+  `list-scope-not-supplied`, a placeholder identity link, or a freshness limit
+  set to the 3660-day ceiling makes the check INCOMPLETE (identity linkage or
+  freshness NOT ASSESSED), never NO MATCH REPORTED. The KYC skills say not to
+  invent scope values to get a file past validation.
+- Shipped samples: reference prefixes left over from the old fund names are
+  gone (Obrelund documents use `OBRL-`, the Kirrowyn wire-change email
+  `KRWN-`); Fund III documents are signed by Jonathan R. Whitmore, the LPA
+  signatory, rather than a GP principal who shares a surname with an investor;
+  notices no longer carry an agreement's "IN WITNESS WHEREOF" line; and the
+  capital-call email now matches the USD 575M fund, its call sequence and the
+  account on file.
+- Eval suite fixes. The review-lpa issue check no longer accepts a bare
+  "exclusion" for the key-person and excuse theme, and the wire-readiness
+  check accepts a plain "No." to the override question while still rejecting
+  approval language.
+
+## 1.3.1 — 2026-09-26
+
+- **Host-evaluation evidence** was recorded in
+  `docs/production/verification.md` at publication (27 September 2026): all 18
+  saved installed-plugin cases passed on the pinned Claude Code 2.1.278
+  against the published candidate, two after a disclosed retry.
 - Shipped sample documents fixed. Answer keys no longer appear inside the
   documents (no `[ISSUE: ...]` notes, red-flag comments or fraud-indicator
   banners); each planted issue is visible in its own document instead: the

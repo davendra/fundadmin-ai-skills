@@ -138,7 +138,7 @@ Build the `fees` request from the cited LPA terms and show its workpaper columns
 |--------------|------------------------|----------------|----------------------|-----------|--------------------|-------------------------|------------------|--------------|------------|--------|
 | [YYYY-MM-DD] | [YYYY-MM-DD] | [amount, basis type, section] | [rate, section] | [ACT/365F / ACT/360 / ACT/ACT] | [helper] | [helper] | [helper] | [reported] | [helper difference] | [PASS / FAIL / UNKNOWN / NOT AUDITED] |
 
-**Tolerance**: Any non-zero difference at the configured currency precision is FAIL. The reviewer's materiality policy may classify a FAIL's severity but never turns it into a PASS. Unsupported conventions (30/360, equal-quarter billing where not stated in the LPA, daily compounding) are UNKNOWN, not relabelled.
+**Tolerance**: Any non-zero difference at the configured currency precision is FAIL. The reviewer's materiality policy may classify a FAIL's severity but never turns it into a PASS. The one exception is a stated-method rounding difference in a per-LP split: the workpaper states how the split was derived (for example cumulative fee or expense share less amounts previously charged), replicating that method with the helper reproduces every reported amount exactly, and each LP's difference from a direct `allocate` is at most one currency unit, netting to zero. Record it as an informational method note with both workpapers, not a FAIL; without all three conditions the difference FAILs. Unsupported conventions (30/360, equal-quarter billing where not stated in the LPA, daily compounding) are UNKNOWN, not relabelled.
 
 ### 2.4 Fee Offset Verification
 

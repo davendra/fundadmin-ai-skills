@@ -29,7 +29,7 @@ In a workspace, an administrator imports the marketplace once and sets the polic
 
 1. Open **Workspace settings → Plugins → Add → Import marketplace**.
 2. Enter `https://github.com/davendra/fundadmin-ai-skills`.
-3. Select the reviewed immutable release tag, `fundadmin--v1.3.1`, rather than a branch.
+3. Select the reviewed immutable release tag, `fundadmin--v1.3.2`, rather than a branch.
 4. Review what that tag contains: the skills, the agents, the bundled references and `catalog.json`.
 5. Set the installation policy for the pilot group.
 6. Keep access, data handling and any connected-app permissions under administrator control.

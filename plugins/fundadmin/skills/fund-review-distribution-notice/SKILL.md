@@ -158,7 +158,7 @@ Never write a complete account, IBAN, ABA/routing or tax identifier into the sav
 
 ### Step 2: Validate All Calculations
 
-**One tolerance rule.** Every reconciliation below is exact equality at the notice's stated precision, executed with `arithmetic` (configure `decimal_places` to the stated precision and record the rounding rule). A non-zero difference is FAIL; the reviewer assesses its materiality separately. Do not apply $1, $0.01, $0.00000001 or percentage allowances. If the stated precision or rounding rule cannot be established, the check is UNKNOWN.
+**One tolerance rule.** Every reconciliation below is exact equality at the notice's stated precision, executed with `arithmetic` (configure `decimal_places` to the stated precision and record the rounding rule). A non-zero difference is FAIL; the reviewer assesses its materiality separately. Do not apply $1, $0.01, $0.00000001 or percentage allowances. If the stated precision or rounding rule cannot be established, the check is UNKNOWN. The one exception is a stated-method rounding difference: the notice states how an LP amount was derived (for example cumulative entitlement less amounts previously distributed), replicating that method with the helper reproduces every stated amount exactly, and each LP's difference from a direct `allocate` is at most one unit at the stated precision, netting to zero. Record that as an informational method note with both workpapers (PASS on the stated-method check, not FAIL, not High Risk, no effect on any score). Without all three conditions the difference is unexplained and FAILs.
 
 State each result as PASS, FAIL, UNKNOWN (input missing or unreadable), NOT PERFORMED (tool or evidence unavailable) or NOT APPLICABLE (with basis from Step 0).
 
@@ -169,7 +169,7 @@ State each result as PASS, FAIL, UNKNOWN (input missing or unreadable), NOT PERF
 - Total net cash = total gross − total withholding deducted (each type itemised)
 - Return of capital + taxable components = gross distribution
 - Per-unit amounts scaled to fund level agree with stated fund-level totals
-- Where LP-level amounts and source-supported weights are supplied, run `allocate` for each eligible pool and compare with the stated LP amounts (zero currency-unit tolerance)
+- Where LP-level amounts and source-supported weights are supplied, run `allocate` for each eligible pool and compare with the stated LP amounts (zero currency-unit tolerance; a stated-method rounding difference under the tolerance rule above is a note, not a FAIL)
 
 **Distribution Source Classification**
 - Sum of all source components (return of capital + retained earnings + capital gains + tax-deferred + other) equals the total gross distribution

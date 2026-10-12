@@ -9,7 +9,7 @@ const categories = meta.categories as { name: string; slug: string; count: numbe
 
 export default defineConfig({
   title: 'FundAdmin AI Manual',
-  description: `User manual for the ${meta.name} plugin: ${meta.skill_count} fund administration skills for Claude Code, Claude Cowork and Codex.`,
+  description: `User manual for the ${meta.name} plugin: ${meta.skill_count} fund administration skills. Install in Claude Code, ChatGPT desktop, ChatGPT Work or Codex; qualification varies by host.`,
   cleanUrls: true,
   ignoreDeadLinks: false,
   // The published repository is one squashed commit per release, so git dates
@@ -25,7 +25,7 @@ export default defineConfig({
     ['meta', { property: 'og:type', content: 'website' }],
     ['meta', { property: 'og:site_name', content: 'FundAdmin AI Manual' }],
     ['meta', { property: 'og:title', content: 'FundAdmin AI Manual' }],
-    ['meta', { property: 'og:description', content: `Install and use the ${meta.name} plugin: ${meta.skill_count} fund administration skills and ${meta.agent_count} LPA-review agents for Claude Code, Claude Cowork and Codex.` }],
+    ['meta', { property: 'og:description', content: `Install and use the ${meta.name} plugin: ${meta.skill_count} fund administration skills and ${meta.agent_count} LPA-review agents. Claude Code is the primary target; ChatGPT and other hosts remain experimental.` }],
     ['meta', { property: 'og:image', content: `${site}/images/og-social-card.jpg` }],
     ['meta', { property: 'og:url', content: `${site}/` }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],

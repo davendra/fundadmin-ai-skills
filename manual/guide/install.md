@@ -1,17 +1,19 @@
 # Install
 
-The skills ship as one plugin, `fundadmin`, from the repository [`davendra/fundadmin-ai-skills`](https://github.com/davendra/fundadmin-ai-skills). The plugin marketplace is the supported route. Pick the one that matches how you work.
+The skills ship as one plugin, `fundadmin`, from the public repository [`davendra/fundadmin-ai-skills`](https://github.com/davendra/fundadmin-ai-skills). Choose **Claude Code**, **ChatGPT desktop**, or **ChatGPT Work in the cloud** below. All use the skills-only package; the separate FundAdmin AI Workspace application is [in development](https://fundadmin.dev/workspace).
 
-## Claude Code — Recommended
+Claude Code is the recommended, tested installation route. ChatGPT desktop, ChatGPT Work, Codex and Cowork accept the package format; FundAdmin workflow execution on these hosts remains experimental until separately qualified. Account access and administrator policies determine which plugin surfaces you can use. A public GitHub release is not an OpenAI public-directory listing.
+
+## Claude Code — Recommended {#claude-code-recommended}
 
 Recommended for individual supervised-pilot use.
 
 ```bash
-claude plugin marketplace add davendra/fundadmin-ai-skills
-claude plugin install fundadmin@fundadmin-ai-skills
+claude plugin marketplace add https://github.com/davendra/fundadmin-ai-skills.git#fundadmin--v1.3.2 --scope project
+claude plugin install fundadmin@fundadmin-ai-skills --scope project
 ```
 
-Or inside a session: `/plugin marketplace add davendra/fundadmin-ai-skills`, then `/plugin install fundadmin@fundadmin-ai-skills`. Restart the session once to load it.
+Use one installation per project. Restart the session once to load it.
 
 Check the install:
 
@@ -23,23 +25,45 @@ Expect 61 skills (the 60 commands plus the `fund` menu) and 5 agents, at the ver
 
 **Claude Cowork** installs the same plugin from the same marketplace through its interface: **Customize → Plugins → Add marketplace**, enter `davendra/fundadmin-ai-skills`, then install **FundAdmin AI**.
 
-## Codex / ChatGPT Workspace — Team-managed
+## ChatGPT desktop — Local marketplace {#chatgpt-desktop-local-marketplace}
+
+For a local **Work or Codex task in the ChatGPT desktop app**, use the repository marketplace included in the download. You do not need Claude Code for this route.
+
+1. [Download the skills ZIP for v1.3.2](https://github.com/davendra/fundadmin-ai-skills/releases/download/fundadmin--v1.3.2/fundadmin-ai-skills-1.3.2.zip). Extract it into a new folder, preserving hidden files. Open the extracted folder as your local project in a supported ChatGPT desktop surface.
+2. Confirm `.agents/plugins/marketplace.json` is present at the extracted root and its entry points to `./plugins/fundadmin`. Keep the entire package together.
+3. Restart ChatGPT desktop. Open **Plugins**, select the **FundAdmin AI** local marketplace and install **fundadmin**.
+4. Start a **new local Work or Codex task**. Use the host's skill picker to select the installed `fund-review-lpa` skill. Work uses `@`; Codex uses `$`. Choose the actual picker entry rather than guessing an alias.
+5. Use `samples/OBRELUND-LPA-QUICKSTART.pdf` for the first review. Check that the task can access the packaged files and run the Python report helper before claiming a saved report was generated.
+
+If your account has no local project or Plugins surface, use the managed-workspace route below if your administrator enables it. Do not paste terminal installation commands into an ordinary chat and assume that installed the plugin. The local catalogue does not upload itself to the cloud.
+
+This follows [OpenAI's local marketplace guidance](https://developers.openai.com/plugins/build/plugins#build-your-own-curated-plugin-list). Local project, personal catalogue and managed-workspace installations are different sources; use one route for an environment and avoid duplicate installations.
+
+## ChatGPT Work — Cloud / managed workspace {#chatgpt-work-cloud-managed-workspace}
 
 In a workspace, an administrator imports the marketplace once and sets the policy for the pilot group. Members do not each add a source.
 
-1. Open **Workspace settings → Plugins → Add → Import marketplace**.
-2. Enter `https://github.com/davendra/fundadmin-ai-skills`.
-3. Select the reviewed immutable release tag, `fundadmin--v1.3.2`, rather than a branch.
+1. The administrator opens **Admin → Plugins → Add → Import marketplace**.
+2. Set **Source** to `https://github.com/davendra/fundadmin-ai-skills`.
+3. Leave **Path** empty (the marketplace is at the repository root). Set **Branch, tag or commit** to `fundadmin--v1.3.2`, rather than a moving branch.
 4. Review what that tag contains: the skills, the agents, the bundled references and `catalog.json`.
 5. Set the installation policy for the pilot group.
 6. Keep access, data handling and any connected-app permissions under administrator control.
 
+Once permitted for their role, members open **Plugins**, select their workspace's FundAdmin AI plugin and install it. Start a **new Work task** in ChatGPT on the web or desktop. Type `@` and choose an installed FundAdmin skill from the picker, then attach a synthetic sample from the release. No local Claude Code installation is required for a cloud task.
+
+Importing a marketplace does not grant connected-service permissions. Check which code tools, Python dependencies, specialist-agent execution and packaged helper files are available in the cloud task. If a helper cannot run, keep the result clearly labelled as a draft and state which PDF, source hashes or evidence sidecar were not generated. Package import alone does not qualify a host for a supervised pilot.
+
+The steps follow [OpenAI's workspace import guidance](https://learn.chatgpt.com/docs/enterprise/plugin-management) and [plugin installation and use guidance](https://learn.chatgpt.com/docs/plugins). Availability depends on your account and workspace settings.
+
 Pin the tag, not a branch. A tag names one fixed set of bytes that cannot change after it has been reviewed, so the group keeps running the version that was actually reviewed; a branch can differ from one session to the next. For a supervised pilot handling approved or redacted fund documents, pin a tag or a specific commit, and review a newer release before moving the group to it.
 
-Outside a managed workspace, the Codex CLI installs the same plugin:
+## Codex CLI — Experimental
+
+Outside a managed workspace, the Codex CLI can install the same plugin. These commands were checked against the locally available CLI; workflow qualification remains separate.
 
 ```bash
-codex plugin marketplace add davendra/fundadmin-ai-skills
+codex plugin marketplace add davendra/fundadmin-ai-skills --ref fundadmin--v1.3.2
 codex plugin add fundadmin@fundadmin-ai-skills
 ```
 
@@ -82,7 +106,8 @@ Anthropic publishes a separate marketplace, [`anthropics/financial-services`](ht
 | Claude Code | `claude plugin update fundadmin@fundadmin-ai-skills`, then restart the session |
 | Codex CLI | `codex plugin marketplace upgrade`, then `codex plugin add fundadmin@fundadmin-ai-skills` |
 | Claude Cowork | **Update** on the marketplace entry |
-| Codex / ChatGPT workspace | The administrator reviews the newer release tag and selects it; the pilot group does not update itself |
+| ChatGPT desktop local marketplace | Download a reviewed newer release into a separate folder, then refresh the local installation; avoid two active copies |
+| ChatGPT Work / managed workspace | The administrator reviews the newer release tag and selects it; the pilot group does not update itself |
 
 Hosts cache by version, so a release only reaches you once the version number changes. The current version is in the footer of this site and in the [changelog](https://github.com/davendra/fundadmin-ai-skills/blob/main/CHANGELOG.md). A pinned installation does not move on its own — that is the point of pinning. Review an updated release before enabling it for a pilot group, and record that you did.
 

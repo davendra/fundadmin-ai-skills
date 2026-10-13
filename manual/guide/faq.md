@@ -6,7 +6,17 @@ Use the plugin prefix: `/fundadmin:fund`, not the bare form. Restart the session
 
 ## The PDF was not generated
 
-`report-pdf` needs Python 3.9+ and the pinned PDF dependencies (`python3 -m pip install -r requirements-plugin.txt` from the plugin repository). Without them it keeps the validated markdown report and says that the PDF was not produced.
+`report-pdf` needs Python 3.9+, the packaged renderer and its dependencies. Use the [isolated dependency setup](/guide/install#optional-dependencies) before reviewing. Without a working renderer it retains any validated Markdown and sidecar and says that no PDF was produced. An in-chat draft is not a saved report.
+
+In ChatGPT cloud, the plugin can load its instructions without making scripts available to Python. Follow [personal cloud helper staging](/guide/install#chatgpt-cloud-personal-upload) using the verified released ZIP; never ask the model to invent a substitute helper. Download the PDF and audit ZIP and check the final limitations and table continuations.
+
+## ChatGPT says Work requires an upgrade
+
+Plugin installation does not grant Work access. Use an account that already has Work enabled, or test the available Chat mode with its tools and limitations recorded. Do not buy an upgrade solely because a setup prompt asks. Chat and Work qualification are separate.
+
+## Cloud data analysis stopped or reached a limit
+
+Keep the failed attempt and do not call the report complete. Resume when your account has available code-tool capacity, or use an existing authorised host with those tools. Work access and analysis quota are account features, not supplied by the plugin. Download any real audit files while available; never invent a PDF link. See the [host-check results](/guide/host-checks).
 
 ## An LPA review is taking a long time
 

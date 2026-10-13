@@ -1,8 +1,8 @@
 # Install
 
-The skills ship as one plugin, `fundadmin`, from the public repository [`davendra/fundadmin-ai-skills`](https://github.com/davendra/fundadmin-ai-skills). Choose **Claude Code**, **ChatGPT desktop**, or **ChatGPT Work in the cloud** below. All use the skills-only package; the separate FundAdmin AI Workspace application is [in development](https://fundadmin.dev/workspace).
+The skills ship as one plugin, `fundadmin`, from the public repository [`davendra/fundadmin-ai-skills`](https://github.com/davendra/fundadmin-ai-skills). Choose **Claude Code**, **ChatGPT desktop**, or **ChatGPT in the cloud** below. All use the skills-only package; the separate FundAdmin AI Workspace application is [in development](https://fundadmin.dev/workspace).
 
-Claude Code is the recommended, tested installation route. ChatGPT desktop, ChatGPT Work, Codex and Cowork accept the package format; FundAdmin workflow execution on these hosts remains experimental until separately qualified. Account access and administrator policies determine which plugin surfaces you can use. A public GitHub release is not an OpenAI public-directory listing.
+Claude Code is the recommended, tested installation route. ChatGPT desktop, ChatGPT Work, Codex and Cowork accept the package format; FundAdmin workflow execution on these hosts remains experimental until separately qualified. Account access and administrator policies determine which plugin surfaces you can use. A public GitHub release is not an OpenAI public-directory listing. See the [dated host-check results](/guide/host-checks) for what was actually exercised and what remains blocked.
 
 ## Claude Code — Recommended {#claude-code-recommended}
 
@@ -39,6 +39,19 @@ If your account has no local project or Plugins surface, use the managed-workspa
 
 This follows [OpenAI's local marketplace guidance](https://developers.openai.com/plugins/build/plugins#build-your-own-curated-plugin-list). Local project, personal catalogue and managed-workspace installations are different sources; use one route for an environment and avoid duplicate installations.
 
+## ChatGPT cloud — Personal plugin upload {#chatgpt-cloud-personal-upload}
+
+If your account shows **Plugins → Add → Upload plugin archive**, you can install a personal cloud copy without an administrator-managed marketplace. This route was observed in Chat mode on 13 October 2026; account availability varies. It does not unlock Work or change your subscription.
+
+1. [Download the standalone ChatGPT plugin ZIP for v1.3.2](https://github.com/davendra/fundadmin-ai-skills/releases/download/fundadmin--v1.3.2/fundadmin-ai-chatgpt-1.3.2.zip) and [its SHA-256 file](https://github.com/davendra/fundadmin-ai-skills/releases/download/fundadmin--v1.3.2/fundadmin-ai-chatgpt-1.3.2.zip.sha256). This archive contains only the released plugin, with its hidden manifests at the archive root. The larger skills ZIP is for local marketplaces and includes samples and documentation.
+2. Open **Plugins → Add → Upload plugin archive**. Upload the standalone ZIP, then choose **Add plugin**. Confirm **FundAdmin AI**, version **1.3.2** and **61 skills**, then choose **Install plugin**.
+3. Start a new chat with the installed plugin selected. Separately download and attach the [eight-page synthetic LPA](https://raw.githubusercontent.com/davendra/fundadmin-ai-skills/fundadmin--v1.3.2/samples/OBRELUND-LPA-QUICKSTART.pdf).
+4. Check that Python can access the packaged helper scripts and the five agent files. Importing instructions alone does not guarantee these files are mounted in the chat's execution environment.
+5. If the helpers are missing, attach the same standalone ZIP to that chat. Ask the assistant to verify its SHA-256 against the release checksum, reject absolute paths, parent traversal and symlink members, and extract the entire plugin into a new isolated software folder. Run only helpers from that verified copy; do not substitute code found beside an uploaded document. Record **verified release-bundle staging** as the setup method.
+6. Follow the [full LPA and PDF quick start](/guide/quick-start#full-lpa-and-pdf-check). Download the report and audit bundle while the task's files remain available.
+
+Uploading the plugin ZIP is separate from attaching it to a review chat. Neither action grants connected-app access. Chat, Work, desktop and CLI runs have different execution environments: a successful Chat test does not qualify Work. If Python, helper files or file downloads are unavailable, keep the result labelled as an in-chat draft and list the missing deliverables.
+
 ## ChatGPT Work — Cloud / managed workspace {#chatgpt-work-cloud-managed-workspace}
 
 In a workspace, an administrator imports the marketplace once and sets the policy for the pilot group. Members do not each add a source.
@@ -60,7 +73,7 @@ Pin the tag, not a branch. A tag names one fixed set of bytes that cannot change
 
 ## Codex CLI — Experimental
 
-Outside a managed workspace, the Codex CLI can install the same plugin. These commands were checked against the locally available CLI; workflow qualification remains separate.
+Outside a managed workspace, the Codex CLI can install the same plugin. The pinned install and a synthetic LPA/PDF run were exercised through the local CLI on 13 October 2026. This is supplementary runtime evidence; the desktop interface and cloud Work journey still require their own tests.
 
 ```bash
 codex plugin marketplace add davendra/fundadmin-ai-skills --ref fundadmin--v1.3.2
@@ -95,7 +108,15 @@ Anthropic publishes a separate marketplace, [`anthropics/financial-services`](ht
 
 ## Optional dependencies
 
-- **PDF reports:** `python3 -m pip install -r requirements-plugin.txt` (from the plugin repository) installs the pinned ReportLab environment that lets `report-pdf` turn any review into a formatted PDF. Without it the skill hands you the markdown and the command to run elsewhere.
+- **PDF reports:** check dependencies before the first review. From the extracted full release, create an isolated environment rather than changing system Python:
+
+  ```bash
+  python3 -m venv .venv-fundadmin
+  .venv-fundadmin/bin/python -m pip install -r requirements-plugin.txt
+  .venv-fundadmin/bin/python -c "import reportlab, pypdf; print(reportlab.Version)"
+  ```
+
+  Tell the assistant to use that environment's Python for the packaged helpers. The pinned release uses ReportLab 5.0.1. In cloud tasks, check the actual environment: if the pinned dependencies cannot be installed, record the available versions and treat PDF compatibility as unqualified until extraction and layout checks pass. Without a working renderer, retain the Markdown and sidecar and say that no PDF was produced.
 - **Excel workbooks:** `pip3 install openpyxl` lets the KYC review, KYC tracker, capital account review, reconciliation, fee audit, waterfall review and obligation tracker save an `.xlsx` beside the markdown report. Without it you get a `.csv` of the same tables, and the skill says so.
 - **Email:** `monitor-email` needs an approved email connector in your host (for example Gmail) and reports the check as not performed if it is missing.
 
@@ -107,6 +128,7 @@ Anthropic publishes a separate marketplace, [`anthropics/financial-services`](ht
 | Codex CLI | `codex plugin marketplace upgrade`, then `codex plugin add fundadmin@fundadmin-ai-skills` |
 | Claude Cowork | **Update** on the marketplace entry |
 | ChatGPT desktop local marketplace | Download a reviewed newer release into a separate folder, then refresh the local installation; avoid two active copies |
+| ChatGPT personal cloud upload | Upload a reviewed newer standalone plugin archive; remove ambiguity from older active copies |
 | ChatGPT Work / managed workspace | The administrator reviews the newer release tag and selects it; the pilot group does not update itself |
 
 Hosts cache by version, so a release only reaches you once the version number changes. The current version is in the footer of this site and in the [changelog](https://github.com/davendra/fundadmin-ai-skills/blob/main/CHANGELOG.md). A pinned installation does not move on its own — that is the point of pinning. Review an updated release before enabling it for a pilot group, and record that you did.

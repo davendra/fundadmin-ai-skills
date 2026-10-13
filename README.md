@@ -28,7 +28,7 @@ Version **1.3.2 is a supervised-pilot release candidate**, not certified product
 
 Check that the installed version matches this release before use: `claude plugin details fundadmin@fundadmin-ai-skills` shows it.
 
-Primary runtime qualification targets **installed Claude Code 2.1.278**, with an explicit model trace and all **18 saved cases** for the exact candidate. This is the required evidence, not a completed-pass claim; consult the [verification record](docs/production/verification.md). **Codex and Cowork support the package format; their runtimes remain experimental/unverified.** Codex evidence covers direct inline use only, not an installed-host matrix. Cowork remains unverified. Keep private host responses and tool traces in approved storage outside plugin build inputs.
+Primary runtime qualification targets **installed Claude Code 2.1.278**, with an explicit model trace and all **18 saved cases** for the exact candidate. This is the required evidence, not a completed-pass claim; consult the [verification record](docs/production/verification.md). **Codex and Cowork support the package format; their runtimes remain experimental/unverified.** Supplementary installed and inline synthetic checks are not a full host/model qualification matrix. Cowork remains unverified. Keep private host responses and tool traces in approved storage outside plugin build inputs.
 
 > [!IMPORTANT]
 > FundAdmin AI produces document analysis and drafts to support fund administration work. It is **not financial, legal or tax advice**. Every report says so. Have qualified professionals review anything you rely on.
@@ -37,7 +37,7 @@ Primary runtime qualification targets **installed Claude Code 2.1.278**, with an
 
 ## Install FundAdmin AI
 
-Three routes. The first two install the plugin: skills, agents, references and metadata. The third copies selected raw skill files and nothing else.
+Use the full plugin for fund-document reviews: skills, agent definitions, references and packaged report helpers. The [installation guide](https://help.fundadmin.dev/guide/install) covers Claude Code, ChatGPT desktop, personal cloud upload and administrator-managed workspaces. Third-party raw-skill copies are developer compatibility only.
 
 <a name="claude-code"></a><a name="claude-cowork"></a>
 
@@ -46,11 +46,11 @@ Three routes. The first two install the plugin: skills, agents, references and m
 Recommended for individual supervised-pilot use.
 
 ```bash
-claude plugin marketplace add davendra/fundadmin-ai-skills
-claude plugin install fundadmin@fundadmin-ai-skills
+claude plugin marketplace add https://github.com/davendra/fundadmin-ai-skills.git#fundadmin--v1.3.2 --scope project
+claude plugin install fundadmin@fundadmin-ai-skills --scope project
 ```
 
-Or inside a session: `/plugin marketplace add davendra/fundadmin-ai-skills`, then `/plugin install fundadmin@fundadmin-ai-skills`. Restart the session once to load it, then check what you installed: `claude plugin details fundadmin@fundadmin-ai-skills` reports the installed version and lists 61 skills (60 commands plus the `fund` menu) and 5 agents.
+Use one installation per project. Restart the session once to load it, then check what you installed: `claude plugin details fundadmin@fundadmin-ai-skills` reports the installed version and lists 61 skills (60 commands plus the `fund` menu) and 5 agents.
 
 **Claude Cowork** installs the same plugin from the same marketplace through its interface: **Customize → Plugins → Add marketplace**, enter `davendra/fundadmin-ai-skills`, then install **FundAdmin AI**.
 
@@ -60,7 +60,7 @@ Or inside a session: `/plugin marketplace add davendra/fundadmin-ai-skills`, the
 
 In a workspace, an administrator imports the marketplace once and sets the policy for the pilot group. Members do not each add a source.
 
-1. Open **Workspace settings → Plugins → Add → Import marketplace**.
+1. Open **Admin → Plugins → Add → Import marketplace**.
 2. Enter `https://github.com/davendra/fundadmin-ai-skills`.
 3. Select the reviewed immutable release tag, `fundadmin--v1.3.2`, rather than a branch.
 4. Review what that tag contains: the skills, the agents, the bundled references and `catalog.json`.
@@ -72,9 +72,13 @@ Pin the tag, not a branch. A tag names one fixed set of bytes that cannot change
 Outside a managed workspace, the Codex CLI installs the same plugin:
 
 ```bash
-codex plugin marketplace add davendra/fundadmin-ai-skills
+codex plugin marketplace add davendra/fundadmin-ai-skills --ref fundadmin--v1.3.2
 codex plugin add fundadmin@fundadmin-ai-skills
 ```
+
+### ChatGPT cloud — Personal upload
+
+If your account exposes **Plugins → Add → Upload plugin archive**, upload the [standalone ChatGPT ZIP](https://github.com/davendra/fundadmin-ai-skills/releases/download/fundadmin--v1.3.2/fundadmin-ai-chatgpt-1.3.2.zip), confirm version 1.3.2 and 61 skills, then install. This is a personal cloud copy, not an OpenAI public-directory listing or a Work upgrade. Follow the [cloud helper check](https://help.fundadmin.dev/guide/install#chatgpt-cloud-personal-upload): instructions can load without mounting Python scripts, so attach and verify the same released bundle in the review task if needed. Keep administrator policy in place for managed workspaces.
 
 ### Other agents — Developer compatibility only
 
@@ -94,6 +98,7 @@ Keep it project-local and name the agent and the skills explicitly. Do not insta
 |---|---|---|---|
 | Native marketplace plugin | Full plugin: skills, agents, references and metadata | Individual Claude Code users | Marketplace release |
 | Workspace marketplace import | Full plugin with administrator policy | Teams and pilots | Pin tag or commit |
+| Personal cloud upload | Released standalone plugin archive | ChatGPT accounts exposing archive upload | Reviewed archive and checksum |
 | `npx skills` | Selected raw skills | Developers and other agents | Explicit selected source |
 
 Use one installation method per host environment: two copies of the same skills leave it ambiguous which instructions ran. What `main` is, how release tags work, what a pilot pins and what to record: [installation and release channels](docs/production/installation-and-release-channels.md).

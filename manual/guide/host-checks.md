@@ -1,0 +1,29 @@
+# Host checks
+
+These are observed synthetic integration checks for **v{{version}}**, performed on **13 October 2026**. They are not a full host/model qualification matrix or production certification. The test used the complete eight-page `OBRELUND-LPA-QUICKSTART.pdf`; no approved FundAdmin AI Workspace records were changed.
+
+| Route | Install / setup | LPA review and PDF | Remaining limitation |
+|---|---|---|---|
+| Local Codex CLI, supplementary runtime check | Pinned marketplace install succeeded; all 169 plugin files matched the released payload; 61 skills and five agent definitions | Five sequential inline stages completed; saved source, Markdown, sidecar, workpapers and a 53-page PDF | Desktop interface not exercised; model identifier unavailable; not a full qualification matrix |
+| ChatGPT desktop interface | Shared local plugin catalogue installed | Not completed through the desktop interface | Computer-use access was blocked; a separate user-started local test task is still required |
+| ChatGPT cloud, personal plugin in Chat mode | Archive import/install succeeded and recognised 61 skills; verified bundle staging made helpers available to Python | Full source read and packaged scoring ran; final report and PDF were not completed | Account data-analysis limit interrupted validation; runtime had ReportLab 4.4.9 rather than pinned 5.0.1 |
+| ChatGPT cloud Work | Package route documented | Not completed | The available account did not have Work enabled |
+
+The local PDF was extracted across all 53 pages and rendered for inspection. Of 1,423 content checks, 1,419 matched directly; the remaining four cells were verified across page continuations. No missing findings were found, although long-table wrapping reduced readability. The report contains 66 findings and remains **PARTIAL**, with compliance and aggregate scores **UNAVAILABLE** because required regulatory facts and current authorities were not supplied.
+
+The local test also attempted an unnecessary nested CLI launch which failed sandbox initialisation. That failure is retained separately; the actual outer ephemeral CLI process completed its installed workflow. It is not desktop UI evidence.
+
+## Issues found and setup fixes
+
+- System Python lacked ReportLab. The local check used a new isolated environment with the release's pinned dependencies; the install guide now checks these before the first review.
+- Cloud plugin instructions were readable while helper files were not mounted into Python. A separate, checksum-verified standalone release ZIP supplied the exact helper and agent files. This staging method is now documented; automatic mounting is not assumed.
+- Evidence sidecars with uppercase finding IDs were rejected by the packaged validator. The local run corrected them and retained the failed attempt. Cloud correction was interrupted by the account limit. Never skip validation or call a rejected sidecar complete.
+- A cloud plugin import does not unlock Work, change a subscription or provide connected-service permissions. Setup prompts now record the actual execution mode and missing capabilities.
+
+## Finish a host check
+
+Use the [full LPA and PDF quick start](/guide/quick-start#full-lpa-and-pdf-check) in a new isolated task on the host you intend to use. Record the installed version, tag, host/model/runtime, helper paths, dependency versions and whether specialist stages ran separately or inline.
+
+Require actual downloadable or saved Markdown, sidecar, PDF and source/audit files. Validate the sidecar and source binding, extract and inspect the PDF including final limitations and table continuations. If code tools, dependencies or quota are unavailable, retain the attempt as **BLOCKED**; an in-chat draft does not fulfil the saved-report test.
+
+A completed synthetic report is still draft analysis. Qualified human review is required before relying on it.

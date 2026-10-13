@@ -50,6 +50,7 @@ export default defineConfig({
           items: [
             { text: 'Install', link: '/guide/install' },
             { text: 'Quick start', link: '/guide/quick-start' },
+            { text: 'Host checks', link: '/guide/host-checks' },
             { text: 'Output files', link: '/guide/outputs' },
             { text: 'Sample documents', link: '/guide/samples' },
             { text: 'FAQ', link: '/guide/faq' },

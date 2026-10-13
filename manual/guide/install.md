@@ -35,6 +35,16 @@ For a local **Work or Codex task in the ChatGPT desktop app**, use the repositor
 4. Start a **new local Work or Codex task**. Use the host's skill picker to select the installed `fund-review-lpa` skill. Work uses `@`; Codex uses `$`. Choose the actual picker entry rather than guessing an alias.
 5. Use `samples/OBRELUND-LPA-QUICKSTART.pdf` for the first review. Check that the task can access the packaged files and run the Python report helper before claiming a saved report was generated.
 
+**Shared local catalogue route, tested with a desktop local Codex task:** if the supported Codex CLI is already available, it can install the plugin in the catalogue used by local desktop tasks:
+
+```bash
+codex plugin marketplace add davendra/fundadmin-ai-skills --ref fundadmin--v1.3.2
+codex plugin add fundadmin@fundadmin-ai-skills
+codex plugin list --marketplace fundadmin-ai-skills --json
+```
+
+Check for an existing copy before changing it; expect v1.3.2, installed and enabled. Start a new local desktop task using the installed `fund-review-lpa` skill and the synthetic sample, then follow the dependency and PDF checks below. This install-plus-task route was exercised on 13 October 2026; the separate GUI installation sequence above was documented from the platform guidance and was not automated. Do not count a CLI-only review as a desktop task test.
+
 If your account has no local project or Plugins surface, use the managed-workspace route below if your administrator enables it. Do not paste terminal installation commands into an ordinary chat and assume that installed the plugin. The local catalogue does not upload itself to the cloud.
 
 This follows [OpenAI's local marketplace guidance](https://developers.openai.com/plugins/build/plugins#build-your-own-curated-plugin-list). Local project, personal catalogue and managed-workspace installations are different sources; use one route for an environment and avoid duplicate installations.

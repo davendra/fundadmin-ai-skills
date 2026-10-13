@@ -5,7 +5,7 @@
 You need the plugin [installed](/guide/install) and a fund document. If you do not have one to hand, the plugin repository ships [24 synthetic samples](/guide/samples):
 
 ```bash
-git clone --branch fundadmin--v{{version}} --depth 1 https://github.com/davendra/fundadmin-ai-skills.git
+git clone --branch fundadmin--v1.3.2 --depth 1 https://github.com/davendra/fundadmin-ai-skills.git
 cd fundadmin-ai-skills
 ```
 

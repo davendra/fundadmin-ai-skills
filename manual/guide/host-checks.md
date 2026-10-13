@@ -1,6 +1,6 @@
 # Host checks
 
-These are observed synthetic integration checks for **v{{version}}**, performed on **13 October 2026**. They are not a full host/model qualification matrix or production certification. The test used the complete eight-page `OBRELUND-LPA-QUICKSTART.pdf`; no approved FundAdmin AI Workspace records were changed.
+These are observed synthetic integration checks for **v1.3.2**, performed on **13 October 2026**. They are not a full host/model qualification matrix or production certification. The test used the complete eight-page `OBRELUND-LPA-QUICKSTART.pdf`; no approved FundAdmin AI Workspace records were changed.
 
 | Route | Install / setup | LPA review and PDF | Remaining limitation |
 |---|---|---|---|

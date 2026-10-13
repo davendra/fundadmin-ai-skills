@@ -13,10 +13,12 @@ The plugin marketplace is the supported route and installs this published releas
 
 | Host | Do this |
 |---|---|
-| Claude Code | `claude plugin marketplace add davendra/fundadmin-ai-skills` then `claude plugin install fundadmin@fundadmin-ai-skills`; tell the user to restart the session |
+| Claude Code | `claude plugin marketplace add https://github.com/davendra/fundadmin-ai-skills.git#fundadmin--v1.3.2 --scope project` then `claude plugin install fundadmin@fundadmin-ai-skills --scope project`; tell the user to restart the session |
 | Claude Cowork | Tell the user: Customize → Plugins → Add marketplace → `davendra/fundadmin-ai-skills` → install FundAdmin AI (it is a UI step; you cannot do it for them) |
-| Codex / ChatGPT workspace | Tell the user their workspace administrator does it: Workspace settings → Plugins → Add → Import marketplace → `https://github.com/davendra/fundadmin-ai-skills` → select the reviewed release tag `fundadmin--v1.3.2` → review its contents → set the installation policy for the pilot group. Access, data handling and connected-app permissions stay under administrator control. |
-| Codex CLI, outside a managed workspace | `codex plugin marketplace add davendra/fundadmin-ai-skills` then `codex plugin add fundadmin@fundadmin-ai-skills` |
+| ChatGPT managed workspace | Tell the user their workspace administrator does it: Admin → Plugins → Add → Import marketplace → `https://github.com/davendra/fundadmin-ai-skills` → select the reviewed release tag `fundadmin--v1.3.2` → review its contents → set the installation policy for the pilot group. Access, data handling and connected-app permissions stay under administrator control. |
+| ChatGPT desktop local task | Follow the [local marketplace guide](https://help.fundadmin.dev/guide/install#chatgpt-desktop-local-marketplace), keep the full release together, and check actual helper access before claiming a report. |
+| ChatGPT personal cloud copy | If the account exposes Plugins → Add → Upload plugin archive, use the released standalone ChatGPT ZIP and [verified helper staging](https://help.fundadmin.dev/guide/install#chatgpt-cloud-personal-upload). Import does not unlock Work or grant connector access; respect managed-workspace policy. |
+| Codex CLI, outside a managed workspace | `codex plugin marketplace add davendra/fundadmin-ai-skills --ref fundadmin--v1.3.2` then `codex plugin add fundadmin@fundadmin-ai-skills` |
 
 For a supervised pilot, pin a reviewed release tag rather than a branch, use one installation method per environment, and record the installation method, plugin version and tag, host version and resolved model identifier. See [installation and release channels](docs/production/installation-and-release-channels.md).
 
@@ -26,7 +28,7 @@ Maintainers with access to the private source repository build and install plain
 
 Verify in Claude Code with `claude plugin details fundadmin@fundadmin-ai-skills`: expect 61 skills and 5 agents.
 
-Runtime qualification targets installed **Claude Code 2.1.278**, with an explicit model trace and all **18 saved cases** tied to the candidate; consult the verification record before claiming a pass. Codex and Cowork have supported package formats but experimental/unverified runtimes. Codex evidence is direct inline only, not an installed-host matrix; Cowork is unverified. Keep private host evidence outside plugin build inputs.
+Runtime qualification targets installed **Claude Code 2.1.278**, with an explicit model trace and all **18 saved cases** tied to the candidate; consult the verification record before claiming a pass. Codex and Cowork have supported package formats but experimental/unverified runtimes. Supplementary installed and inline synthetic checks are not a full host/model qualification matrix; Cowork is unverified. Keep private host evidence outside plugin build inputs.
 
 ## Alongside Anthropic's financial-services plugins
 

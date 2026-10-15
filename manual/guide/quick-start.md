@@ -92,3 +92,7 @@ Later skills build on earlier output: `report-pdf` turns a review into a PDF, `c
 - [All 60 commands](/commands/), grouped by category
 - [The 5 agents](/agents) and how the score works
 - [FAQ](/guide/faq) when something does not look right
+
+### Check that citations support the finding
+
+A valid sidecar and a readable PDF are only part of the check. Compare each material conclusion and rating with its cited **operative clause**, including all qualifications, economic bases, notices and consent conditions. A definition or first keyword match is not a substitute for the fee, expense, carry or extension clause. Record any unsupported item as unresolved, correct the dependent workpapers, and regenerate a new report instead of accepting an unsupported rating. See the [dated host-check findings](/guide/host-checks#cloud-continuation-15-october-2026).

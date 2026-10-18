@@ -1,10 +1,23 @@
 # Verification record
 
-## 1.3.2 — host evidence PENDING
+## 1.3.2 — host evidence recorded
 
-27 September 2026: **host-evaluation evidence for 1.3.2 is PENDING.** The 18 saved installed-plugin eval cases have not yet been run against the 1.3.2 candidate on the pinned Claude Code 2.1.278, and no candidate-bound evidence record exists. Until one is recorded here and accepted by the evidence gate, treat host behaviour as **unverified for 1.3.2**. The 1.3.1 evidence does not carry over: it is bound to the 1.3.1 fingerprint, and this candidate changes the capital-call, distribution-notice, draft-capital-call, fee-audit and KYC skill text, `fund_screening.py`, shipped samples and two eval graders.
+27 September 2026: **1.3.2 was published with candidate-bound host evidence** (tag `fundadmin--v1.3.2`, source commit `ac5c321`, candidate fingerprint `b3ec36078860d365a5a70d8991d3aa33d880481b1e59f3990e01dea5812b94f9`). `tools/verify_release_evidence.py` accepted the record and `tools/publish_plugin.sh` checked it again before publishing. The record, per-case results files and attempt notes are kept outside the repository, in the maintainer's local release archive (`release-evidence-1.3.2/`).
 
-This candidate carries the three follow-ups recorded with the 1.3.1 evidence. `fund_screening.py` now treats placeholder scope metadata as missing (`PLACEHOLDER_SCOPE`, `IDENTITY_LINK_NOT_ASSESSED`, `FRESHNESS_NOT_ASSESSED`), so the `kyc-no-grid` shortcut of filling placeholders to validate now yields INCOMPLETE screening rather than a vacuous pass. The review-lpa catches-issues check needs key person, excuse or an exclusion right, not a bare "exclusion"; the recorded 1.3.1 review-lpa chat answer would now fail it, because it omits key person and excuse rights (its saved report covers them), so that case may fail on a similar answer. The wire-readiness check accepts a plain "No." to the override question. It also includes a capital-call scoring change found in the fundadmin.dev worked examples: a per-investor difference of at most one currency unit that the notice's own stated method explains is a method note, not an allocation FAIL. Offline checks (policy sync, generated-tree freshness, `tools/verify_production.py`, the source test suite and strict plugin validation) are to be re-run on the final candidate and their results recorded here; they check structure, contracts and arithmetic, not host behaviour.
+- **Host and model:** Claude Code 2.1.278 (pinned), resolved model `claude-opus-5[1m]`, judge model `haiku`, one run per case, each case run by `tools/run_gate3.sh` with only its own tool grant.
+- **Cases:** all 18 passed at that fingerprint. 17 passed on their first attempt. `performance-unrealised` passed on a disclosed retry. Its first answer had every metric right (PME 1.10, DPI 0.00, RVPI 1.10, TVPI 1.10) and said an unsupplied NAV makes them "UNKNOWN — never zero", but its check required the word "missing" or "absent".
+- **1.3.2 changes seen in the evidence:**
+  - review-lpa's chat answer now names key person and excuse rights.
+  - No KYC case invented screening scope metadata; with none supplied, the screening helper returned INCOMPLETE and the file stayed on HOLD.
+  - A genuine allocation difference still fails.
+  - The one-unit stated-method note was not exercised by a case. The regenerated clean capital-call example recorded two $1 true-up differences as a method note.
+- **Tool grants, as checked in each trace:** no gated tool was used outside its grant. A Write grant still exposes Edit and NotebookEdit, and Task, TaskStop and ToolSearch are always present. `screening-unavailable` again used ToolSearch to look for Bash and Write, and found none.
+- **Human review:** each case's output and trace were inspected and signed off by Davendra Patel (named reviewer). Notes recorded, not blocking:
+  - `signed-ytd` has a side remark that states −4.003% where −3.997% is correct.
+  - `kyc-no-grid` suggests moving the review date to fit the evidence.
+  - `performance-unrealised`'s check should accept "not supplied" wording.
+
+This is synthetic installed-plugin smoke evidence, not professional release approval. The publish script's offline checks passed.
 
 ## 1.3.1 — host evidence recorded
 

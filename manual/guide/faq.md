@@ -36,7 +36,7 @@ Claude Code: `claude plugin update fundadmin@fundadmin-ai-skills`, then restart.
 
 ## Where do I report a problem?
 
-Use the [contact form](https://fundadmin.dev/#contact) on fundadmin.dev, and pick "A question about the plugin". Say which command you ran, on which host, and what you expected to happen. Please don't send pull requests to the plugin repository: it is regenerated on every release, so changes made there are overwritten.
+Use the [contact form](https://fundadmin.dev/#contact) on fundadmin.dev, and pick "A question about FundAdmin Skills". Say which command you ran, on which host, and what you expected to happen. Please don't send pull requests to the plugin repository: it is regenerated on every release, so changes made there are overwritten.
 
 ## Does it work with Anthropic's financial-services plugins?
 

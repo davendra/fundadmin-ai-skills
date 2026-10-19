@@ -2,9 +2,19 @@
 
 ## Release status
 
-Version 1.3.1 is a **supervised-pilot release candidate**, not approval for unattended fund administration. The plugin supplies instructions and bounded local helpers; the host controls model execution, access and tools. Automated tests do not certify legal accuracy, investor eligibility, sanctions clearance, tax classification or payment safety.
+Version 1.3.2 is a **supervised-pilot release candidate**, not approval for unattended fund administration. The plugin supplies instructions and bounded local helpers; the host controls model execution, access and tools. Automated tests do not certify legal accuracy, investor eligibility, sanctions clearance, tax classification or payment safety.
 
 The scope of this hardening is the skills/plugin distribution. The source repository's commercial web applications, MCP server and deployment infrastructure require their own security, tenancy, authentication, backup and operational reviews before production use.
+
+## Known limitations in 1.3.2
+
+The reviewer of the 1.3.2 release runs recorded three notes on cases that passed (see [verification.md](verification.md)). Until a later release fixes them, treat them as limits:
+
+- **`review-capital-account`:** a side remark on a year-to-date return can be wrong in the third decimal place. In the release run it stated −4.003% where −3.997% is correct. Check every derived return against the source figures before relying on it.
+- **`kyc-review`:** with no KYC rules grid supplied, it suggested moving the review date to fit the evidence. Do not change a review date to fit the evidence; record the gap for the reviewer instead.
+- **`performance-calc`:** the output was correct. The release check required the word "missing" or "absent" and rejected "not supplied", so the case passed on a disclosed retry. This needs a test fix, not a change in behaviour.
+
+The sample pack covers two funds, not one; [`samples/README.md`](https://github.com/davendra/fundadmin-ai-skills/blob/main/samples/README.md) lists which document belongs to which.
 
 ## Supported modes and dependencies
 
@@ -79,4 +89,4 @@ Steps 4–6 require organisational decisions and cannot be replaced by this repo
 
 Every material change to a skill, source rule, schema or helper requires targeted regression tests and regeneration. Do not edit `plugin/` by hand. Review primary regulatory sources before reliance and when an authority announces changes; stale or inaccessible evidence remains incomplete. Keep the source register dated, record breaking methodology changes, and treat prior scores as non-comparable unless explicitly recalculated under the same version.
 
-Report security concerns privately through the contact form at [fundadmin.dev](https://fundadmin.dev/#contact) (choose "A question about the plugin" and mark it security), with a minimal synthetic reproduction and no investor data. Triage unsafe output/path handling and fabricated clearance as release blockers. Do not place secrets or live documents in public issues.
+Report security concerns privately through the contact form at [fundadmin.dev](https://fundadmin.dev/#contact) (choose "A question about FundAdmin Skills" and mark it security), with a minimal synthetic reproduction and no investor data. Triage unsafe output/path handling and fabricated clearance as release blockers. Do not place secrets or live documents in public issues.

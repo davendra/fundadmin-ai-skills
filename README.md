@@ -113,7 +113,7 @@ Anthropic publishes a separate marketplace, [`anthropics/financial-services`](ht
 
 ## Quick start
 
-This repository ships [`samples/`](samples/README.md): 24 synthetic documents for one fictional fund family, most with planted issues for the skills to find and a few clean controls (marked in the samples table) that should come back clean.
+This repository ships [`samples/`](samples/README.md): 24 synthetic documents, nearly all for two funds in one fictional fund family (the samples README says which is which), most with planted issues for the skills to find and a few clean controls (marked in the samples table) that should come back clean.
 
 ```bash
 git clone https://github.com/davendra/fundadmin-ai-skills.git && cd fundadmin-ai-skills

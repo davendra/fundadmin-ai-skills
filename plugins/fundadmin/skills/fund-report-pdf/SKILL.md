@@ -118,3 +118,17 @@ After generation, extract PDF text and compare the actual source content, partic
 State the absolute output path and summarise the content and page count if verified. Disclose layout fallbacks or unsupported characters that affect the report. Do not claim a gauge, dashboard or visual check that was not produced or performed.
 
 The report must state that it is AI-generated and carry the exact sentence "Not financial, legal or tax advice. Qualified human review is required." The renderer appends that notice with a data-handling note. Preserve source-specific disclaimers and qualifications in addition to this notice. End the chat handoff with the same sentence.
+
+### Reusable fidelity check
+
+For Markdown inputs, run the sibling `fund` skill's packaged
+`scripts/fund_pdf_fidelity.py --markdown <saved-report.md> --pdf <rendered-report.pdf>`
+after rendering. Retain its JSON in a fresh workpaper. Exit 0 means supported text
+matched; 1 means mismatches; 2 means input/dependency/format failure. Investigate
+non-zero outcomes rather than declaring success or normalising away punctuation.
+The checker preserves decimals, signs, percentages, operators and citation text;
+it reconstructs table continuations using row and column positions. It checks
+source text only, not factual accuracy, arbitrary extra PDF prose, visual layout
+or accessibility. Continue the visual checks above. See `references/production/pdf.md`
+for its supported subset and limits; structured JSON still needs its own source
+comparison and visual review.

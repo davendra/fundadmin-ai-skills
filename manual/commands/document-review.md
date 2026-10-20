@@ -20,6 +20,12 @@ Runs the 5-agent LPA pipeline (terms, risks, compliance, obligations, recommenda
 
 **Writes** `LPA-REVIEW-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-review-lpa/SKILL.md)
 
+**Dependencies and fallbacks**
+
+- **current official authority evidence via host retrieval or supplied sources** — current jurisdiction-specific claims. If unavailable: unverified requirements remain UNKNOWN; no certification.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund review-ppm <file>` {#review-ppm}
 
 PPM/offering document review
@@ -33,6 +39,10 @@ Reviews a PPM or offering memorandum for risk factor completeness, fee disclosur
 | Codex | `$fund-review-ppm <file>` |
 
 **Writes** `PPM-REVIEW-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-review-ppm/SKILL.md)
+
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
 
 ## `/fundadmin:fund review-subscription <file>` {#review-subscription}
 
@@ -48,6 +58,10 @@ Reviews a subscription agreement for identity, qualification, tax forms, AML and
 
 **Writes** `SUBSCRIPTION-REVIEW-[fund]-[investor]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-review-subscription/SKILL.md)
 
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund review-side-letter <file>` {#review-side-letter}
 
 Side letter obligation extraction
@@ -61,6 +75,10 @@ Builds an obligation inventory from a side letter, categorizes every right, rate
 | Codex | `$fund-review-side-letter <file>` |
 
 [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-review-side-letter/SKILL.md)
+
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
 
 ## `/fundadmin:fund review-capital-call <file>` {#review-capital-call}
 
@@ -76,6 +94,10 @@ Recomputes an incoming capital call notice: pro-rata math, fee line items, wire 
 
 **Writes** `CAPITAL-CALL-REVIEW-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-review-capital-call/SKILL.md)
 
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund review-distribution-notice <file>` {#review-distribution-notice}
 
 Distribution notice math & tax field checks
@@ -89,6 +111,10 @@ Recomputes a distribution notice: private-fund types, unfunded impact and waterf
 | Codex | `$fund-review-distribution-notice <file>` |
 
 **Writes** `DISTRIBUTION-REVIEW-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-review-distribution-notice/SKILL.md)
+
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
 
 ## `/fundadmin:fund review-capital-account <file>` {#review-capital-account}
 
@@ -104,6 +130,12 @@ Recomputes a capital account statement to the currency unit: extracts every fiel
 
 **Writes** `CAPITAL-ACCOUNT-REVIEW-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-review-capital-account/SKILL.md)
 
+**Dependencies and fallbacks**
+
+- **openpyxl** — the .xlsx of the report's tables. If unavailable: CSV of the same tables.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund review-k1 <file>` {#review-k1}
 
 Schedule K-1 (Form 1065) review & UBTI/ECI flags
@@ -117,6 +149,10 @@ Extracts a Schedule K-1 (Form 1065) by its actual labels and codes, reconciles I
 | Codex | `$fund-review-k1 <file>` |
 
 **Writes** `K1-REVIEW-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-review-k1/SKILL.md)
+
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
 
 ## `/fundadmin:fund review-poa <file>` {#review-poa}
 
@@ -132,6 +168,10 @@ Reviews a Power of Attorney used in fund work: classifies it as investor/LPA or 
 
 **Writes** `POA-REVIEW-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-review-poa/SKILL.md)
 
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund review-gp-update <file>` {#review-gp-update}
 
 GP quarterly activity update analysis
@@ -145,6 +185,10 @@ Analyzes a GP activity update: FPAUM bridge tie-out, deployment, realisations, f
 | Codex | `$fund-review-gp-update <file>` |
 
 **Writes** `GP-UPDATE-REVIEW-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-review-gp-update/SKILL.md)
+
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
 
 ## `/fundadmin:fund compare <file1> <file2>` {#compare}
 
@@ -160,6 +204,10 @@ Compares two fund documents and rates each difference material, significant, adm
 
 **Writes** `FUND-COMPARISON-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-compare/SKILL.md)
 
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund extract-terms <file>` {#extract-terms}
 
 Key terms & definitions extraction
@@ -173,3 +221,7 @@ Extracts all defined terms, fee provisions, key dates, governance and reporting 
 | Codex | `$fund-extract-terms <file>` |
 
 **Writes** `TERMS-EXTRACT-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-extract-terms/SKILL.md)
+
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)

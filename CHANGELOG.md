@@ -3,6 +3,49 @@
 All notable changes to the published plugin. The private source repository
 (`davendra/fundadmin-ai`, maintainers only) keeps the full project changelog.
 
+## 1.3.3 — 2026-10-20
+
+Fixes from a clean-machine install-to-output test of 1.3.2 (macOS, system
+Python 3.9.6, first `review-lpa` run on the quickstart sample).
+
+- **Host-evaluation evidence:** see `docs/production/verification.md` for this
+  release's status. Evidence is recorded there, not here, because this file is
+  part of the candidate the evidence is bound to.
+
+- The pinned helper dependencies now ship inside the plugin as
+  `skills/fund/requirements.txt`. Before, only the repository root had them,
+  and a marketplace install does not copy the root.
+- `fund_report.py check-env` prints the Python in use, which optional packages
+  it can import (ReportLab, openpyxl, PyYAML, pypdf), and an install command
+  that never changes system Python: into the running virtual environment, or a
+  new project `.venv`. It points to a working project `.venv` that is not the
+  running interpreter, and exits non-zero only for a Python older than 3.9,
+  since missing packages block only the PDF, Excel and YAML steps. The report
+  contract runs it before a multi-step report.
+- A missing ReportLab or openpyxl now names the interpreter that ran and that
+  install command, instead of `pip3 install`, which can install into a
+  different Python or into system Python.
+- The report contract no longer says "standard library only": the PDF, Excel
+  and YAML helpers need the pinned packages.
+- Finding ids such as `TRM-01` are accepted and stored in lowercase (ASCII
+  only; the caller's object is not changed). Report ids and source ids keep
+  the strict rule.
+- `review-lpa` saves each specialist agent's result verbatim to
+  `<run>/agent-results/<agent-name>.result.md` and hands downstream agents the
+  saved file, so nothing is condensed by hand. It asks whether the supplied
+  text is the complete agreement and labels absence-based ratings
+  scope-conditional when that is not confirmed. Its scoring reference names
+  the installed path, `references/production/lpa-scoring.md`.
+- The plugin description gives the counts once (61 skills: 60 commands plus
+  the fund menu), names the pinned packages, and drops "pilot" wording.
+- Two wording-only eval checks are wider. They were changed after the first
+  1.3.3 host runs, which they failed twice each on answers whose content was
+  correct, so every case was rerun on the changed candidate.
+  `performance-unrealised` accepts "all", "both" or "each" beside the verb
+  ("would all be UNKNOWN"). The `review-lpa` Key Issues check accepts `s.`,
+  `ss.` or `Section` before a clause number as well as `§`. The content,
+  safety and judge checks are unchanged.
+
 ## 1.3.2 — 2026-09-27
 
 - **Host-evaluation evidence:** see `docs/production/verification.md` for this

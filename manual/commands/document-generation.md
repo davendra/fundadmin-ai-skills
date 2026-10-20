@@ -6,8 +6,6 @@ pageClass: commands
 
 <div class="cat-head"><img class="light-only" src="/images/icons/draft-light.svg" alt="" /><img class="dark-only" src="/images/icons/draft-dark.svg" alt="" /><span>4 of the <a href="/commands/">60 commands</a>. Type each as shown in Claude Code or Cowork; Codex users name the skill.</span></div>
 
-<img class="figure" src="/images/document-generation.webp" alt="Drafting notices and letters: fund data and LPA terms go in, capital call notice, distribution notice, investor letter and side letter come out" />
-
 ## `/fundadmin:fund draft-capital-call <data>` {#draft-capital-call}
 
 Draft capital call notice from sourced terms (review required)
@@ -21,6 +19,10 @@ Drafts a structured capital call notice with purpose breakdown, per-LP pro-rata 
 | Codex | `$fund-draft-capital-call <data>` |
 
 **Writes** `CAPITAL-CALL-[fund]-[number]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-draft-capital-call/SKILL.md)
+
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
 
 ## `/fundadmin:fund draft-distribution <data>` {#draft-distribution}
 
@@ -36,6 +38,10 @@ Drafts a distribution notice: helper-supported waterfall tiers (others UNCALCULA
 
 **Writes** `DISTRIBUTION-NOTICE-[fund]-[number]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-draft-distribution/SKILL.md)
 
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund draft-investor-letter <type>` {#draft-investor-letter}
 
 Generate investor communications
@@ -50,6 +56,10 @@ Drafts LP communications with a separate review cover: quarterly update, annual 
 
 **Writes** `INVESTOR-LETTER-[fund]-[type]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-draft-investor-letter/SKILL.md)
 
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund draft-side-letter <terms>` {#draft-side-letter}
 
 Generate side letter from provisions
@@ -63,3 +73,7 @@ Drafts an LP side letter from requested provisions (fee discount, MFN, co-invest
 | Codex | `$fund-draft-side-letter <terms>` |
 
 **Writes** `SIDE-LETTER-[fund]-[investor]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-draft-side-letter/SKILL.md)
+
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)

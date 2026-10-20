@@ -3,23 +3,45 @@
 
 import argparse
 import json
-import math
 import sys
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import Decimal
+from fractions import Fraction
 
 
 WEIGHTS = {"terms": 20, "risk": 25, "compliance": 20, "obligations": 15}
 
 
 def number(value, low, high, label):
-    if (type(value) not in (int, float) or not math.isfinite(value)
-            or not low <= value <= high):
+    if type(value) not in (int, float, Decimal):
         raise ValueError("{} must be a finite number in [{}, {}]".format(label, low, high))
-    return Decimal(str(value))
+    decimal = Decimal(str(value))
+    if (not decimal.is_finite() or not low <= decimal <= high):
+        raise ValueError("{} must be a finite number in [{}, {}]".format(label, low, high))
+    if len(decimal.as_tuple().digits) > 1000 or abs(decimal.as_tuple().exponent) > 1000:
+        raise ValueError(label + " exceeds the 1000-digit/exponent input limit")
+    return Fraction(decimal)
 
 
 def rounded(value):
-    return float(value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+    # Exact rational arithmetic also avoids context rounding in recurring /9 results.
+    value = Fraction(value)
+    whole, remainder = divmod(abs(value.numerator) * 100, value.denominator)
+    cents = whole + (2 * remainder >= value.denominator)
+    return (-cents if value < 0 else cents) / 100
+
+
+def json_result(value):
+    """Emit exact Decimal input values as JSON numbers, never via binary float."""
+    if isinstance(value, Decimal):
+        if not value.is_finite():
+            raise ValueError("non-finite output")
+        return str(value)
+    if isinstance(value, dict):
+        return "{" + ",".join(json.dumps(k) + ":" + json_result(v)
+                              for k, v in sorted(value.items())) + "}"
+    if isinstance(value, list):
+        return "[" + ",".join(json_result(v) for v in value) + "]"
+    return json.dumps(value, allow_nan=False)
 
 
 def score_lpa(data):
@@ -38,8 +60,8 @@ def score_lpa(data):
         if (type(assessed) is not int or type(expected) is not int
                 or expected <= 0 or not 0 <= assessed <= expected):
             raise ValueError("coverage requires integer counts: 0 <= assessed <= expected, expected > 0")
-        coverage_result = dict(coverage, percent=rounded(Decimal(assessed) * 100 / expected))
-    missing, rows, total = [], {}, Decimal(0)
+        coverage_result = dict(coverage, percent=rounded(Fraction(assessed * 100, expected)))
+    missing, rows, total = [], {}, Fraction(0)
     for name, weight in WEIGHTS.items():
         entry = dimensions.get(name)
         if entry is None:
@@ -97,12 +119,13 @@ def main(argv=None):
         else:
             with open(args.input, encoding="utf-8") as handle:
                 raw = handle.read()
-        data = json.loads(raw, object_pairs_hook=unique_object, parse_constant=reject_constant)
+        data = json.loads(raw, object_pairs_hook=unique_object, parse_constant=reject_constant,
+                          parse_float=Decimal)
         result = score_lpa(data)
     except (ValueError, OSError, OverflowError, RecursionError) as exc:
         print(json.dumps({"error": str(exc)}), file=sys.stderr)
         return 2
-    print(json.dumps(result, indent=2, sort_keys=True, allow_nan=False))
+    print(json_result(result))
     return 0
 
 

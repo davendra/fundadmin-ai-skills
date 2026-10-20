@@ -8,8 +8,9 @@ const site = meta.docs
 const categories = meta.categories as { name: string; slug: string; count: number }[]
 
 export default defineConfig({
-  title: 'FundAdmin AI Manual',
+  title: 'FundAdmin AI Help',
   description: `User manual for the ${meta.name} plugin: ${meta.skill_count} fund administration skills. Install in Claude Code, ChatGPT desktop, ChatGPT Work or Codex; qualification varies by host.`,
+  lang: 'en-GB',
   cleanUrls: true,
   ignoreDeadLinks: false,
   // The published repository is one squashed commit per release, so git dates
@@ -18,30 +19,36 @@ export default defineConfig({
   srcExclude: ['DEPLOY.md', 'README.md'],
   sitemap: { hostname: site },
   head: [
-    ['link', { rel: 'icon', href: '/favicon.svg' }],
-    ['link', { rel: 'preconnect', href: 'https://fonts.googleapis.com' }],
-    ['link', { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' }],
-    ['link', { rel: 'stylesheet', href: 'https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap' }],
+    ['link', { rel: 'icon', href: '/fundadmin-ai-favicon.svg' }],
     ['meta', { property: 'og:type', content: 'website' }],
-    ['meta', { property: 'og:site_name', content: 'FundAdmin AI Manual' }],
-    ['meta', { property: 'og:title', content: 'FundAdmin AI Manual' }],
+    ['meta', { property: 'og:site_name', content: 'FundAdmin AI Help' }],
     ['meta', { property: 'og:description', content: `Install and use the ${meta.name} plugin: ${meta.skill_count} fund administration skills and ${meta.agent_count} LPA-review agents. Claude Code is the primary target; ChatGPT and other hosts remain experimental.` }],
-    ['meta', { property: 'og:image', content: `${site}/images/og-social-card.jpg` }],
-    ['meta', { property: 'og:url', content: `${site}/` }],
-    ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
-    ['meta', { name: 'twitter:title', content: 'FundAdmin AI Manual' }],
-    ['meta', { name: 'twitter:image', content: `${site}/images/og-social-card.jpg` }],
+    ['meta', { property: 'og:image', content: `${site}/images/fundadmin-ai-mark.png` }],
+    ['meta', { name: 'twitter:card', content: 'summary' }],
+    ['meta', { name: 'twitter:image', content: `${site}/images/fundadmin-ai-mark.png` }],
   ],
+  transformHead({ pageData }) {
+    const path = pageData.relativePath.replace(/index\.md$/, '').replace(/\.md$/, '')
+    const url = `${site}/${path}`
+    const title = pageData.title === 'FundAdmin AI Help' ? pageData.title : `${pageData.title} | FundAdmin AI Help`
+    return [
+      ['link', { rel: 'canonical', href: url }],
+      ['meta', { property: 'og:url', content: url }],
+      ['meta', { property: 'og:title', content: title }],
+      ['meta', { name: 'twitter:title', content: title }],
+    ]
+  },
   themeConfig: {
-    logo: { light: '/images/lockup-light.svg', dark: '/images/lockup-dark.svg', alt: 'FundAdmin AI' },
-    siteTitle: false,
+    logo: { src: '/images/fundadmin-ai-mark.png', alt: '' },
+    siteTitle: 'FundAdmin AI',
     search: { provider: 'local' },
     nav: [
       { text: 'Guide', link: '/guide/install' },
       { text: 'Commands', link: '/commands/' },
       { text: 'Agents', link: '/agents' },
+      { text: 'Examples', link: '/guide/examples' },
       { text: 'Contact', link: 'https://fundadmin.dev/#contact' },
-      { text: `v${meta.version}`, link: `${meta.repository}/blob/main/CHANGELOG.md` },
+      { text: `v${meta.version}`, link: '/guide/release' },
     ],
     sidebar: {
       '/guide/': [
@@ -53,6 +60,8 @@ export default defineConfig({
             { text: 'Host checks', link: '/guide/host-checks' },
             { text: 'Output files', link: '/guide/outputs' },
             { text: 'Sample documents', link: '/guide/samples' },
+            { text: 'Worked examples', link: '/guide/examples' },
+            { text: 'Release and host support', link: '/guide/release' },
             { text: 'FAQ', link: '/guide/faq' },
             { text: 'Privacy', link: '/guide/privacy' },
           ],
@@ -68,12 +77,12 @@ export default defineConfig({
         },
       ],
       '/agents': [
-        { text: 'Agents', items: [{ text: 'The 5 LPA-review agents', link: '/agents' }] },
+        { text: 'Agents', items: [{ text: `The ${meta.agent_count} LPA-review agents`, link: '/agents' }] },
       ],
     },
     socialLinks: [{ icon: 'github', link: meta.repository }],
     footer: {
-      message: `${meta.name} v${meta.version} · ${meta.release_date} · MIT · Not financial, legal or tax advice.`,
+      message: `Plugin v${meta.version} · Released ${meta.release_date} · Help updated 16 October 2026 · MIT<br>Not financial, legal or tax advice. Qualified human review required.`,
       copyright: `<a href="/guide/privacy">Privacy</a> · <a href="${meta.homepage}/#contact">Contact</a> · <a href="${meta.homepage}">fundadmin.dev</a>`,
     },
   },

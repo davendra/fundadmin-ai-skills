@@ -6,8 +6,6 @@ pageClass: commands
 
 <div class="cat-head"><img class="light-only" src="/images/icons/compliance-light.svg" alt="" /><img class="dark-only" src="/images/icons/compliance-dark.svg" alt="" /><span>4 of the <a href="/commands/">60 commands</a>. Type each as shown in Claude Code or Cowork; Codex users name the skill.</span></div>
 
-<img class="figure" src="/images/esg-tax-specialized.webp" alt="ESG report, K-1 tax review, board memo and wire verification" />
-
 ## `/fundadmin:fund esg-report <data>` {#esg-report}
 
 ESG report draft (SFDR, PAI) — no compliance verdict
@@ -21,6 +19,10 @@ Drafts a preliminary ESG report for applicable SFDR, climate, EDCI, PRI and Taxo
 | Codex | `$fund-esg-report <data>` |
 
 **Writes** `ESG-REPORT-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-esg-report/SKILL.md)
+
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
 
 ## `/fundadmin:fund tax-review <file>` {#tax-review}
 
@@ -36,6 +38,12 @@ Analyzes a K-1 or tax package for UBTI, ECI, Section 199A QBI, 163(j) limits, st
 
 **Writes** `TAX-REVIEW-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-tax-review/SKILL.md)
 
+**Dependencies and fallbacks**
+
+- **current official authority evidence via host retrieval or supplied sources** — current jurisdiction-specific claims. If unavailable: unverified requirements remain UNKNOWN; no certification.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund board-memo <type>` {#board-memo}
 
 Board/LPAC memo drafting; GP-owned recommendation slots
@@ -50,6 +58,10 @@ Drafts a board, LPAC, annual or special meeting memo: agenda, sourced performanc
 
 **Writes** `BOARD-MEMO-[fund]-[type]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-board-memo/SKILL.md)
 
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund wire-verify <data>` {#wire-verify}
 
 Wire change review & masked checklist — no approval
@@ -63,3 +75,9 @@ Flags bank/beneficiary changes and missing callback evidence for wire instructio
 | Codex | `$fund-wire-verify <data>` |
 
 [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-wire-verify/SKILL.md)
+
+**Dependencies and fallbacks**
+
+- **independent trusted callback or bank verification evidence** — out-of-band instruction verification. If unavailable: document comparison only; no payment release.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)

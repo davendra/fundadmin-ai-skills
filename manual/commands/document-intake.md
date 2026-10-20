@@ -6,8 +6,6 @@ pageClass: commands
 
 <div class="cat-head"><img class="light-only" src="/images/icons/review-light.svg" alt="" /><img class="dark-only" src="/images/icons/review-dark.svg" alt="" /><span>3 of the <a href="/commands/">60 commands</a>. Type each as shown in Claude Code or Cowork; Codex users name the skill.</span></div>
 
-<img class="figure" src="/images/ingest-flow.jpg" alt="Batch intake: classify a folder of GP PDFs, review by priority, reconcile matching pairs, portfolio dashboard" />
-
 ## `/fundadmin:fund ingest <folder>` {#ingest}
 
 Classify & route a folder of mixed fund documents
@@ -21,6 +19,10 @@ Classifies a folder of mixed fund PDFs, routes each to its `/fundadmin:fund revi
 | Codex | `$fund-ingest <folder>` |
 
 **Writes** `INGEST-REPORT-[fund]-[date].md` `INGEST-MANIFEST-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-ingest/SKILL.md)
+
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
 
 ## `/fundadmin:fund ingest-email <file>` {#ingest-email}
 
@@ -36,6 +38,12 @@ Parses an email or .eml and its attachments, then cross-validates the amounts, d
 
 **Writes** `EMAIL-INGEST-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-ingest-email/SKILL.md)
 
+**Dependencies and fallbacks**
+
+- **read-only mailbox connector** — optional mailbox retrieval. If unavailable: review only user-supplied email and attachments.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund monitor-email [--days N]` {#monitor-email}
 
 Read-only mailbox check; stage attachments in an isolated run; no automatic processing
@@ -49,3 +57,9 @@ Reads an explicitly authorised Gmail scope for fund emails, stages PDF, XLSX and
 | Codex | `$fund-monitor-email [--days N]` |
 
 **Writes** `EMAIL-MONITOR-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-monitor-email/SKILL.md)
+
+**Dependencies and fallbacks**
+
+- **Gmail or equivalent read-only mailbox connector** — authorised mailbox retrieval. If unavailable: NOT PERFORMED; no mailbox results inferred.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)

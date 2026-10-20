@@ -1,5 +1,6 @@
 {
-  "buildCommand": "npm run docs:build",
+  "buildCommand": "if [ -f ../../tools/build_plugin.py ]; then bash ../../tools/build_help_site.sh; else npm run docs:build; fi",
+  "git": { "deploymentEnabled": { "main": true, "*": false } },
   "outputDirectory": ".vitepress/dist",
   "framework": "vitepress",
   "cleanUrls": true,

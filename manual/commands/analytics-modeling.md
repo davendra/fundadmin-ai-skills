@@ -6,8 +6,6 @@ pageClass: commands
 
 <div class="cat-head"><img class="light-only" src="/images/icons/analysis-light.svg" alt="" /><img class="dark-only" src="/images/icons/analysis-dark.svg" alt="" /><span>4 of the <a href="/commands/">60 commands</a>. Type each as shown in Claude Code or Cowork; Codex users name the skill.</span></div>
 
-<img class="figure" src="/images/analytics-modeling.webp" alt="Cash flows to metrics: IRR, TVPI, DPI and PME, a J-curve, downside, base and upside scenarios, fee audit against the LPA" />
-
 ## `/fundadmin:fund performance-calc <data>` {#performance-calc}
 
 Performance metrics (IRR, TVPI, DPI, RVPI)
@@ -21,6 +19,10 @@ Computes IRR, TVPI, DPI, RVPI, MOIC, and PME from cash flows or a capital accoun
 | Codex | `$fund-performance-calc <data>` |
 
 **Writes** `PERFORMANCE-REPORT-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-performance-calc/SKILL.md)
+
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
 
 ## `/fundadmin:fund cashflow-forecast <data>` {#cashflow-forecast}
 
@@ -36,6 +38,10 @@ Projects capital calls, distributions, and NAV from explicit dated assumptions u
 
 **Writes** `CASHFLOW-FORECAST-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-cashflow-forecast/SKILL.md)
 
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund scenario-model <data>` {#scenario-model}
 
 Scenario modeling & sensitivity analysis
@@ -50,6 +56,10 @@ Runs user-specified named scenario schedules through deterministic workpapers: N
 
 **Writes** `SCENARIO-MODEL-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-scenario-model/SKILL.md)
 
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund fee-audit <file>` {#fee-audit}
 
 Fee recomputation against supplied LPA terms
@@ -63,3 +73,9 @@ Recomputes management fees and offsets with the packaged helper, checks carry te
 | Codex | `$fund-fee-audit <file>` |
 
 **Writes** `FEE-AUDIT-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-fee-audit/SKILL.md)
+
+**Dependencies and fallbacks**
+
+- **openpyxl** — the .xlsx of the report's tables. If unavailable: CSV of the same tables.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)

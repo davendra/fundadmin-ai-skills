@@ -101,7 +101,13 @@ def ensure_reportlab() -> None:
         )
         from reportlab import pdfgen as canvas_module  # noqa: F811
     except ImportError as exc:
-        raise RuntimeError("ERROR: reportlab is required. Install with: pip3 install reportlab") from exc
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        try:
+            from fund_report import missing_package  # same directory, shipped together
+            message = missing_package("reportlab", "PDF reports")
+        except ImportError:  # copied without its siblings
+            message = "reportlab is required for PDF reports. Install the pinned requirements in a virtual environment."
+        raise RuntimeError("ERROR: " + message) from exc
 
     COLORS = {
         "primary": HexColor("#1a365d"),

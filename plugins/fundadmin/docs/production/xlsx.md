@@ -59,9 +59,10 @@ missing.
 
 ## When openpyxl is missing
 
-`.xlsx` output needs `openpyxl` (pinned in `requirements-plugin.txt`). Without it
-the helper creates nothing and says so: `openpyxl is not installed; no workbook
-was generated`. The calling skill then re-runs with `--format csv` and tells the
+`.xlsx` output needs `openpyxl` (pinned in `requirements-plugin.txt`, shipped in
+the plugin as `skills/fund/requirements.txt`). Without it the helper creates
+nothing and says so: `openpyxl is not installed for <python>; no workbook was
+generated`, followed by the exact install command for that Python. The calling skill then re-runs with `--format csv` and tells the
 user it produced a CSV. It never renames a CSV to `.xlsx` or silently changes
 format.
 

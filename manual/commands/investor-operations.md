@@ -6,8 +6,6 @@ pageClass: commands
 
 <div class="cat-head"><img class="light-only" src="/images/icons/investors-light.svg" alt="" /><img class="dark-only" src="/images/icons/investors-dark.svg" alt="" /><span>4 of the <a href="/commands/">60 commands</a>. Type each as shown in Claude Code or Cowork; Codex users name the skill.</span></div>
 
-<img class="figure" src="/images/investor-operations.webp" alt="Investor operations: onboarding checklist, DDQ answers, entity map and data room index" />
-
 ## `/fundadmin:fund investor-onboard <type>` {#investor-onboard}
 
 Investor onboarding checklist & workflow
@@ -21,6 +19,12 @@ Prepares an onboarding checklist by investor type: documents to collect, the qua
 | Codex | `$fund-investor-onboard <type>` |
 
 **Writes** `ONBOARDING-CHECKLIST-[fund]-[type]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-investor-onboard/SKILL.md)
+
+**Dependencies and fallbacks**
+
+- **identity and screening evidence sources** — external onboarding checks. If unavailable: draft checklist; no investor record mutation.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
 
 ## `/fundadmin:fund ddq-respond <file>` {#ddq-respond}
 
@@ -36,6 +40,10 @@ Drafts answers to an investor DDQ or RFP mapped to the 20 ILPA DDQ 2.0 topics, c
 
 **Writes** `DDQ-RESPONSE-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-ddq-respond/SKILL.md)
 
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund entity-map <file>` {#entity-map}
 
 Fund structure & entity relationship mapping
@@ -50,6 +58,10 @@ Maps a fund structure into a Mermaid diagram, entity registry, ownership chain a
 
 **Writes** `ENTITY-MAP-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-entity-map/SKILL.md)
 
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund data-room <type>` {#data-room}
 
 Virtual data room organizer & checklist
@@ -63,3 +75,7 @@ Drafts a data room index across eight categories with Required/Recommended/Optio
 | Codex | `$fund-data-room <type>` |
 
 **Writes** `DATA-ROOM-[fund]-[type]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-data-room/SKILL.md)
+
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)

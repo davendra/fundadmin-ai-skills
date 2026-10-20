@@ -137,3 +137,32 @@ html:not(.dark) .dark-only { display: none !important; }
 .medium-zoom-overlay { z-index: 100; }
 .medium-zoom-image--opened { z-index: 101; }
 .vp-doc img { cursor: zoom-in; }
+
+/* Help centre: the same cyan/violet F and text wordmark as fundadmin.dev. */
+:root {
+  --vp-font-family-base: ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --vp-font-family-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  --vp-home-hero-image-background-image: none;
+}
+.VPNavBarTitle .title { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; }
+.VPNavBarTitle .logo { height: 36px; width: 36px; border-radius: 8px; margin-right: 10px; }
+.VPHero .image-src { border-radius: 24px; }
+@media (max-width: 767px) { .VPNavBarTitle .logo { height: 32px; width: 32px; } }
+.VPHero .image-src { width: 210px; height: 210px; max-width: 210px; max-height: 210px; }
+.VPHome .vp-doc { max-width: 1152px; margin: 0 auto; padding: 32px; }
+.VPHome .vp-doc h2 { margin-top: 48px; }
+.release-strip { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; padding: 18px 22px; border: 1px solid var(--vp-c-divider); border-radius: 12px; font-size: 14px; background: var(--vp-c-bg-alt); }
+.release-strip span:first-child { font-weight: 650; }
+.release-strip a { margin-left: auto; }
+.workflow-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 28px; }
+.workflow-steps > div { border-top: 2px solid var(--vp-c-brand-1); padding-top: 18px; }
+.workflow-steps h3 { margin-top: 8px; }
+.workflow-steps p { color: var(--vp-c-text-2); }
+.step-number { font: 500 13px var(--vp-font-family-mono); color: var(--vp-c-brand-1); }
+@media (max-width: 639px) {
+  .VPHome .vp-doc { padding: 24px; }
+  .workflow-steps { grid-template-columns: 1fr; }
+  .release-strip { gap: 10px; flex-direction: column; align-items: flex-start; }
+  .release-strip a { margin-left: 0; }
+  .VPHero .image-src { width: 144px; height: 144px; }
+}

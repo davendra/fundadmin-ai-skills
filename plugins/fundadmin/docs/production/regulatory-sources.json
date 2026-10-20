@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "reviewed_on": "2026-09-21",
-  "status": "PILOT CANDIDATE — BOUNDED SOURCE REVIEW",
+  "status": "RELEASE CANDIDATE — BOUNDED SOURCE REVIEW",
   "scope": "Regulatory/screening source corrections only; no live screening, comprehensive jurisdiction survey or legal certification.",
   "date_semantics": "Null dates mean not established or no single applicable date; publication, effective, compliance and review dates are not interchangeable. READ means page/PDF retrieved; SEARCH_EXCERPT means only indexed primary-source text was inspected. UNAVAILABLE records failed access, not absence of a rule.",
   "sources": [

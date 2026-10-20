@@ -58,7 +58,7 @@ What did run, on the published tree: production-policy sync, the generated-tree 
 
 Four of the new KYC cases were smoke-run on a real host during development, on Claude Code **2.1.280**, and gave the expected disposition. Those runs are development checks, not release evidence: they were not on the pinned 2.1.278, not across the whole suite, and not recorded with hashed artefacts or a named reviewer.
 
-Run the eval suite before relying on this release in a supervised pilot, and record the result here.
+Run the eval suite before relying on this release in a supervised deployment, and record the result here.
 
 ## Baseline
 

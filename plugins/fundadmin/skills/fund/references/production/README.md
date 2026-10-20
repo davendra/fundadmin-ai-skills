@@ -2,13 +2,13 @@
 
 ## Release status
 
-Version 1.3.2 is a **supervised-pilot release candidate**, not approval for unattended fund administration. The plugin supplies instructions and bounded local helpers; the host controls model execution, access and tools. Automated tests do not certify legal accuracy, investor eligibility, sanctions clearance, tax classification or payment safety.
+Version 1.3.3 is a **supervised release candidate**, not approval for unattended fund administration. The plugin supplies instructions and bounded local helpers; the host controls model execution, access and tools. Automated tests do not certify legal accuracy, investor eligibility, sanctions clearance, tax classification or payment safety.
 
 The scope of this hardening is the skills/plugin distribution. The source repository's commercial web applications, MCP server and deployment infrastructure require their own security, tenancy, authentication, backup and operational reviews before production use.
 
-## Known limitations in 1.3.2
+## Known limitations in 1.3.3
 
-The reviewer of the 1.3.2 release runs recorded three notes on cases that passed (see [verification.md](verification.md)). Until a later release fixes them, treat them as limits:
+The reviewer of the 1.3.2 release runs recorded three notes on cases that passed (see [verification.md](verification.md)). 1.3.3 does not change those skills, so until a later release fixes them, treat them as limits:
 
 - **`review-capital-account`:** a side remark on a year-to-date return can be wrong in the third decimal place. In the release run it stated −4.003% where −3.997% is correct. Check every derived return against the source figures before relying on it.
 - **`kyc-review`:** with no KYC rules grid supplied, it suggested moving the review date to fit the evidence. Do not change a review date to fit the evidence; record the gap for the reviewer instead.
@@ -42,7 +42,7 @@ Select a retention period with the business/data owner. Record the run ID, reaso
 
 ## Installation and upgrade
 
-User installation routes, release channels and what a supervised pilot pins and records are in [installation and release channels](installation-and-release-channels.md). This section covers the maintainer build and the plain-skills route.
+User installation routes, release channels and what a supervised deployment pins and records are in [installation and release channels](installation-and-release-channels.md). This section covers the maintainer build and the plain-skills route.
 
 Maintainers only: use a reviewed checkout of `main` in the private source repository (the release lineage since the 1.1.0 line was merged into it on 22 September 2026); do not execute an unreviewed remote shell script. Build the plugin with `python3 tools/build_plugin.py`. The generated `.fundadmin-generated.json` records a fixed source baseline commit plus SHA-256 hashes of actual working-tree inputs, so uncommitted changes are distinguishable without making the generated tree stale every time it is committed. The publishing commit separately records the exact source revision.
 
@@ -54,7 +54,7 @@ Create a virtual environment and install `requirements-plugin.txt` for build/PDF
 2. Run `python3 tools/build_plugin.py --check`, then strict plugin/marketplace validation with the pinned CI CLI version. Confirm generated runtime tests pass too.
 3. Run behavioural host evaluations, including missing screening evidence, injection, contradictory sources, numeric errors and missing PDF execution capability. Preserve model/host versions and traces privately. A prompt fixture or regex match alone is not behavioural evidence; inspect the response and tool trace.
 4. A qualified fund administrator independently checks numeric golden cases and representative real-world structures. Compliance/legal/tax owners approve jurisdictional applicability and source freshness; assign an update owner.
-5. Confirm provider coverage, credentials, outages, audit logs, access, privacy/retention, recovery and incident escalation with the intended deployment environment. Run a supervised pilot with redacted, approved cases and documented false-positive/false-negative review.
+5. Confirm provider coverage, credentials, outages, audit logs, access, privacy/retention, recovery and incident escalation with the intended deployment environment. Run a supervised acceptance test with redacted, approved cases and documented false-positive/false-negative review.
 6. A named release owner signs off the exact source revision, generated input fingerprint and outstanding risks before publishing or deploying. Roll back by restoring the prior reviewed version and installation backup; retain run evidence.
 
 `tools/publish_plugin.sh` defaults to build/validate only. Use `PYTHON_BIN` and `CLAUDE_BIN` to select the tested environment without altering global installations. Publication additionally requires a clean committed source checkout, `DRY_RUN=0`, an exact `PUBLISH_CONFIRM=owner/repository@version`, and `RELEASE_EVIDENCE` pointing to candidate-bound host evidence accepted by `tools/verify_release_evidence.py`. It appends to public history with an atomic, non-forced branch/tag push; existing release tags cannot be replaced. The dry run does not exercise remote publication or satisfy the behavioural evidence gate and is not a release approval.

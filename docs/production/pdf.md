@@ -143,3 +143,40 @@ passed 32 tests without skips, including real CLI collision/symlink checks,
 cleanup checks. `git diff --check` also passed. Output-safety changes do not alter
 layout; their verification used rendering/extraction and filesystem checks, not
 a repeat of the earlier manual visual review.
+
+## Reusable Markdown fidelity checker
+
+Run the packaged read-only checker after rendering:
+
+```sh
+python3 scripts/fund_pdf_fidelity.py --markdown review.md --pdf review.pdf
+```
+
+It requires pypdf and returns JSON on stdout: source/PDF SHA-256 hashes, page and
+assessed-unit counts, mismatches with Markdown line numbers, and reconstructed
+table continuations. Exit 0 means all assessed source units matched; exit 1 means
+mismatches; exit 2 means an input, dependency or unsupported-format error (JSON on
+stderr). Save the output under a fresh workpaper name; the helper never writes to
+its inputs. A failed check must not be reported as a fidelity pass.
+
+The checker independently interprets the renderer's Markdown subset. It ignores
+layout whitespace and known generated footer spans only within the footer area.
+Case, punctuation, decimal points, percentages, currency, signs, comparison
+operators, qualifications and citation text remain significant. Prose occurrences
+are matched in source order. Tables are checked within their own rows and columns;
+repeated headers are recognised by content and column positions, and split cells
+are reconstructed across pages. No document-specific fragment exceptions are used.
+
+This is a source-content check, not an exact PDF diff: it does not reject arbitrary
+extra PDF prose, assess factual accuracy, or certify layout/accessibility. Whitespace
+normalisation cannot distinguish differences consisting solely of whitespace.
+It accepts Markdown, not structured JSON, and ordinary unrotated horizontal text.
+Tables need non-empty first-column row anchors and distinguishable column positions;
+unsupported layouts/glyphs can require manual investigation, never a silent pass.
+Encrypted, rotated and non-extractable PDFs fail closed. Continue visual review of
+all pages, especially table continuations and the final limitations/disclaimer.
+
+`tests/test_fund_pdf_fidelity.py` renders both valid and deliberately corrupted
+reports, including changed decimals, signs, operators, qualifiers, citations,
+missing repeated paragraphs, moved table values, continuations and footer literals.
+It is required by the offline production gate, which rejects dependency skips.

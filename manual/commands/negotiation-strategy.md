@@ -6,8 +6,6 @@ pageClass: commands
 
 <div class="cat-head"><img class="light-only" src="/images/icons/draft-light.svg" alt="" /><img class="dark-only" src="/images/icons/draft-dark.svg" alt="" /><span>6 of the <a href="/commands/">60 commands</a>. Type each as shown in Claude Code or Cowork; Codex users name the skill.</span></div>
 
-<img class="figure" src="/images/negotiation-strategy.webp" alt="Negotiating the terms: LPA terms placed on an LP-friendly to GP-favorable range, ranked counter-language P0 to P3, counsel brief" />
-
 ## `/fundadmin:fund lpa-negotiate <file>` {#lpa-negotiate}
 
 LPA negotiation strategy & redline suggestions
@@ -21,6 +19,10 @@ Turns LP-unfavorable LPA provisions into counter-proposal language, ranked P0 to
 | Codex | `$fund-lpa-negotiate <file>` |
 
 **Writes** `NEGOTIATION-STRATEGY-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-lpa-negotiate/SKILL.md)
+
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
 
 ## `/fundadmin:fund benchmark <file>` {#benchmark}
 
@@ -36,6 +38,12 @@ Lists departures from ILPA published positions as discussion points and shows th
 
 **Writes** `BENCHMARK-REPORT-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-benchmark/SKILL.md)
 
+**Dependencies and fallbacks**
+
+- **identified comparable terms dataset** — market percentiles or prevalence. If unavailable: label illustrative comparisons; empirical benchmarks unavailable.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund plain-english <file>` {#plain-english}
 
 Plain English translation of fund documents
@@ -49,6 +57,10 @@ Translates a fund document clause by clause into plain English: practical impact
 | Codex | `$fund-plain-english <file>` |
 
 **Writes** `PLAIN-ENGLISH-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-plain-english/SKILL.md)
+
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
 
 ## `/fundadmin:fund playbook <files>` {#playbook}
 
@@ -64,6 +76,10 @@ Tracks how a firm's LPA terms drift across fund vintages and builds a negotiatio
 
 **Writes** `TERMS-PLAYBOOK-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-playbook/SKILL.md)
 
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund search-precedent <query>` {#search-precedent}
 
 Search prior reviews for similar provisions & negotiation precedent
@@ -78,6 +94,10 @@ Searches prior review outputs for provisions matching a query, ranks matches by 
 
 **Writes** `PRECEDENT-SEARCH-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-search-precedent/SKILL.md)
 
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund counsel-handoff <review>` {#counsel-handoff}
 
 Package review analysis for external legal counsel
@@ -91,3 +111,7 @@ Packages an LPA, PPM or side letter review into a brief for external counsel: P0
 | Codex | `$fund-counsel-handoff <review>` |
 
 **Writes** `COUNSEL-HANDOFF-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-counsel-handoff/SKILL.md)
+
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)

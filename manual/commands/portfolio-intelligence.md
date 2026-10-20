@@ -6,8 +6,6 @@ pageClass: commands
 
 <div class="cat-head"><img class="light-only" src="/images/icons/analysis-light.svg" alt="" /><img class="dark-only" src="/images/icons/analysis-dark.svg" alt="" /><span>3 of the <a href="/commands/">60 commands</a>. Type each as shown in Claude Code or Cowork; Codex users name the skill.</span></div>
 
-<img class="figure" src="/images/portfolio-intelligence.webp" alt="Portfolio view: fund statements rolled into TVPI, DPI and unfunded tiles, and two statements reconciled line by line" />
-
 ## `/fundadmin:fund portfolio-dashboard <files>` {#portfolio-dashboard}
 
 Multi-fund aggregation from supplied statements
@@ -21,6 +19,10 @@ Aggregates several funds' supplied statements into one LP view: TVPI/DPI/RVPI, s
 | Codex | `$fund-portfolio-dashboard <files>` |
 
 **Writes** `PORTFOLIO-DASHBOARD-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-portfolio-dashboard/SKILL.md)
+
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
 
 ## `/fundadmin:fund reconcile <file1> <file2>` {#reconcile}
 
@@ -36,6 +38,12 @@ Matches two fund documents line by line (capital call vs capital account, distri
 
 **Writes** `RECONCILIATION-[fund]-[type]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-reconcile/SKILL.md)
 
+**Dependencies and fallbacks**
+
+- **openpyxl** — the .xlsx of the report's tables. If unavailable: CSV of the same tables.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund review-deed <file>` {#review-deed}
 
 Deed of adherence / equity wrapper review
@@ -49,3 +57,7 @@ Reviews a deed of adherence, equity wrapper, or management participation agreeme
 | Codex | `$fund-review-deed <file>` |
 
 **Writes** `DEED-REVIEW-[fund]-[type]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-review-deed/SKILL.md)
+
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)

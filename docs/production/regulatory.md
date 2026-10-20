@@ -1,4 +1,4 @@
-# Regulatory and screening hardening — pilot candidate
+# Regulatory and screening hardening — release candidate
 
 Reviewed on 21 September 2026. This is a bounded correction and evidence-validation implementation, not exhaustive legal certification, legal advice or production approval. Common generated policy is maintained by the main integration task; this document covers regulatory-specific behaviour and the screening adapter.
 

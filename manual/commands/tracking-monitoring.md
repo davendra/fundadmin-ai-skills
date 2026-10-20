@@ -6,8 +6,6 @@ pageClass: commands
 
 <div class="cat-head"><img class="light-only" src="/images/icons/tracking-light.svg" alt="" /><img class="dark-only" src="/images/icons/tracking-dark.svg" alt="" /><span>4 of the <a href="/commands/">60 commands</a>. Type each as shown in Claude Code or Cowork; Codex users name the skill.</span></div>
 
-<img class="figure" src="/images/tracking-monitoring.webp" alt="Tracking reports: side letters and a credit facility feed the MFN tracker, obligation list, covenant headroom and filing calendar, each written as a new dated report" />
-
 ## `/fundadmin:fund mfn-tracker <files>` {#mfn-tracker}
 
 MFN election tracking across side letters
@@ -21,6 +19,10 @@ Tracks MFN provisions across a fund's executed side letters, builds an eligibili
 | Codex | `$fund-mfn-tracker <files>` |
 
 **Writes** `MFN-TRACKER-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-mfn-tracker/SKILL.md)
+
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
 
 ## `/fundadmin:fund obligation-tracker <files>` {#obligation-tracker}
 
@@ -36,6 +38,12 @@ Inventories every side letter obligation by category, frequency and due date, re
 
 **Writes** `OBLIGATION-TRACKER-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-obligation-tracker/SKILL.md)
 
+**Dependencies and fallbacks**
+
+- **openpyxl** — the .xlsx of the report's tables. If unavailable: CSV of the same tables.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund covenant-monitor <file>` {#covenant-monitor}
 
 Covenant inventory, headroom recompute & threshold flags
@@ -50,6 +58,10 @@ Extracts financial, reporting and negative covenants from a credit facility and 
 
 **Writes** `COVENANT-MONITOR-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-covenant-monitor/SKILL.md)
 
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund regulatory-calendar <details>` {#regulatory-calendar}
 
 Regulatory filing calendar generation
@@ -63,3 +75,9 @@ Builds a 12-month filing calendar from fund type, registration and AUM, spanning
 | Codex | `$fund-regulatory-calendar <details>` |
 
 **Writes** `REGULATORY-CALENDAR-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-regulatory-calendar/SKILL.md)
+
+**Dependencies and fallbacks**
+
+- **current official authority evidence via host retrieval or supplied sources** — current jurisdiction-specific claims. If unavailable: unverified requirements remain UNKNOWN; no certification.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)

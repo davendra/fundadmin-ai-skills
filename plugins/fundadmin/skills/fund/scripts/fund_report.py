@@ -34,6 +34,109 @@ def required(ok, message):
         raise ReportInputError(message)
 
 
+# Third-party packages the optional helpers import, as (import name, distribution, what needs it).
+# The pinned versions are in the requirements file shipped beside scripts/.
+OPTIONAL_PACKAGES = (
+    ('reportlab', 'reportlab', 'PDF reports, generate_fund_pdf.py'),
+    ('openpyxl', 'openpyxl', 'Excel companions, fund_xlsx.py'),
+    ('yaml', 'PyYAML', 'YAML KYC rule grids, fund_kyc.py'),
+    ('pypdf', 'pypdf', 'PDF text extraction when the host cannot read a PDF'),
+)
+
+
+def requirements_file():
+    """The pinned requirements beside the helpers: requirements.txt when installed, the root file in a checkout."""
+    here = Path(__file__).resolve().parent.parent
+    for candidate in (here / 'requirements.txt', here / 'requirements-plugin.txt'):
+        if candidate.is_file():
+            return candidate
+    return None
+
+
+def in_virtualenv():
+    return sys.prefix != getattr(sys, 'base_prefix', sys.prefix)
+
+
+def install_command(venv_python=None):
+    """Install the pinned packages without touching system Python: into a given or running venv, or a new .venv."""
+    pinned = f'"{requirements_file() or "requirements-plugin.txt"}"'
+    if venv_python:
+        return f'"{venv_python}" -m pip install -r {pinned}'
+    if in_virtualenv():
+        return f'"{sys.executable}" -m pip install -r {pinned}'
+    return f'"{sys.executable}" -m venv .venv && .venv/bin/python -m pip install -r {pinned}'
+
+
+def missing_package(package, purpose):
+    then = '' if in_virtualenv() else ', then run the helpers with .venv/bin/python'
+    return (f'{package} is required for {purpose} but is not installed for {sys.executable}. '
+            f'Install the pinned packages without changing system Python: {install_command()}{then}')
+
+
+def probe_packages():
+    import importlib.util
+    from importlib import metadata
+
+    packages, missing = {}, []
+    for module, dist, purpose in OPTIONAL_PACKAGES:
+        if importlib.util.find_spec(module) is None:
+            packages[dist] = None
+            missing.append(f'{dist} ({purpose})')
+            continue
+        try:
+            packages[dist] = metadata.version(dist)
+        except metadata.PackageNotFoundError:
+            packages[dist] = 'installed, version unknown'
+    return packages, missing
+
+
+def probe_other_python(python):
+    """Run check-env under another interpreter; None unless it runs, is Python 3.9+ and is a virtual environment."""
+    import subprocess
+    # The child must not probe in turn: a .venv/bin/python that is not a real venv
+    # interpreter would otherwise start a new probe at every level.
+    env = dict(os.environ, FUNDADMIN_CHECK_ENV_NO_PROBE='1')
+    try:
+        done = subprocess.run([str(python), str(Path(__file__).resolve()), 'check-env'],
+                              capture_output=True, text=True, timeout=60, env=env)
+        other = json.loads(done.stdout)
+    except (OSError, subprocess.SubprocessError, ValueError):
+        return None
+    # A .venv/bin/python that is really the base interpreter would install into system Python.
+    ok = isinstance(other, dict) and other.get('python_ok') is True and other.get('in_virtualenv') is True
+    return other if ok else None
+
+
+def check_env(cwd=None):
+    """Report the interpreter, which optional packages it can import, and how to fix what is missing.
+
+    Missing packages never block the standard-library steps (new-run, validate, write-report);
+    they block only the PDF, Excel and YAML steps that need them.
+    """
+    packages, missing = probe_packages()
+    python_ok = sys.version_info >= (3, 9)
+    result = {'python': sys.executable, 'version': '.'.join(map(str, sys.version_info[:3])),
+              'python_ok': python_ok, 'in_virtualenv': in_virtualenv(), 'packages': packages,
+              'missing': missing, 'requirements': str(requirements_file() or ''),
+              'install': install_command() if missing else None,
+              'blocks': None if not missing else 'only the PDF, Excel and YAML steps; the evidence helpers need the standard library only'}
+    # A project .venv that is not the running environment: compare prefixes, because a venv's
+    # python is a symlink to the very interpreter it was made from. Suggest it only if it runs.
+    venv = Path(cwd or os.getcwd()) / '.venv'
+    probe = not os.environ.get('FUNDADMIN_CHECK_ENV_NO_PROBE')
+    if probe and missing and Path(sys.prefix).resolve() != venv.resolve():
+        for python in (venv / 'bin' / 'python', venv / 'Scripts' / 'python.exe'):
+            if python.is_file():
+                other = probe_other_python(python)
+                if other is not None:
+                    result['use_instead'] = str(python)
+                    result['use_instead_missing'] = other.get('missing', [])
+                    # Install into that venv; never recreate it over a different Python.
+                    result['install'] = install_command(python) if result['use_instead_missing'] else None
+                break
+    return result
+
+
 def slug(value, field='identifier'):
     if isinstance(value, str) and re.fullmatch(SLUG_RULE[1:-1], value):
         return value
@@ -187,11 +290,16 @@ def validate(report):
         required(type(source.get('size_bytes')) is int and source['size_bytes'] >= 0,
                  f'{where}.size_bytes must be a non-negative integer')
     findings = set()
+    normalised = []
     unknown = False
     for i, finding in enumerate(report['findings']):
         where = f'findings[{i}]'
         required(isinstance(finding, dict), f'{where} must be an object')
-        fid = slug(finding.get('id'), f'{where}.id (finding id)')
+        fid = finding.get('id')
+        if isinstance(fid, str) and fid.isascii():
+            # Agents write ids such as TRM-01: accept them and keep the lowercase form.
+            fid = fid.lower()
+        fid = slug(fid, f'{where}.id (finding id)')
         required(fid not in findings, f'{where}.id repeats an earlier finding id')
         findings.add(fid)
         kind = finding.get('kind')
@@ -220,6 +328,7 @@ def validate(report):
         if kind == 'UNKNOWN':
             unknown = True
             required('result' not in finding, f'{where}: an UNKNOWN finding cannot carry a result')
+        normalised.append(dict(finding, id=fid))
     required(not (report['status'] == 'READY_FOR_REVIEW' and (unknown or report['checks_not_performed'])),
              'status READY_FOR_REVIEW is not allowed with UNKNOWN findings or checks_not_performed; use PARTIAL')
     if 'human_decision' in report:
@@ -233,11 +342,12 @@ def validate(report):
         raise ReportInputError('Report contains a non-finite number (NaN or Infinity)') from None
     except TypeError:
         raise ReportInputError('Report contains a value that is not plain JSON') from None
-    return report
+    # A copy with normalised finding ids; the caller's object is never changed.
+    return dict(report, findings=normalised)
 
 
 def write_report(run, folder, filename, report, markdown):
-    validate(report)
+    report = validate(report)
     run = no_symlinks(run)
     manifest = load(no_symlinks(run / 'run.json'))
     required(manifest.get('schema_version') == VERSION and manifest.get('run_id') == run.name, 'Invalid run manifest')
@@ -319,6 +429,7 @@ def write_companion(report_path, spec_path, fmt):
 def main():
     p = argparse.ArgumentParser(description=__doc__)
     commands = p.add_subparsers(dest='command', required=True)
+    commands.add_parser('check-env', help='Show this Python, which optional packages it has, and the install command')
     name = commands.add_parser('slug', help='Derive a safe fund label without creating files')
     name.add_argument('--name', required=True)
     filename = commands.add_parser('filename', help='Derive a safe Markdown basename without creating files')
@@ -345,6 +456,10 @@ def main():
     companion.add_argument('--format', choices=['xlsx', 'csv'], default='xlsx')
     args = p.parse_args()
     try:
+        if args.command == 'check-env':
+            result = check_env()
+            print(json.dumps(result, indent=2))
+            return 0 if result['python_ok'] else 1
         if args.command == 'slug':
             print(safe_slug(args.name))
         elif args.command == 'filename':

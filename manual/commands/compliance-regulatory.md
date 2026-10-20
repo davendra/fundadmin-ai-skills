@@ -20,6 +20,12 @@ Reviews a document for evidence gaps against FATCA, CRS, AML/KYC, ERISA, Form PF
 
 **Writes** `COMPLIANCE-REVIEW-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-check-compliance/SKILL.md)
 
+**Dependencies and fallbacks**
+
+- **current official authority evidence via host retrieval or supplied sources** — current jurisdiction-specific claims. If unavailable: unverified requirements remain UNKNOWN; no certification.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund kyc-review <file>` {#kyc-review}
 
 KYC/AML file review, routed by the firm's rules grid
@@ -34,6 +40,14 @@ Reviews one investor KYC/AML package: extracts a structured record, applies the 
 
 **Writes** `KYC-REVIEW-[fund]-[investor]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-kyc-review/SKILL.md)
 
+**Dependencies and fallbacks**
+
+- **authorised identity/beneficial-owner and screening evidence sources** — external verification. If unavailable: document completeness review; verification NOT PERFORMED.
+- **firm KYC rules grid** — rule outcomes and a disposition other than HOLD. If unavailable: nothing evaluated; disposition HOLD.
+- **openpyxl** — the .xlsx companion. If unavailable: CSV companion.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund regulatory-filing <type>` {#regulatory-filing}
 
 Filing draft prep (Form PF/D/ADV) — no submission
@@ -47,3 +61,9 @@ Prepares a filing draft for Form PF/D/ADV, 13F/13H, FATCA/CRS or FBAR: extracts 
 | Codex | `$fund-regulatory-filing <type>` |
 
 **Writes** `FILING-PREP-[fund]-[type]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-regulatory-filing/SKILL.md)
+
+**Dependencies and fallbacks**
+
+- **current official filing instructions and authorised filing system** — current filing checks and any separately authorised submission. If unavailable: draft filing preparation only; submission NOT PERFORMED.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)

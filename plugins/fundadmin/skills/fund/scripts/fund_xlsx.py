@@ -177,8 +177,14 @@ def render_xlsx(spec) -> bytes:
         from openpyxl.styles import Alignment, Font, PatternFill
         from openpyxl.utils import get_column_letter
     except ImportError:
-        raise RuntimeError('openpyxl is not installed; no workbook was generated. '
-                           'Install it (pip3 install openpyxl) or re-run with --format csv.') from None
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        try:
+            from fund_report import install_command  # same directory, shipped together
+            fix = install_command()
+        except ImportError:  # copied without its siblings
+            fix = 'the pinned requirements in a virtual environment'
+        raise RuntimeError(f'openpyxl is not installed for {sys.executable}; no workbook was generated. '
+                           f'Install the pinned packages ({fix}) or re-run with --format csv.') from None
 
     def put(ws, row, column, value, number_format=None):
         cell = ws.cell(row=row, column=column, value=value)

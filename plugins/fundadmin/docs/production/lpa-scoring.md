@@ -53,3 +53,22 @@ Omit `--input` or pass `--input -` to read stdin. JSON goes to stdout; validatio
 ```
 
 This yields 70.83 favourability and 90% coverage. Only the four named dimensions are accepted; recommendations are rejected as an input. Unknown fields, duplicate keys, booleans, numeric strings, non-finite numbers, out-of-range values and empty evidence references are errors. `coverage` may be omitted or null. Retain the exact input and output JSON alongside the report under collision-safe names for audit.
+
+### Numeric precision
+
+The CLI parses JSON decimal numbers directly as `Decimal`, then uses exact
+rational arithmetic through risk conversion, weighting and aggregation. Only
+reported results are rounded to two decimal places, half up; echoed input values
+remain JSON numbers with their supplied decimal precision. A value just below a
+rounding boundary must not become the boundary through binary-float conversion.
+For example, with all other contributions zero, terms
+`0.019999999999999999999999999999999999` contributes `0.00`, whereas `0.02`
+contributes `0.01`.
+
+Python callers may supply `Decimal`, integer or float values. Use `Decimal` for
+exact inputs: precision already lost by an upstream float conversion cannot be
+recovered. Means must retain their available precision before reaching this
+helper; it cannot recover an already rounded mean. Decimal dimension inputs are
+limited to 1,000 significant digits and an absolute exponent of 1,000. Numeric
+strings remain invalid, and coverage counts must remain integers. The helper's
+`json_result` serialises its Decimal-bearing results without float conversion.

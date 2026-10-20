@@ -6,8 +6,6 @@ pageClass: commands
 
 <div class="cat-head"><img class="light-only" src="/images/icons/analysis-light.svg" alt="" /><img class="dark-only" src="/images/icons/analysis-dark.svg" alt="" /><span>4 of the <a href="/commands/">60 commands</a>. Type each as shown in Claude Code or Cowork; Codex users name the skill.</span></div>
 
-<img class="figure" src="/images/advanced.webp" alt="Across documents: LPA, side letters and amendment cross-referenced, conflicts flagged, the waterfall simulated as code" />
-
 ## `/fundadmin:fund multi-doc-analyze <files>` {#multi-doc-analyze}
 
 Multi-document cross-reference analysis
@@ -21,6 +19,10 @@ Cross-references 2+ related fund documents for provision conflicts, amendment li
 | Codex | `$fund-multi-doc-analyze <files>` |
 
 **Writes** `MULTI-DOC-ANALYSIS-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-multi-doc-analyze/SKILL.md)
+
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
 
 ## `/fundadmin:fund smart-contract-sim <file>` {#smart-contract-sim}
 
@@ -36,6 +38,10 @@ Runs the packaged whole-fund waterfall helper on user-supplied scenarios: tier t
 
 **Writes** `WATERFALL-SIM-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-smart-contract-sim/SKILL.md)
 
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund chat` {#chat}
 
 Conversational fund administration query
@@ -50,6 +56,10 @@ Conversational query interface over fund documents and prior `/fund` outputs, an
 
 [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-chat/SKILL.md)
 
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund amendment-draft <file>` {#amendment-draft}
 
 LPA amendment drafting (side letters: draft-side-letter)
@@ -63,3 +73,7 @@ Drafts a formatted LPA amendment with recitals, amendment clauses, ratification,
 | Codex | `$fund-amendment-draft <file>` |
 
 **Writes** `AMENDMENT-DRAFT-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-amendment-draft/SKILL.md)
+
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)

@@ -4,7 +4,7 @@
 </p>
 
 <p align="center">
-<a href="https://github.com/davendra/fundadmin-ai-skills/releases"><img alt="version: 1.3.2" src="https://img.shields.io/badge/version-1.3.2-1a365d?style=flat-square&labelColor=0E1B2E"></a> <a href="https://github.com/davendra/fundadmin-ai-skills/blob/main/LICENSE"><img alt="license: MIT" src="https://img.shields.io/badge/license-MIT-0d9488?style=flat-square&labelColor=0E1B2E"></a> <a href="#all-60-commands"><img alt="skills: 60" src="https://img.shields.io/badge/skills-60-1a365d?style=flat-square&labelColor=0E1B2E"></a> <a href="#the-5-agents"><img alt="agents: 5" src="https://img.shields.io/badge/agents-5-1a365d?style=flat-square&labelColor=0E1B2E"></a> <a href="https://github.com/davendra/fundadmin-ai-skills/actions/workflows/validate.yml"><img alt="Validate plugin" src="https://github.com/davendra/fundadmin-ai-skills/actions/workflows/validate.yml/badge.svg"></a>
+<a href="https://github.com/davendra/fundadmin-ai-skills/releases"><img alt="version: 1.3.3" src="https://img.shields.io/badge/version-1.3.3-1a365d?style=flat-square&labelColor=0E1B2E"></a> <a href="https://github.com/davendra/fundadmin-ai-skills/blob/main/LICENSE"><img alt="license: MIT" src="https://img.shields.io/badge/license-MIT-0d9488?style=flat-square&labelColor=0E1B2E"></a> <a href="#all-60-commands"><img alt="skills: 60" src="https://img.shields.io/badge/skills-60-1a365d?style=flat-square&labelColor=0E1B2E"></a> <a href="#the-5-agents"><img alt="agents: 5" src="https://img.shields.io/badge/agents-5-1a365d?style=flat-square&labelColor=0E1B2E"></a> <a href="https://github.com/davendra/fundadmin-ai-skills/actions/workflows/validate.yml"><img alt="Validate plugin" src="https://github.com/davendra/fundadmin-ai-skills/actions/workflows/validate.yml/badge.svg"></a>
 <br>
 <a href="#claude-code"><img alt="Claude Code: plugin" src="https://img.shields.io/badge/Claude%20Code-plugin-0d9488?style=flat-square&labelColor=0E1B2E"></a> <a href="#claude-cowork"><img alt="Claude Cowork: plugin" src="https://img.shields.io/badge/Claude%20Cowork-plugin-0d9488?style=flat-square&labelColor=0E1B2E"></a> <a href="#codex"><img alt="Codex: plugin" src="https://img.shields.io/badge/Codex-plugin-0d9488?style=flat-square&labelColor=0E1B2E"></a> <a href="AGENTS.md"><img alt="for AI agents: AGENTS.md" src="https://img.shields.io/badge/for%20AI%20agents-AGENTS.md-5B6472?style=flat-square&labelColor=0E1B2E"></a>
 </p>
@@ -22,9 +22,9 @@
 
 # FundAdmin Skills
 
-**60 fund administration skills plus the fund menu for Claude Code, Cowork and Codex. Review documents, prepare drafts and evidence-linked calculations for human review. Python 3.9+ is required for report helpers; external checks depend on authorised tools and evidence. Not certified for production operations or automated investment, admission, clearance, filing or payment decisions.**
+**61 fund administration skills for Claude Code, Cowork and Codex: 60 commands plus the fund menu. Review documents, prepare drafts and evidence-linked calculations for human review. Python 3.9+ runs the report helpers; PDF and Excel output need the pinned packages in skills/fund/requirements.txt. External checks depend on authorised tools and evidence. Not certified for production operations or automated investment, admission, clearance, filing or payment decisions.**
 
-Version **1.3.2 is not certified production software**. The plugin supplies review/draft workflows and local helpers to your AI host. Host/model access and permissions are required; optional connectors may need separate credentials. Reports use isolated directories under an approved output root, never beside input files.
+Version **1.3.3 is not certified production software**. The plugin supplies review/draft workflows and local helpers to your AI host. Host/model access and permissions are required; optional connectors may need separate credentials. Reports use isolated directories under an approved output root, never beside input files.
 
 Check that the installed version matches this release before use: `claude plugin details fundadmin@fundadmin-ai-skills` shows it.
 
@@ -46,7 +46,7 @@ Use the full plugin for fund-document reviews: skills, agent definitions, refere
 Recommended for individual use.
 
 ```bash
-claude plugin marketplace add https://github.com/davendra/fundadmin-ai-skills.git#fundadmin--v1.3.2 --scope project
+claude plugin marketplace add https://github.com/davendra/fundadmin-ai-skills.git#fundadmin--v1.3.3 --scope project
 claude plugin install fundadmin@fundadmin-ai-skills --scope project
 ```
 
@@ -62,7 +62,7 @@ In a workspace, an administrator imports the marketplace once and sets the polic
 
 1. Open **Admin → Plugins → Add → Import marketplace**.
 2. Enter `https://github.com/davendra/fundadmin-ai-skills`.
-3. Select the reviewed immutable release tag, `fundadmin--v1.3.2`, rather than a branch.
+3. Select the reviewed immutable release tag, `fundadmin--v1.3.3`, rather than a branch.
 4. Review what that tag contains: the skills, the agents, the bundled references and `catalog.json`.
 5. Set the installation policy for the team.
 6. Keep access, data handling and any connected-app permissions under administrator control.
@@ -72,13 +72,13 @@ Pin the tag, not a branch. A tag names one fixed set of bytes that cannot change
 Outside a managed workspace, the Codex CLI installs the same plugin:
 
 ```bash
-codex plugin marketplace add davendra/fundadmin-ai-skills --ref fundadmin--v1.3.2
+codex plugin marketplace add davendra/fundadmin-ai-skills --ref fundadmin--v1.3.3
 codex plugin add fundadmin@fundadmin-ai-skills
 ```
 
 ### ChatGPT cloud — Personal upload
 
-If your account exposes **Plugins → Add → Upload plugin archive**, upload the [standalone ChatGPT ZIP](https://github.com/davendra/fundadmin-ai-skills/releases/download/fundadmin--v1.3.2/fundadmin-ai-chatgpt-1.3.2.zip), confirm version 1.3.2 and 61 skills, then install. This is a personal cloud copy, not an OpenAI public-directory listing or a Work upgrade. Follow the [cloud helper check](https://help.fundadmin.dev/guide/install#chatgpt-cloud-personal-upload): instructions can load without mounting Python scripts, so attach and verify the same released bundle in the review task if needed. Keep administrator policy in place for managed workspaces.
+If your account exposes **Plugins → Add → Upload plugin archive**, upload the [standalone ChatGPT ZIP](https://github.com/davendra/fundadmin-ai-skills/releases/download/fundadmin--v1.3.3/fundadmin-ai-chatgpt-1.3.3.zip), confirm version 1.3.3 and 61 skills, then install. This is a personal cloud copy, not an OpenAI public-directory listing or a Work upgrade. Follow the [cloud helper check](https://help.fundadmin.dev/guide/install#chatgpt-cloud-personal-upload): instructions can load without mounting Python scripts, so attach and verify the same released bundle in the review task if needed. Keep administrator policy in place for managed workspaces.
 
 ### Other agents — Developer compatibility only
 
@@ -399,7 +399,7 @@ This repository is written to be read by agents as well as people:
 
 ## Requirements
 
-- **Required:** a supported AI host with authorised document and filesystem access, and Python 3.9+ for the seven packaged helpers: `fund_report.py`, `fund_lpa_score.py`, `fund_calculations.py`, `fund_screening.py` and `fund_kyc.py` (standard library only), `fund_xlsx.py` (needs `openpyxl` for `.xlsx`; CSV otherwise) and `generate_fund_pdf.py` (needs the pinned `requirements-plugin.txt` environment).
+- **Required:** a supported AI host with authorised document and filesystem access, and Python 3.9+ for the 8 packaged helpers: `generate_fund_pdf.py`, `fund_calculations.py`, `fund_kyc.py`, `fund_lpa_score.py`, `fund_pdf_fidelity.py`, `fund_report.py`, `fund_screening.py`, `fund_xlsx.py`. Report, scoring, calculation, screening and KYC helpers use the standard library. `fund_xlsx.py` needs `openpyxl` for `.xlsx` (CSV otherwise); `generate_fund_pdf.py` needs `reportlab`, and `fund_pdf_fidelity.py` needs `pypdf`. Use the pinned `requirements-plugin.txt` environment for PDF rendering and text fidelity checks.
 - **Report contract v1:** read the [runtime policy](plugins/fundadmin/skills/fund/references/production-policy.md) and [evidence/run contract](plugins/fundadmin/skills/fund/references/report-contract.md) for direct and routed invocation alike. Use `fund_report.py new-run` and `write-report`; preserve source IDs, SHA-256 hashes, citations, assumptions, checks not performed and human-review requirements. Structural validation and hashes do not prove authenticity or accuracy. Without the required helper, provide only an UNVERIFIED chat draft and disclose that no audited report was saved.
 - **Optional PDF dependencies:** [requirements-plugin.txt](requirements-plugin.txt) pins the PDF/build test environment; install with `python3 -m pip install -r requirements-plugin.txt`. Rendering checks do not qualify the report's conclusions.
 - **Integrations:** mailbox retrieval needs an authorised read-only email connector; supplied email can be reviewed without mailbox access. Live screening needs current authorised provider evidence; a local screening helper does not perform a provider search. Current regulatory claims need identified official sources. Missing dependencies are NOT PERFORMED or UNKNOWN, never simulated success.

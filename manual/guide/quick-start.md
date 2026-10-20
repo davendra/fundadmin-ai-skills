@@ -1,11 +1,11 @@
 # Quick start
 
-<img class="figure" src="/images/quick-start.webp" alt="Your first run: install the plugin, review a sample LPA, read the scored report" />
+Start with synthetic documents in an approved host. You need Python 3.9+ and permission to read inputs and write to your approved output folder for saved reports. See [host support](/guide/release) and [requirements](/guide/install#requirements).
 
 You need the plugin [installed](/guide/install) and a fund document. If you do not have one to hand, the plugin repository ships [24 synthetic samples](/guide/samples):
 
 ```bash
-git clone --branch fundadmin--v1.3.2 --depth 1 https://github.com/davendra/fundadmin-ai-skills.git
+git clone --branch fundadmin--v1.3.3 --depth 1 https://github.com/davendra/fundadmin-ai-skills.git
 cd fundadmin-ai-skills
 ```
 
@@ -25,13 +25,13 @@ It lists every command with its arguments. Any command can be typed straight aft
 /fundadmin:fund review-lpa samples/OBRELUND-LPA-QUICKSTART.pdf
 ```
 
-The flagship. Five specialist agents review the agreement and draft findings that cite their clauses; the sample carries 10 planted issues. A full review takes a while and depends on your host, so start it and come back. See [the agents](/agents) for what happens in between.
+The flagship. Five specialist prompts review the agreement and draft findings that cite their clauses; the sample carries 10 planted issues. The host may use subagents or run the prompts inline. Supply the requested regulatory context; without it, compliance and the aggregate score remain unavailable. See [the agents](/agents) for what happens in between.
 
 ```text
 /fundadmin:fund review-capital-call samples/OBRELUND-CAPITAL-CALL-1.pdf
 ```
 
-Checks the arithmetic, the deadline and the wire instructions against the LPA terms.
+Checks the arithmetic and flags deadline or wire questions. Supply the governing LPA and an independently trusted record of the existing bank details for comparisons; the notice alone cannot verify either.
 
 ```text
 /fundadmin:fund wire-verify samples/email-wire-change-suspicious.md
@@ -73,12 +73,12 @@ In cloud Chat mode, export the complete run as an audit ZIP and download it befo
 
 ## Where the output went
 
-Each skill writes a markdown file under shared contract v1 (isolated run under the approved output root):
+With the report helper and write access available, each skill writes a Markdown file under shared contract v1 (isolated run under the approved output root):
 
 ```text
 reviews/
 └── obrelund-capital-partners-fund-iii/
-    └── 2026-09-21/
+    └── <review-date>/
         └── <run-id>/
             ├── run.json
             ├── reports/<report-id>/   LPA-REVIEW-…, CAPITAL-CALL-REVIEW-…
@@ -86,6 +86,8 @@ reviews/
 ```
 
 Later skills build on earlier output: `report-pdf` turns a review into a PDF, `counsel-handoff` packages it for external counsel, `search-precedent` finds comparable terms across past reviews. The full list of folders and filename families is on the [output files](/guide/outputs) page.
+
+Without the helper, expect an **UNVERIFIED chat draft**. Check any `PARTIAL` or `BLOCKED` status before continuing. PDF export requires the pinned PDF dependencies; it is reported as NOT PERFORMED when unavailable.
 
 ## Next
 

@@ -1,0 +1,9 @@
+# Reproducible plugin build/PDF test environment (Python 3.9+).
+PyYAML==6.0.3
+reportlab==5.0.1
+pypdf==6.19.0
+pillow==11.3.0
+charset-normalizer==3.5.1
+typing-extensions==4.16.0
+openpyxl==3.1.5
+et-xmlfile==2.0.0

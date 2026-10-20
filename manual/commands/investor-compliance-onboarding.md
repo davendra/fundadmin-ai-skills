@@ -20,6 +20,12 @@ Drafts a preliminary investor classification from supplied documents, with the d
 
 **Writes** `INVESTOR-CLASSIFICATION-[fund]-[investor]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-investor-classify/SKILL.md)
 
+**Dependencies and fallbacks**
+
+- **current official authority evidence via host retrieval or supplied sources** — current jurisdiction-specific claims. If unavailable: unverified requirements remain UNKNOWN; no certification.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund fatca-crs-classify <file>` {#fatca-crs-classify}
 
 Draft FATCA/CRS classification & tax form gaps
@@ -33,6 +39,12 @@ Reviews W-8, W-9 and CRS self-certifications into a preliminary FATCA Chapter 3/
 | Codex | `$fund-fatca-crs-classify <file>` |
 
 **Writes** `FATCA-CRS-CLASSIFICATION-[fund]-[investor]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-fatca-crs-classify/SKILL.md)
+
+**Dependencies and fallbacks**
+
+- **current official authority evidence via host retrieval or supplied sources** — current jurisdiction-specific claims. If unavailable: unverified requirements remain UNKNOWN; no certification.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
 
 ## `/fundadmin:fund suitability-check <file>` {#suitability-check}
 
@@ -48,6 +60,12 @@ Reviews evidence for the accredited investor, qualified purchaser and qualified 
 
 **Writes** `SUITABILITY-CHECK-[fund]-[investor]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-suitability-check/SKILL.md)
 
+**Dependencies and fallbacks**
+
+- **current official authority evidence via host retrieval or supplied sources** — current jurisdiction-specific claims. If unavailable: unverified requirements remain UNKNOWN; no certification.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund aml-screen <file>` {#aml-screen}
 
 AML evidence review; screening only via an approved provider connector; no clearance
@@ -61,6 +79,14 @@ Reviews supplied AML/CFT evidence: identity, ownership, PEP/sanctions records an
 | Codex | `$fund-aml-screen <file>` |
 
 **Writes** `AML-SCREENING-[fund]-[investor]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-aml-screen/SKILL.md)
+
+**Dependencies and fallbacks**
+
+- **authorised current sanctions/PEP/adverse-media evidence source** — external screening checks. If unavailable: document review only; screening NOT PERFORMED.
+- **approved screening provider connector (for example mcp__screening__*)** — running screening checks from the session, with the user's authorisation to send subject data. If unavailable: supplied provider evidence only; otherwise screening NOT PERFORMED.
+- **firm KYC rules grid** — rule outcomes and a disposition other than HOLD. If unavailable: nothing evaluated; disposition HOLD.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
 
 ## `/fundadmin:fund kyc-tracker <files>` {#kyc-tracker}
 
@@ -76,6 +102,13 @@ Tracks KYC collection across every investor in a fund: per-investor completeness
 
 **Writes** `KYC-TRACKER-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-kyc-tracker/SKILL.md)
 
+**Dependencies and fallbacks**
+
+- **firm KYC rules grid** — required documents, refresh cycles and per-investor dispositions. If unavailable: collection tracking only; dispositions HOLD.
+- **openpyxl** — the .xlsx tracker. If unavailable: CSV tracker.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund subscription-process <file>` {#subscription-process}
 
 Subscription evidence pipeline — classify to human review
@@ -89,3 +122,9 @@ Coordinates the classification, documents, suitability, FATCA/CRS and screening 
 | Codex | `$fund-subscription-process <file>` |
 
 **Writes** `SUBSCRIPTION-PROCESS-[fund]-[investor]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-subscription-process/SKILL.md)
+
+**Dependencies and fallbacks**
+
+- **identity and screening sources used by dependent checks** — external verification stages. If unavailable: PARTIAL or BLOCKED review; no admission decision.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)

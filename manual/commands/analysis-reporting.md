@@ -6,8 +6,6 @@ pageClass: commands
 
 <div class="cat-head"><img class="light-only" src="/images/icons/analysis-light.svg" alt="" /><img class="dark-only" src="/images/icons/analysis-dark.svg" alt="" /><span>3 of the <a href="/commands/">60 commands</a>. Type each as shown in Claude Code or Cowork; Codex users name the skill.</span></div>
 
-<img class="figure" src="/images/analysis-reporting.webp" alt="From review to report: review markdown, audit support pack and waterfall check, formatted PDF report" />
-
 ## `/fundadmin:fund audit-support <file>` {#audit-support}
 
 Draft management rep letter, confirmation list & schedules
@@ -21,6 +19,10 @@ Drafts an audit support pack: representation letter draft, confirmation populati
 | Codex | `$fund-audit-support <file>` |
 
 **Writes** `AUDIT-SUPPORT-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-audit-support/SKILL.md)
+
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
 
 ## `/fundadmin:fund waterfall-review <file>` {#waterfall-review}
 
@@ -36,6 +38,12 @@ Extracts waterfall tiers, preferred return, catch-up, carry, clawback and fee te
 
 **Writes** `WATERFALL-REVIEW-[fund]-[date].md` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-waterfall-review/SKILL.md)
 
+**Dependencies and fallbacks**
+
+- **openpyxl** — the .xlsx of the report's tables. If unavailable: CSV of the same tables.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
+
 ## `/fundadmin:fund report-pdf` {#report-pdf}
 
 PDF of validated report, tables, findings and limitations
@@ -49,3 +57,7 @@ Renders fund review Markdown or structured JSON into a formatted PDF, preserving
 | Codex | `$fund-report-pdf` |
 
 **Writes** `FUND-REVIEW-REPORT.pdf` · [Skill source](https://github.com/davendra/fundadmin-ai-skills/blob/main/plugins/fundadmin/skills/fund-report-pdf/SKILL.md)
+
+Uses the host's approved file access and the packaged helpers where required.
+
+Saved outputs require the report helper and an approved output folder. Otherwise, the result is an UNVERIFIED chat draft. [Output contract](/guide/outputs) · [Host support](/guide/release)
